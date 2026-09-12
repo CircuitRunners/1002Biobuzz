@@ -6,7 +6,7 @@ import org.firstinspires.ftc.teamcode.subsystems.MecanumDrive;
 
 //@Disabled
 @TeleOp(name = "Mecanum Robot Centric")
-public class MecanumDriveTeleOp extends OpMode {
+public class DriveRobotCentric extends OpMode {
     private MecanumDrive drive;
     private double speedMultiply = 0.5;
     @Override
