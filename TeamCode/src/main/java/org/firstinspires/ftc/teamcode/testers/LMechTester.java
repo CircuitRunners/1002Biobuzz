@@ -1,62 +1,77 @@
 package org.firstinspires.ftc.teamcode.testers;
 
+import com.pedropathing.drivetrain.DrivePowers;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.follower.ManualDrive;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.seattlesolvers.solverslib.gamepad.GamepadEx;
+import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
-@TeleOp(name="LMechTester")
+import org.firstinspires.ftc.teamcode.pedro.Constants;
+
+@TeleOp(name="LMechTester", group="TESTING")
 public class LMechTester extends OpMode {
-    private Servo servo1;
-    private Servo servo2;
-    private DcMotorEx motorLeft;
-    private DcMotorEx motorRight;
+    private Servo lockingServo;
+    private GamepadEx gamepad;
+    private Follower follower;
+    boolean locked = false;
+    boolean fieldCentric = true;
+    double lockedPos = 0.0;
+    double unlockedPos = 0.63;
     @Override
     public void init() {
-       servo1 = hardwareMap.get(Servo.class, "servo1");
-       servo2 = hardwareMap.get(Servo.class, "servo2");
-       motorLeft = hardwareMap.get(DcMotorEx.class, "motorLeft");
-       motorRight = hardwareMap.get(DcMotorEx.class, "motorLeft");
-       telemetry.addLine("Ready");
-       telemetry.update();
+        telemetry.addLine("Initializing...");
+        telemetry.update();
+
+        lockingServo = hardwareMap.get(Servo.class, "lockingServo");
+        follower = Constants.create(hardwareMap);
+        gamepad = new GamepadEx(gamepad1);
+
+        telemetry.addLine("Ready");
+        telemetry.update();
     }
 
     @Override
     public void loop() {
-        double RSU = 0;
-        double RSL = 0;
-        double LSU = 0;
-        double LSL = 0;
-        if (gamepad1.dpad_up) {
-            LSU +=1;
-            LSL +=1;
+        gamepad.readButtons();
+
+        if (gamepad.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) fieldCentric = !fieldCentric;
+        if (gamepad.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) locked = !locked;
+
+        if (locked) {
+            if (gamepad.wasJustPressed(GamepadKeys.Button.DPAD_UP)) lockedPos+=0.01;
+            if (gamepad.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) lockedPos-=0.01;
+            lockingServo.setPosition(lockedPos);
         }
-        if (gamepad1.dpad_right) {
-            RSU +=1;
-            RSL +=1;
+        if (!locked) {
+            if (gamepad.wasJustPressed(GamepadKeys.Button.DPAD_UP)) unlockedPos+=0.01;
+            if (gamepad.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) unlockedPos-=0.01;
+            lockingServo.setPosition(unlockedPos);
         }
-        if (gamepad1.dpad_down) {
-            LSU -= 1;
-            LSL -= 1;
+
+        if (fieldCentric) {
+            DrivePowers powers = ManualDrive.fieldCentric(
+                    -gamepad1.left_stick_y,
+                    gamepad1.left_stick_x,
+                    gamepad1.right_stick_x,
+                    follower.pose().heading());
+            follower.manual(powers);
+        } else {
+            follower.manual(
+                    -gamepad1.left_stick_y,
+                    gamepad1.left_stick_x,
+                    gamepad1.right_stick_x
+            );
         }
-        if (gamepad1.dpad_left) {
-            RSU -=1;
-            RSL -=1;
-        }
-        if (gamepad1.a) {
-            servo1.setPosition(LSU);
-            servo2.setPosition(RSU);
-            telemetry.addLine("Unlocked");
-        }
-        if (gamepad1.b) {
-            servo1.setPosition(LSL);
-            servo2.setPosition(RSL);
-            telemetry.addLine("Locked");
-        }
-        telemetry.addData("Unlocked Position Right", RSU);
-        telemetry.addData("Unlocked Position Left", LSU);
-        telemetry.addData("Locked Position Right", RSL);
-        telemetry.addData("Locked Position Left", LSL);
+
+
+        telemetry.addData("Unlocked Position", unlockedPos);
+        telemetry.addData("Locked Position", lockedPos);
+        telemetry.addData("Locked?", locked);
+        telemetry.addData("Field Centric?", fieldCentric);
         telemetry.update();
     }
 }
