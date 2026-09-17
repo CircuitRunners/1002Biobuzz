@@ -7,20 +7,19 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.subsystems.LockingMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDrive;
 
 @TeleOp(name = "LMecTester", group = "TESTING")
 public class LMecTester extends OpMode {
     private Servo lockingServo;
-    private MecanumDrive drive;
+    private LockingMecanumDrive drive;
     private boolean lastLeftBumper = false;
     private boolean lastRightBumper = false;
     private boolean lastDpadUp = false;
     private boolean lastDpadDown = false;
     private boolean locked = false;
     private boolean fieldCentric = true;
-    private double lockedPos = 0.63;
-    private double unlockedPos = 0.1;
     private TelemetryManager panelsTelemetry =
             PanelsTelemetry.INSTANCE.getTelemetry();
     @Override
@@ -30,7 +29,9 @@ public class LMecTester extends OpMode {
         // Servo
         lockingServo = hardwareMap.get(Servo.class, "lockingServo");
         // Mecanum drive
-        drive = new MecanumDrive(hardwareMap);
+        drive = new LockingMecanumDrive(hardwareMap);
+        drive.unlock();
+
         telemetry.addLine("Ready");
         telemetry.update();
     }
@@ -40,6 +41,19 @@ public class LMecTester extends OpMode {
         Gamepad g1 = PanelsGamepad.INSTANCE
                 .getFirstManager()
                 .asCombinedFTCGamepad(gamepad1);
+
+        /*
+         * Mecanum Drive
+         *
+         * Same drive method as your original Panels class.
+         */
+
+        double forward = -g1.left_stick_y;
+        double strafe = g1.left_stick_x;
+        double rotate = g1.right_stick_x;
+
+        drive.drive(forward, strafe, rotate);
+
         /*
          * Button press detection
          */
@@ -54,37 +68,22 @@ public class LMecTester extends OpMode {
          */
         if (locked) {
             if (g1.dpad_up && !lastDpadUp) {
-                lockedPos += 0.01;
+                LockingMecanumDrive.lockPos += 0.01;
             }
             if (g1.dpad_down && !lastDpadDown) {
-                lockedPos -= 0.01;
+                LockingMecanumDrive.lockPos -= 0.01;
             }
-            lockingServo.setPosition(lockedPos);
+            drive.lock();
         } else {
             if (g1.dpad_up && !lastDpadUp) {
-                unlockedPos += 0.01;
+                LockingMecanumDrive.unlockPos += 0.01;
             }
             if (g1.dpad_down && !lastDpadDown) {
-                unlockedPos -= 0.01;
+                LockingMecanumDrive.unlockPos -= 0.01;
             }
-            lockingServo.setPosition(unlockedPos);
+            drive.unlock();
         }
-        /*
-         * Mecanum Drive
-         *
-         * Same drive method as your original Panels class.
-         */
 
-        double forward = -g1.left_stick_y;
-        double strafe = g1.left_stick_x;
-        double rotate = g1.right_stick_x;
-
-       if (locked){
-           drive.drive(forward,0,rotate);
-       }
-       else{
-           drive.drive(forward, strafe, rotate);
-       }
         /*
          * Update previous button states
          */
@@ -111,8 +110,8 @@ public class LMecTester extends OpMode {
                 "BR Power",
                 drive.backRightMotor.getPower()
         );
-        panelsTelemetry.addData("Unlocked Position", unlockedPos);
-        panelsTelemetry.addData("Locked Position", lockedPos);
+        panelsTelemetry.addData("Unlocked Position", LockingMecanumDrive.unlockPos);
+        panelsTelemetry.addData("Locked Position", LockingMecanumDrive.lockPos);
         panelsTelemetry.addData("Locked?", locked);
         panelsTelemetry.addData("Field Centric?", fieldCentric);
         panelsTelemetry.update();
@@ -123,9 +122,10 @@ public class LMecTester extends OpMode {
         telemetry.addData("FR Power", drive.frontRightMotor.getPower());
         telemetry.addData("BL Power", drive.backLeftMotor.getPower());
         telemetry.addData("BR Power", drive.backRightMotor.getPower());
-        telemetry.addData("Unlocked Position", unlockedPos);
-        telemetry.addData("Locked Position", lockedPos);
+        telemetry.addData("Unlocked Position", LockingMecanumDrive.unlockPos);
+        telemetry.addData("Locked Position", LockingMecanumDrive.lockPos);
         telemetry.addData("Locked?", locked);
+        telemetry.addData("LMec State", LockingMecanumDrive.state);
         telemetry.addData("Field Centric?", fieldCentric);
         telemetry.update();
     }
