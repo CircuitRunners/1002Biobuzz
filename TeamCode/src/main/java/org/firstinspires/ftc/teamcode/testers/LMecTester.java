@@ -12,7 +12,6 @@ import org.firstinspires.ftc.teamcode.subsystems.MecanumDrive;
 
 @TeleOp(name = "LMecTester", group = "TESTING")
 public class LMecTester extends OpMode {
-    private Servo lockingServo;
     private LockingMecanumDrive drive;
     private boolean lastLeftBumper = false;
     private boolean lastRightBumper = false;
@@ -26,9 +25,7 @@ public class LMecTester extends OpMode {
     public void init() {
         telemetry.addLine("Initializing...");
         telemetry.update();
-        // Servo
-        lockingServo = hardwareMap.get(Servo.class, "lockingServo");
-        // Mecanum drive
+        // LMec drive
         drive = new LockingMecanumDrive(hardwareMap);
         drive.unlock();
 
@@ -125,7 +122,7 @@ public class LMecTester extends OpMode {
         telemetry.addData("Unlocked Position", LockingMecanumDrive.unlockPos);
         telemetry.addData("Locked Position", LockingMecanumDrive.lockPos);
         telemetry.addData("Locked?", locked);
-        telemetry.addData("LMec State", LockingMecanumDrive.state);
+        telemetry.addData("LMec State", drive.getState());
         telemetry.addData("Field Centric?", fieldCentric);
         telemetry.update();
     }

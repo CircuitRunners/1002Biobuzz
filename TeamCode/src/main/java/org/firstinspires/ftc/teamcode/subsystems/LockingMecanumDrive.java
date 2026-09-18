@@ -8,16 +8,16 @@ public class LockingMecanumDrive extends MecanumDrive {
     private final Servo lockingServo;
     public static double lockPos = 0.61;
     public static double unlockPos = 0.1;
-    public enum LMecDriveState {LOCKED, UNLOCKED}
-    public static LMecDriveState state;
+    private enum LMecDriveState {LOCKED, UNLOCKED}
+    private LMecDriveState state;
     public LockingMecanumDrive(HardwareMap hardwareMap) {
         super(hardwareMap);
+        state = LMecDriveState.LOCKED;
         lockingServo = hardwareMap.get(Servo.class, "lockingServo");
     }
 
     @Override
     public void drive(double forward, double right, double rotate) {
-        if (state == null) throw new IllegalStateException("Declare the LMec state on init");
         switch (state) {
             case LOCKED:
                 super.drive(forward, 0, rotate);
@@ -43,5 +43,9 @@ public class LockingMecanumDrive extends MecanumDrive {
     public void unlock() {
         lockingServo.setPosition(unlockPos);
         state = LMecDriveState.UNLOCKED;
+    }
+
+    public LMecDriveState getState() {
+        return state;
     }
 }

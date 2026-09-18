@@ -17,7 +17,7 @@ public class LimelightCamera {
         limelight.pipelineSwitch(pipeline);
     }
 
-    public double [] getPollenDetectorResults() {
+    public double[] getPollenDetectorResults() {
         LLResult result = limelight.getLatestResult();
         if (result == null || !result.isValid()) return null;
 
