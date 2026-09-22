@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.subsystems.LockingMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDrive;
+import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
+import org.firstinspires.ftc.teamcode.util.Logger;
 
 @TeleOp(name = "LMecTester", group = "TESTING")
 public class LMecTester extends OpMode {
@@ -19,18 +21,20 @@ public class LMecTester extends OpMode {
     private boolean lastDpadDown = false;
     private boolean locked = false;
     private boolean fieldCentric = true;
-    private TelemetryManager panelsTelemetry =
-            PanelsTelemetry.INSTANCE.getTelemetry();
+    private GlobalTelemetry tele;
     @Override
     public void init() {
-        telemetry.addLine("Initializing...");
-        telemetry.update();
+        Logger.start(LMecTester.this);
+        tele = new GlobalTelemetry(telemetry, true);
+
+        tele.addLine("Initializing...")
+            .update();
         // LMec drive
         drive = new LockingMecanumDrive(hardwareMap);
         drive.unlock();
 
-        telemetry.addLine("Ready");
-        telemetry.update();
+        tele.addLine("Ready")
+            .update();
     }
     @Override
     public void loop() {
@@ -88,43 +92,19 @@ public class LMecTester extends OpMode {
         lastRightBumper = g1.right_bumper;
         lastDpadUp = g1.dpad_up;
         lastDpadDown = g1.dpad_down;
-        /*
-         * Panels Telemetry
-         */
-        panelsTelemetry.addData(
-                "FL Power",
-                drive.frontLeftMotor.getPower()
-        );
-        panelsTelemetry.addData(
-                "FR Power",
-                drive.frontRightMotor.getPower()
-        );
-        panelsTelemetry.addData(
-                "BL Power",
-                drive.backLeftMotor.getPower()
-        );
-        panelsTelemetry.addData(
-                "BR Power",
-                drive.backRightMotor.getPower()
-        );
-        panelsTelemetry.addData("Unlocked Position", LockingMecanumDrive.unlockPos);
-        panelsTelemetry.addData("Locked Position", LockingMecanumDrive.lockPos);
-        panelsTelemetry.addData("Locked?", locked);
-        panelsTelemetry.addData("Field Centric?", fieldCentric);
-        panelsTelemetry.update();
-        /*
-         * Driver Station Telemetry
-         */
-        telemetry.addData("FL Power", drive.frontLeftMotor.getPower());
-        telemetry.addData("FR Power", drive.frontRightMotor.getPower());
-        telemetry.addData("BL Power", drive.backLeftMotor.getPower());
-        telemetry.addData("BR Power", drive.backRightMotor.getPower());
-        telemetry.addData("Unlocked Position", LockingMecanumDrive.unlockPos);
-        telemetry.addData("Locked Position", LockingMecanumDrive.lockPos);
-        telemetry.addData("Locked?", locked);
-        telemetry.addData("LMec State", drive.getState());
-        telemetry.addData("Field Centric?", fieldCentric);
-        telemetry.update();
+
+        tele.addData("FL Power", drive.frontLeftMotor.getPower())
+            .addData("FR Power", drive.frontRightMotor.getPower())
+            .addData("BL Power", drive.backLeftMotor.getPower())
+            .addData("BR Power", drive.backRightMotor.getPower())
+            .addData("Unlocked Position", LockingMecanumDrive.unlockPos)
+            .addData("Locked Position", LockingMecanumDrive.lockPos)
+            .addData("Locked?", locked)
+            .addData("LMec State", drive.getState())
+            .addData("Field Centric?", fieldCentric)
+            .addLine()
+            .showLoopTime()
+            .update();
     }
 }
 
