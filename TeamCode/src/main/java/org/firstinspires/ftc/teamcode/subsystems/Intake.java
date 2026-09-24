@@ -6,9 +6,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Intake {
     private final DcMotorEx intakeMotor;
-    private enum IntakeState {IDLE, INTAKING, OUTTAKING}
+    public enum IntakeState {IDLE, INTAKING, OUTTAKING}
     private IntakeState state;
-
+    private double currentPower;
+    private double targetPower;
     public Intake(HardwareMap hardwareMap) {
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -18,17 +19,21 @@ public class Intake {
     public void update() {
         switch (state) {
             case IDLE:
-                intakeMotor.setPower(0);
+                targetPower = 0.0;
                 break;
 
             case INTAKING:
-                intakeMotor.setPower(1.0);
+                targetPower = 1.0;
                 break;
 
             case OUTTAKING:
-                intakeMotor.setPower(-1.0);
+                targetPower = -1.0;
                 break;
+        }
 
+        if (currentPower != targetPower) {
+            intakeMotor.setPower(targetPower);
+            currentPower = targetPower;
         }
     }
     public void stop() {

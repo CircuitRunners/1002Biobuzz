@@ -8,7 +8,7 @@ public class LockingMecanumDrive extends MecanumDrive {
     private final Servo lockingServo;
     public static double lockPos = 0.61;
     public static double unlockPos = 0.1;
-    private enum LMecDriveState {LOCKED, UNLOCKED}
+    public enum LMecDriveState {LOCKED, UNLOCKED}
     private LMecDriveState state;
     public LockingMecanumDrive(HardwareMap hardwareMap) {
         super(hardwareMap);
@@ -32,7 +32,15 @@ public class LockingMecanumDrive extends MecanumDrive {
     public void driveFieldCentric(double forward, double right, double rotate, double h) {
         double theta = Math.atan2(forward, right) - h;
         double r = Math.hypot(forward, right);
-        drive(r * Math.sin(theta), r * Math.cos(theta), rotate);
+        switch (state) {
+            case LOCKED:
+                drive(r * Math.sin(theta), 0, rotate);
+                break;
+
+            case UNLOCKED:
+                drive(r * Math.sin(theta), r * Math.cos(theta), rotate);
+                break;
+        }
     }
 
     public void lock() {
