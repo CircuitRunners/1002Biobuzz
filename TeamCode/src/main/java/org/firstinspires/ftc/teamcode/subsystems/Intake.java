@@ -3,9 +3,13 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class Intake {
     private final DcMotorEx intakeMotor;
+    private final Servo transfer;
+    private final double DISENGAGE_POSITION = 0.0;
+    private final double ENGAGE_POSITION = 1.0;
     public enum IntakeState {IDLE, INTAKING, OUTTAKING}
     private IntakeState state;
     private double currentPower;
@@ -14,6 +18,9 @@ public class Intake {
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        transfer = hardwareMap.get(Servo.class, "transfer");
+        disengageTransfer();
 
         state = IntakeState.IDLE;
     }
@@ -44,12 +51,16 @@ public class Intake {
     public void intake() {
         state = IntakeState.INTAKING;
     }
-
     public void outtake() {
         state = IntakeState.OUTTAKING;
     }
-
     public IntakeState getState() {
         return state;
+    }
+    public void engageTransfer() {
+        transfer.setPosition(ENGAGE_POSITION);
+    }
+    public void disengageTransfer() {
+        transfer.setPosition(DISENGAGE_POSITION);
     }
 }
