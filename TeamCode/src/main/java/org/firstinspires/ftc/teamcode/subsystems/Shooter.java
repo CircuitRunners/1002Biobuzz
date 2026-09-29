@@ -50,8 +50,8 @@ public class Shooter {
         private double currentVelocity;
         private static final double VELOCITY_TOLERANCE = 50;
         private static final double MAX_VELOCITY = 3000;
-        private PIDFController flywheelPIDF;
-        private static final PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.0, 0.0, 0.0, 0.0);
+        public PIDFController flywheelPIDF;
+        public final static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.0, 0.0, 0.0, 0.0);
         public Flywheel(HardwareMap hardwareMap) {
             shooter1 = hardwareMap.get(DcMotorEx.class, "shooter1");
             shooter1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
