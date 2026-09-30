@@ -49,7 +49,7 @@ public class Shooter {
         private double targetVelocity = 0;
         private double currentVelocity;
         private static final double VELOCITY_TOLERANCE = 50;
-        private static final double MAX_VELOCITY = 3000;
+        public static final double MAX_VELOCITY = 20000;
         public PIDFController flywheelPIDF;
         public final static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.0, 0.0, 0.0, 0.0);
         public Flywheel(HardwareMap hardwareMap) {

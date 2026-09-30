@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.testers;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -8,24 +9,30 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
 import org.firstinspires.ftc.teamcode.util.Logger;
 
+import java.util.List;
+
 @Configurable
 @TeleOp(name = "FlywheelTester", group = "TESTING")
 public class FlywheelTester extends OpMode {
 
     private GlobalTelemetry tele;
     private Shooter.Flywheel flywheel;
+    private List<LynxModule> hubs;
     public static double targetTicksPerSecond = 0;
     public static double kP = 0;
-    public static double kD = 0;
     public static double kI = 0;
+    public static double kD = 0;
     public static double kF = 0;
 
     @Override
     public void init() {
-        Logger.start(FlywheelTester.this);
+        Logger.start(this);
         tele = new GlobalTelemetry(telemetry, true);
         tele.addLine("Initializing...")
             .update();
+
+        hubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule hub : hubs) hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
 
         flywheel = new Shooter.Flywheel(hardwareMap);
 
@@ -35,12 +42,17 @@ public class FlywheelTester extends OpMode {
 
     @Override
     public void loop() {
-        flywheel.flywheelPIDF.setPIDF(kP, kD, kI, kF);
+        for (LynxModule hub : hubs) hub.clearBulkCache();
+
+        flywheel.flywheelPIDF.setPIDF(kP, kI, kD, kF);
         flywheel.setTargetVelocity(targetTicksPerSecond);
         flywheel.update();
 
+        if (targetTicksPerSecond < 100) flywheel.stop();
+
         tele.addData("Current Velocity", flywheel.getVelocity())
             .addData("Target Velocity", targetTicksPerSecond)
+            .addData("Max Velocity", Shooter.Flywheel.MAX_VELOCITY)
             .addData("kP", kP)
             .addData("kI", kI)
             .addData("kD", kD)
