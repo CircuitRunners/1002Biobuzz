@@ -19,7 +19,8 @@ public class FlywheelTester extends OpMode {
     private Shooter.Flywheel flywheel;
     private List<LynxModule> hubs;
     public static double targetTicksPerSecond = 0;
-    public static double kP = 0;
+    public static double kP = 0.1;
+    public static double kD = 0;
     public static double kI = 0;
     public static double kD = 0;
     public static double kF = 0;
