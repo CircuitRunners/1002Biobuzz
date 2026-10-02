@@ -15,7 +15,7 @@ public class FlywheelTester extends OpMode {
     private GlobalTelemetry tele;
     private Shooter.Flywheel flywheel;
     public static double targetTicksPerSecond = 0;
-    public static double kP = 0;
+    public static double kP = 0.1;
     public static double kD = 0;
     public static double kI = 0;
     public static double kF = 0;
