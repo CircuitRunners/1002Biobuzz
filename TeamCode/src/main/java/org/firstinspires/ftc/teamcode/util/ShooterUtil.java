@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.util;
 
 import com.pedropathing.math.Pose;
 
-public class ShooterPhysics {
+public class ShooterUtil {
     private static final double TICKS_PER_REV = 103.6;
     private static final double FLYWHEEL_RADIUS = 0.04; // in meters
     private static final double FLYWHEEL_VELOCITY_CONSTANT = 0.55;

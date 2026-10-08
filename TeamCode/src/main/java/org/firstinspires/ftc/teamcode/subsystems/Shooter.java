@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.Range;
 import com.seattlesolvers.solverslib.controller.PIDFController;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.util.ShooterPhysics;
+import org.firstinspires.ftc.teamcode.util.ShooterUtil;
 
 public class Shooter {
     private final Flywheel flywheel;
@@ -26,8 +26,8 @@ public class Shooter {
         flywheel.update();
     }
     public void setTargets(Pose currentPose, Pose targetPose, double dy) {
-        double flywheelVelocity = ShooterPhysics.getTargetFlywheelVelocity(currentPose, targetPose, dy);
-        double hoodAngle = Math.toDegrees(ShooterPhysics.getHoodTargetAngle(currentPose, targetPose, dy));
+        double flywheelVelocity = ShooterUtil.getTargetFlywheelVelocity(currentPose, targetPose, dy);
+        double hoodAngle = Math.toDegrees(ShooterUtil.getHoodTargetAngle(currentPose, targetPose, dy));
 
         flywheel.setTargetVelocity(flywheelVelocity);
         hood.setAngle(hoodAngle);

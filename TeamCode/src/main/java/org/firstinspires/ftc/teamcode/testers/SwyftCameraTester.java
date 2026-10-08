@@ -1,23 +1,31 @@
 package org.firstinspires.ftc.teamcode.testers;
 
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.SwyftCamera;
 import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
 import org.firstinspires.ftc.teamcode.util.Logger;
+import org.firstinspires.ftc.teamcode.util.Poses;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
-@TeleOp(name = "AprilTagTester", group = "TESTING")
+import java.util.List;
+
+@TeleOp(name = "SwyftCameraTester", group = "TESTING")
 public class SwyftCameraTester extends OpMode {
     private SwyftCamera camera;
     private GlobalTelemetry tele;
+    List<LynxModule> hubs;
     private long exposureMs = SwyftCamera.EXPOSURE_MS;
     private int gain = SwyftCamera.GAIN;
+    private int zoneIndex = 0;
+    private Poses.Zones zone = Poses.Zones.values()[zoneIndex];
     private boolean lastDpadUp = false;
     private boolean lastDpadDown = false;
     private boolean lastDpadLeft = false;
     private boolean lastDpadRight = false;
+    private boolean lastRightBumper = false;
 
     @Override
     public void init() {
@@ -26,6 +34,9 @@ public class SwyftCameraTester extends OpMode {
 
         camera = new SwyftCamera(hardwareMap);
         camera.enableLiveStreaming();
+
+        hubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule hub : hubs) hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
 
         tele.addLine("Ready").update();
     }
@@ -38,6 +49,8 @@ public class SwyftCameraTester extends OpMode {
 
     @Override
     public void loop() {
+        for (LynxModule hub : hubs) hub.clearBulkCache();
+
         if (gamepad1.dpad_up && !lastDpadUp) exposureMs++;
         if (gamepad1.dpad_down && !lastDpadDown) exposureMs = Math.max(1, exposureMs - 1);
         if (gamepad1.dpad_right && !lastDpadRight) gain += 10;
@@ -45,10 +58,14 @@ public class SwyftCameraTester extends OpMode {
         if (exposureMs != SwyftCamera.EXPOSURE_MS || gain != SwyftCamera.GAIN) {
             camera.setExposure(exposureMs, gain);
         }
+        if (gamepad1.right_bumper && !lastRightBumper) zoneIndex++;
+        zone = Poses.Zones.values()[zoneIndex % Poses.Zones.values().length];
+
         lastDpadUp = gamepad1.dpad_up;
         lastDpadDown = gamepad1.dpad_down;
         lastDpadLeft = gamepad1.dpad_left;
         lastDpadRight = gamepad1.dpad_right;
+        lastRightBumper = gamepad1.right_bumper;
 
         camera.update();
 
@@ -62,7 +79,9 @@ public class SwyftCameraTester extends OpMode {
             }
             tele.header("Tag " + d.id + " (" + d.metadata.name + ")");
         }
-        tele.showLoopTime().update();
+        tele.addData("Hive tipped for " + zone.toString(), camera.hiveTippedFor(zone))
+            .showLoopTime()
+            .update();
     }
 
     @Override
