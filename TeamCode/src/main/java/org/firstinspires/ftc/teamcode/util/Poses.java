@@ -14,4 +14,5 @@ public class Poses {
     public static final Pose curve1ControlPoint = p.of(108, 108, 0);
     public static final Pose startLine2 = p.of(108, 108, -90);
     public static final Pose endLine2 = p.of(108, 72, -90);
+    public enum Zone {RED_AUDIENCE, RED_SCORING, BLUE_AUDIENCE, BLUE_SCORING}
 }
