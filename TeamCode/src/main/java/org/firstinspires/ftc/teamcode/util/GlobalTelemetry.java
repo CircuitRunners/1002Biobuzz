@@ -70,7 +70,7 @@ public class GlobalTelemetry {
     public GlobalTelemetry showLoopTime() {
         double ms = loopTimer.milliseconds();
         loopTimer.reset();
-        return addData("Loop Time (ms):", ms);
+        return addData("Loop Time (ms)", ms);
     }
     public GlobalTelemetry panelsOnly(String caption, Object value) {
         panelsTelemetry.addData(caption, String.valueOf(value));

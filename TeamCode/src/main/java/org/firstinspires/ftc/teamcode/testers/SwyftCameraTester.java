@@ -69,6 +69,10 @@ public class SwyftCameraTester extends OpMode {
 
         camera.update();
 
+        tele.addLine("Dpad UP/DOWN for exposure")
+            .addLine("Dpad RIGHT/LEFT for gain")
+            .addLine();
+
         tele.addData("Exposure (ms)", exposureMs)
             .addData("Gain", gain);
 
@@ -79,7 +83,8 @@ public class SwyftCameraTester extends OpMode {
             }
             tele.header("Tag " + d.id + " (" + d.metadata.name + ")");
         }
-        tele.addData("Hive tipped for " + zone.toString(), camera.hiveTippedFor(zone))
+        tele.addData("FPS", camera.getFPS())
+            .addData("Hive tipped for " + zone.toString(), camera.hiveTippedFor(zone))
             .showLoopTime()
             .update();
     }

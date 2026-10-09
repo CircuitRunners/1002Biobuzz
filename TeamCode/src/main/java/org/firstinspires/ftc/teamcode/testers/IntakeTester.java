@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.testers;
 
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.util.Logger;
 
 import java.util.List;
 
+@TeleOp(name = "IntakeTester", group = "TESTING")
 public class IntakeTester extends OpMode {
     private Intake intake;
     private GlobalTelemetry tele;
@@ -49,7 +51,7 @@ public class IntakeTester extends OpMode {
         if (player1.wasJustPressed(GamepadKeys.Button.TRIANGLE)) Intake.RAMP_DOWN += 0.01;
         if (player1.wasJustPressed(GamepadKeys.Button.X)) Intake.RAMP_DOWN -= 0.01;
         if (player1.wasJustPressed(GamepadKeys.Button.CIRCLE)) Intake.RAMP_UP += 0.01;
-        if (player1.wasJustPressed(GamepadKeys.Button.SQUARE)) Intake.RAMP_DOWN -= 0.01;
+        if (player1.wasJustPressed(GamepadKeys.Button.SQUARE)) Intake.RAMP_UP -= 0.01;
 
         // Boolean control
         if (player1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) blocked = !blocked;
@@ -64,10 +66,20 @@ public class IntakeTester extends OpMode {
 
         // Motors
         if (player1.getLeftY() > 0.2) intake.intake();
-        else if (player1.getLeftY() < 0.2) intake.outtake();
+        else if (player1.getLeftY() < -0.2) intake.outtake();
         else if (player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2) intake.transfer();
 
         // Telemetry
+        tele.addLine("Dpad UP/DOWN for BLOCK position")
+            .addLine("Dpad RIGHT/LEFT for UNBLOCK position")
+            .addLine("TRIANGLE/X for RAMP DOWN position")
+            .addLine("CIRCLE/SQUARE for RAMP UP position")
+            .addLine("RIGHT BUMPER to toggle blocker")
+            .addLine("LEFT BUMPER to toggle ramp")
+            .addLine("LEFT JOYSTICK to intake/outtake")
+            .addLine("RIGHT TRIGGER to transfer")
+            .addLine();
+        
         tele.addData("Blocked?", blocked)
             .addData("Block Pos", Intake.BLOCK_POSITION)
             .addData("Unblock Pos", Intake.UNBLOCK_POSITION)

@@ -15,16 +15,16 @@ public class Poses {
             case BLUE_SCORING:
             case RED_AUDIENCE:
                 return p.of(84, 86, 0);
-                break;
+                // break;
 
             case BLUE_AUDIENCE:
             case RED_SCORING:
                 return p.of(84, 58, 0);
-                break;
+                // break;
 
             default:
                 return p.of(72, 72, 0);
-                break;
+                // break;
         }
     }
     public static final Pose startLine1 = p.of(72, 72, 90);

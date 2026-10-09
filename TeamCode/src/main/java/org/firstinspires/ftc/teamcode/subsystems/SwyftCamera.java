@@ -22,17 +22,17 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class SwyftCamera {
-    public static long EXPOSURE_MS = 3;
-    public static int GAIN = 250;
+    public static long EXPOSURE_MS = 1;
+    public static int GAIN = 300;
     private final VisionPortal portal;
     private final AprilTagProcessor aprilTag;
     private boolean liveStreamingEnabled = false;
     private boolean controlsApplied = false;
     private Set<Integer> validIDs = new LinkedHashSet<>();
-    private static final int REQUIRED_IDS = 3;
+    private static final int REQUIRED_IDS = 2;
     private final Map<Poses.Zones, Double> zoneLastTipMs = new EnumMap<>(Poses.Zones.class);
     private final ElapsedTime tipTimer = new ElapsedTime();
-    private static final double TIP_CONFIRM_MS = 250;
+    private static final double TIP_CONFIRM_MS = 400;
 
     public SwyftCamera(HardwareMap hwmap) {
         AprilTagProcessor.Builder tagBuilder = new AprilTagProcessor.Builder()
@@ -42,7 +42,7 @@ public class SwyftCamera {
 
         aprilTag = tagBuilder.build();
         // 2 = faster, shorter range; 1 = slower, longer range
-        aprilTag.setDecimation(2);
+        aprilTag.setDecimation(1);
 
         portal = new VisionPortal.Builder()
                 .setCamera(hwmap.get(WebcamName.class, "swyftCamera"))
@@ -75,7 +75,7 @@ public class SwyftCamera {
         controlsApplied = false;
     }
     public boolean isStreaming() {
-        return portal.getCameraState() == VisionPortal.CameraState.STREAMING;
+        return liveStreamingEnabled;
     }
     public List<AprilTagDetection> getDetections() {
         return aprilTag.getDetections();
@@ -128,6 +128,9 @@ public class SwyftCamera {
     public void disableLiveStreaming() {
         PanelsCameraStream.INSTANCE.stopStream();
         liveStreamingEnabled = false;
+    }
+    public double getFPS() {
+        return portal.getFps();
     }
     public void close() {
         disableLiveStreaming();
