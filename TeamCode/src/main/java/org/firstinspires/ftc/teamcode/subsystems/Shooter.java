@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -11,7 +13,7 @@ import com.seattlesolvers.solverslib.controller.PIDFController;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.util.ShooterUtil;
-
+@Configurable
 public class Shooter {
     private final Flywheel flywheel;
     private final Hood hood;
@@ -62,6 +64,7 @@ public class Shooter {
             shooter2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             shooter2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             shooter2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
 
             flywheelPIDF = new PIDFController(pidfCoefficients);
         }
@@ -101,11 +104,11 @@ public class Shooter {
 
     public static class Hood {
         private final Servo hoodServo;
-        private final double MIN_POSITION = 0.0;
-        private final double MAX_POSITION = 1.0;
-        private final double MIN_ANGLE = 45.0;
-        private final double MAX_ANGLE = 90.0;
-        private final double HOME_ANGLE = 90.0;
+        public static final double MIN_POSITION = 0.0;
+        public static final double MAX_POSITION = 1.0;
+        public static final double MIN_ANGLE = 45.0;
+        public static final double MAX_ANGLE = 90.0;
+        private static final double HOME_ANGLE = 90.0;
         public Hood(HardwareMap hardwareMap) {
             hoodServo = hardwareMap.get(Servo.class, "hood");
         }
@@ -114,6 +117,9 @@ public class Shooter {
             hoodServo.setPosition(
                     Range.scale(angle, MIN_ANGLE, MAX_ANGLE, MIN_POSITION, MAX_POSITION)
             );
+        }
+        public void setPosition(double position) {
+            hoodServo.setPosition(position);
         }
         public double getAngle() {
             return Range.scale(hoodServo.getPosition(), MIN_POSITION, MAX_POSITION, MIN_ANGLE, MAX_ANGLE);
@@ -128,11 +134,11 @@ public class Shooter {
     public static class Turret {
         private final Servo turret1;
         private final Servo turret2;
-        private final double MIN_POSITION = 0.0;
-        private final double MAX_POSITION = 1.0;
-        private final double MIN_ANGLE = -180.0;
-        private final double MAX_ANGLE = 180.0;
-        private final double HOME_ANGLE = 0.0;
+        public static double MIN_POSITION = 0.0;
+        public static double MAX_POSITION = 1.0;
+        public static double MIN_ANGLE = -180.0;
+        public static double MAX_ANGLE = 180.0;
+        private static final double HOME_ANGLE = 0.0;
         public Turret(HardwareMap hardwareMap) {
             turret1 = hardwareMap.get(Servo.class, "turret1");
             turret2 = hardwareMap.get(Servo.class, "turret2");
@@ -145,8 +151,11 @@ public class Shooter {
         }
         public void setAngle(double angle) {
             double targetPosition = Range.scale(angle, MIN_ANGLE, MAX_ANGLE, MIN_POSITION, MAX_POSITION);
-            turret1.setPosition(targetPosition);
-            turret2.setPosition(targetPosition);
+            setPosition(targetPosition);
+        }
+        public void setPosition(double position) {
+            turret1.setPosition(position);
+            turret2.setPosition(position);
         }
         public double getAngle() {
             return Range.scale(getPosition(), MIN_POSITION, MAX_POSITION, MIN_ANGLE, MAX_ANGLE);

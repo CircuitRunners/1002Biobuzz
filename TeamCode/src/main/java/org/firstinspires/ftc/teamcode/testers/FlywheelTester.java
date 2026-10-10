@@ -27,7 +27,7 @@ public class FlywheelTester extends OpMode {
     @Override
     public void init() {
         Logger.start(this);
-        tele = new GlobalTelemetry(telemetry, true);
+        tele = new GlobalTelemetry(telemetry, false);
         tele.addLine("Initializing...")
             .update();
 
@@ -52,6 +52,7 @@ public class FlywheelTester extends OpMode {
 
         tele.addData("Current Velocity", flywheel.getVelocity())
             .addData("Target Velocity", targetTicksPerSecond)
+            .addData("Is Ready?", flywheel.isReady())
             .addData("Max Velocity", Shooter.Flywheel.MAX_VELOCITY)
             .addData("kP", kP)
             .addData("kI", kI)

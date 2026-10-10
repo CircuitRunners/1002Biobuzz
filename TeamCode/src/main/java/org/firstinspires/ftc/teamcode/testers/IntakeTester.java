@@ -79,7 +79,7 @@ public class IntakeTester extends OpMode {
             .addLine("LEFT JOYSTICK to intake/outtake")
             .addLine("RIGHT TRIGGER to transfer")
             .addLine();
-        
+
         tele.addData("Blocked?", blocked)
             .addData("Block Pos", Intake.BLOCK_POSITION)
             .addData("Unblock Pos", Intake.UNBLOCK_POSITION)
