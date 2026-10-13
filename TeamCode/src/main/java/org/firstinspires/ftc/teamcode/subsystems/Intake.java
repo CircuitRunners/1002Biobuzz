@@ -51,6 +51,7 @@ public class Intake {
 
             case INTAKING:
                 targetIntakePower = 1.0;
+                targetTransferPower = 0.0;
                 break;
 
             case OUTTAKING:
