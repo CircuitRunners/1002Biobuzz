@@ -3,8 +3,11 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Intake {
     private final DcMotorEx intake;
@@ -16,6 +19,8 @@ public class Intake {
     private final Servo ramp;
     public static double RAMP_DOWN = 0.0;
     public static double RAMP_UP = 1.0;
+    private final DistanceSensor[] sensors = new DistanceSensor[5];
+    public static double DISTANCE_THRESHOLD = 2.0;
     public enum IntakeState {IDLE, INTAKING, OUTTAKING, TRANSFERING}
     private IntakeState state;
     private double currentIntakePower;
@@ -23,11 +28,11 @@ public class Intake {
     private double currentTransferPower;
     private double targetTransferPower;
     public Intake(HardwareMap hardwareMap) {
-        intake = hardwareMap.get(DcMotorEx.class, "intake1");
+        intake = hardwareMap.get(DcMotorEx.class, "intake");
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        transfer = hardwareMap.get(DcMotorEx.class, "intake2");
+        transfer = hardwareMap.get(DcMotorEx.class, "transfer");
         transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         transfer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         transfer.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -38,6 +43,12 @@ public class Intake {
         unblockTransfer();
 
         ramp = hardwareMap.get(Servo.class, "ramp");
+
+        sensors[0] = hardwareMap.get(DistanceSensor.class, "sensor1");
+        sensors[1] = hardwareMap.get(DistanceSensor.class, "sensor2");
+        sensors[2] = hardwareMap.get(DistanceSensor.class, "sensor3");
+        sensors[3] = hardwareMap.get(DistanceSensor.class, "sensor4");
+        sensors[4] = hardwareMap.get(DistanceSensor.class, "sensor5");
 
         state = IntakeState.IDLE;
     }
@@ -101,4 +112,11 @@ public class Intake {
     }
     public void rampUp() {ramp.setPosition(RAMP_UP);}
     public void rampDown() {ramp.setPosition(RAMP_DOWN);}
+    public int numBalls() {
+        int count = 0;
+        for (int i = 0; i < 5; i++) {
+                if (sensors[i].getDistance(DistanceUnit.MM) <= DISTANCE_THRESHOLD) count++;
+        }
+        return count;
+    }
 }

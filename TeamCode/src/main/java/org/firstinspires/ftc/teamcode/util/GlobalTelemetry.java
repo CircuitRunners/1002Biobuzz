@@ -27,7 +27,7 @@ public class GlobalTelemetry {
 
     public GlobalTelemetry addData(String caption, Object value) {
         if (isLogging) Logger.log(caption, value);
-        return write(caption, String.valueOf(value));
+        return write(caption, String.valueOf(value), value);
     }
 
     public GlobalTelemetry addData(String caption, double value) {
@@ -36,17 +36,17 @@ public class GlobalTelemetry {
 
     public GlobalTelemetry addData(String caption, int value) {
         if (isLogging) Logger.log(caption, value);
-        return write(caption, Integer.toString(value));
+        return write(caption, Integer.toString(value), value);
     }
 
     public GlobalTelemetry addData(String caption, long value) {
         if (isLogging) Logger.log(caption, value);
-        return write(caption, Long.toString(value));
+        return write(caption, Long.toString(value), value);
     }
 
     public GlobalTelemetry addData(String caption, double value, int decimals) {
         if (isLogging) Logger.log(caption, value);
-        return write(caption, String.format(Locale.US, "%." + decimals + "f", value));
+        return write(caption, String.format(Locale.US, "%." + decimals + "f", value), value);
     }
 
     public GlobalTelemetry addData(String caption, String format, Object... args) {
@@ -73,7 +73,7 @@ public class GlobalTelemetry {
         return addData("Loop Time (ms)", ms);
     }
     public GlobalTelemetry panelsOnly(String caption, Object value) {
-        panelsTelemetry.addData(caption, String.valueOf(value));
+        panelsTelemetry.addData(caption, value);
         return this;
     }
     public GlobalTelemetry stationOnly(String caption, Object value) {
@@ -102,8 +102,12 @@ public class GlobalTelemetry {
     }
 
     private GlobalTelemetry write(String caption, String value) {
-        sdkTelemetry.addData(caption, value);
-        panelsTelemetry.addData(caption, value);
+        return write(caption, value, value);
+    }
+
+    private GlobalTelemetry write(String caption, String display, Object panelsValue) {
+        sdkTelemetry.addData(caption, display);
+        panelsTelemetry.addData(caption, panelsValue);
         return this;
     }
 }

@@ -48,8 +48,6 @@ public class FlywheelTester extends OpMode {
         flywheel.setTargetVelocity(targetTicksPerSecond);
         flywheel.update();
 
-        if (targetTicksPerSecond < 100) flywheel.stop();
-
         tele.addData("Current Velocity", flywheel.getVelocity())
             .addData("Target Velocity", targetTicksPerSecond)
             .addData("Is Ready?", flywheel.isReady())
