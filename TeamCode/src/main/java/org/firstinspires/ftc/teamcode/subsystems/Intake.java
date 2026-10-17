@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -19,7 +20,7 @@ public class Intake {
     private final Servo ramp;
     public static double RAMP_DOWN = 0.0;
     public static double RAMP_UP = 1.0;
-    private final DistanceSensor[] sensors = new DistanceSensor[5];
+    private final DigitalChannel[] sensors = new DigitalChannel[5];
     public static double DISTANCE_THRESHOLD = 2.0;
     public enum IntakeState {IDLE, INTAKING, OUTTAKING, TRANSFERING}
     private IntakeState state;
@@ -44,11 +45,11 @@ public class Intake {
 
         ramp = hardwareMap.get(Servo.class, "ramp");
 
-        sensors[0] = hardwareMap.get(DistanceSensor.class, "sensor1");
-        sensors[1] = hardwareMap.get(DistanceSensor.class, "sensor2");
-        sensors[2] = hardwareMap.get(DistanceSensor.class, "sensor3");
-        sensors[3] = hardwareMap.get(DistanceSensor.class, "sensor4");
-        sensors[4] = hardwareMap.get(DistanceSensor.class, "sensor5");
+        sensors[0] = hardwareMap.get(DigitalChannel.class, "bottomLeft");
+        sensors[1] = hardwareMap.get(DigitalChannel.class, "bottomRight");
+        sensors[2] = hardwareMap.get(DigitalChannel.class, "transfer3");
+        sensors[3] = hardwareMap.get(DigitalChannel.class, "transfer2");
+        sensors[4] = hardwareMap.get(DigitalChannel.class, "transfer1");
 
         state = IntakeState.IDLE;
     }
@@ -115,7 +116,7 @@ public class Intake {
     public int numBalls() {
         int count = 0;
         for (int i = 0; i < 5; i++) {
-                if (sensors[i].getDistance(DistanceUnit.MM) <= DISTANCE_THRESHOLD) count++;
+                if (sensors[i].getState()) count++;
         }
         return count;
     }
