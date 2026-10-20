@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class LockingMecanumDrive extends MecanumDrive {
 
     private final Servo lockingServo;
-    public static double lockPos = 0.61;
-    public static double unlockPos = 0.1;
+    public static double lockPos = 0.34;
+    public static double unlockPos = 1;
     public enum LMecDriveState {LOCKED, UNLOCKED}
     private LMecDriveState state;
     public LockingMecanumDrive(HardwareMap hardwareMap) {

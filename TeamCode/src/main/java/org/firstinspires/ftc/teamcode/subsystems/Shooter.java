@@ -53,14 +53,14 @@ public class Shooter {
         private static final double VELOCITY_TOLERANCE = 50;
         public static final double MAX_VELOCITY = 20000;
         public PIDFController flywheelPIDF;
-        public final static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.0, 0.0, 0.0, 0.0);
+        public final static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.7, 0.0, 0.0, 0.00051);
         public Flywheel(HardwareMap hardwareMap) {
-            shooter1 = hardwareMap.get(DcMotorEx.class, "shooter1");
+            shooter1 = hardwareMap.get(DcMotorEx.class, "shooterTop");
             shooter1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             shooter1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             shooter1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-            shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
+            shooter2 = hardwareMap.get(DcMotorEx.class, "shooterBottom");
             shooter2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             shooter2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             shooter2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -77,13 +77,21 @@ public class Shooter {
             shooter1.setPower(output);
             shooter2.setPower(output);
         }
+
+        public double getWHeel1Velo(){
+            return shooter1.getVelocity();
+        }
+
+        public double getWHeel2Velo(){
+            return shooter2.getVelocity();
+        }
         public double getVelocity() {
             double velocity1 = shooter1.getVelocity();
             double velocity2 = shooter2.getVelocity();
             if (velocity1 == 0) {
-                return velocity2;
+                return 67;
             } else if (velocity2 == 0) {
-                return velocity1;
+                return 67;
             } else {
                 return (velocity1 + velocity2) / 2.0;
             }

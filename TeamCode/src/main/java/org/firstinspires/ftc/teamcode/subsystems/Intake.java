@@ -14,9 +14,9 @@ public class Intake {
     private final DcMotorEx intake;
     private final DcMotorEx transfer;
     private final Servo blocker1;
-    private final Servo blocker2;
-    public static double UNBLOCK_POSITION = 0.0;
-    public static double BLOCK_POSITION = 1.0;
+
+    public static double UNBLOCK_POSITION = 0.88;
+    public static double BLOCK_POSITION = 0.58;
     private final Servo ramp;
     public static double RAMP_DOWN = 0.0;
     public static double RAMP_UP = 1.0;
@@ -38,18 +38,17 @@ public class Intake {
         transfer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         transfer.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        blocker1 = hardwareMap.get(Servo.class, "blocker1");
-        blocker2 = hardwareMap.get(Servo.class, "blocker2");
-        blocker2.setDirection(Servo.Direction.REVERSE);
-        unblockTransfer();
+        blocker1 = hardwareMap.get(Servo.class, "blocker");
 
-        ramp = hardwareMap.get(Servo.class, "ramp");
+        blockTransfer();
 
-        sensors[0] = hardwareMap.get(DigitalChannel.class, "bottomLeft");
-        sensors[1] = hardwareMap.get(DigitalChannel.class, "bottomRight");
-        sensors[2] = hardwareMap.get(DigitalChannel.class, "transfer3");
-        sensors[3] = hardwareMap.get(DigitalChannel.class, "transfer2");
-        sensors[4] = hardwareMap.get(DigitalChannel.class, "transfer1");
+        ramp = hardwareMap.get(Servo.class, "flower");
+
+        sensors[0] = hardwareMap.get(DigitalChannel.class, "sensor1");
+        sensors[1] = hardwareMap.get(DigitalChannel.class, "sensor2");
+        sensors[2] = hardwareMap.get(DigitalChannel.class, "sensor3");
+        sensors[3] = hardwareMap.get(DigitalChannel.class, "rampL");
+        sensors[4] = hardwareMap.get(DigitalChannel.class, "rampR");
 
         state = IntakeState.IDLE;
     }
@@ -63,7 +62,7 @@ public class Intake {
 
             case INTAKING:
                 targetIntakePower = 1.0;
-                targetTransferPower = 0.0;
+                targetTransferPower = 0;
                 break;
 
             case OUTTAKING:
@@ -91,7 +90,8 @@ public class Intake {
     }
     public void intake() {
         state = IntakeState.INTAKING;
-        blockTransfer();
+       // blockTransfer();
+        unblockTransfer();
     }
     public void outtake() {
         state = IntakeState.OUTTAKING;
@@ -105,19 +105,18 @@ public class Intake {
     }
     public void blockTransfer() {
         blocker1.setPosition(BLOCK_POSITION);
-        blocker2.setPosition(BLOCK_POSITION);
     }
     public void unblockTransfer() {
         blocker1.setPosition(UNBLOCK_POSITION);
-        blocker2.setPosition(UNBLOCK_POSITION);
     }
     public void rampUp() {ramp.setPosition(RAMP_UP);}
     public void rampDown() {ramp.setPosition(RAMP_DOWN);}
-    public int numBalls() {
-        int count = 0;
-        for (int i = 0; i < 5; i++) {
-                if (sensors[i].getState()) count++;
-        }
-        return count;
-    }
+//    public int numBalls() {
+//        int count = 0;
+//        for (int i = 0; i < 5; i++) {
+//                if (sensors[i].getDistance(DistanceUnit.MM) <= DISTANCE_THRESHOLD) count++;
+//        }
+//        return count;
+//    }
+    //look at documentation - this will return either 0 or 1
 }
