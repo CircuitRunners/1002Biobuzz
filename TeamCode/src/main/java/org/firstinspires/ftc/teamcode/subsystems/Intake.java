@@ -40,7 +40,7 @@ public class Intake {
 
         blocker1 = hardwareMap.get(Servo.class, "blocker");
 
-        blockTransfer();
+        unblockTransfer();
 
         ramp = hardwareMap.get(Servo.class, "flower");
 
@@ -62,7 +62,7 @@ public class Intake {
 
             case INTAKING:
                 targetIntakePower = 1.0;
-                targetTransferPower = 0;
+                targetTransferPower = 0.0;
                 break;
 
             case OUTTAKING:
@@ -90,7 +90,6 @@ public class Intake {
     }
     public void intake() {
         state = IntakeState.INTAKING;
-       // blockTransfer();
         unblockTransfer();
     }
     public void outtake() {

@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.LockingMecanumDrive;
-import org.firstinspires.ftc.teamcode.subsystems.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 //@Disabled
@@ -17,7 +16,7 @@ public class DriveRobotCentric extends OpMode {
 
     private Shooter.Flywheel shooter;
 
-    private double value = 2000;
+    private double value = 1000;
 
     private double speedMultiply = 0.5;
 
@@ -90,22 +89,14 @@ public class DriveRobotCentric extends OpMode {
 
         if (currentMode == Mode.INTAKE) {
 
-
-            if (rightTrigger && !previousRightTrigger) {
-                if (intake.getState() == Intake.IntakeState.INTAKING) {
-                    intake.stop();
-                } else {
-                    intake.outtake();
-                }
+            shooter.stop();
+            if (rightTrigger) {
+                intake.intake();
             }
-
-            if (leftTrigger && !previousLeftTrigger) {
-                if (intake.getState() == Intake.IntakeState.OUTTAKING) {
-                    intake.stop();
-                } else {
-                    intake.intake();
-                }
+            else if (leftTrigger) {
+                intake.outtake();
             }
+            else intake.stop();
 
 
 
@@ -132,8 +123,8 @@ public class DriveRobotCentric extends OpMode {
         telemetry.addData("Speed Multiplier", speedMultiply);
         telemetry.addData("Lmec",drive.getState());
         telemetry.addData("current velo", shooter.getVelocity());
-        telemetry.addData("bottom",shooter.getWHeel2Velo());
-        telemetry.addData("top",shooter.getWHeel1Velo());
+        telemetry.addData("bottom",shooter.getWheel2Velo());
+        telemetry.addData("top",shooter.getWheel1Velo());
 
         telemetry.addData("FL Power", drive.frontLeftMotor.getPower());
         telemetry.addData("FR Power", drive.frontRightMotor.getPower());

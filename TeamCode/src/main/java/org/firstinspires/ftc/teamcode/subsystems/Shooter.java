@@ -51,7 +51,7 @@ public class Shooter {
         private double targetVelocity = 0;
         private double currentVelocity;
         private static final double VELOCITY_TOLERANCE = 50;
-        public static final double MAX_VELOCITY = 20000;
+        public static final double MAX_VELOCITY = 1300;
         public PIDFController flywheelPIDF;
         public final static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.7, 0.0, 0.0, 0.00051);
         public Flywheel(HardwareMap hardwareMap) {
@@ -78,20 +78,20 @@ public class Shooter {
             shooter2.setPower(output);
         }
 
-        public double getWHeel1Velo(){
+        public double getWheel1Velo(){
             return shooter1.getVelocity();
         }
 
-        public double getWHeel2Velo(){
+        public double getWheel2Velo(){
             return shooter2.getVelocity();
         }
         public double getVelocity() {
             double velocity1 = shooter1.getVelocity();
             double velocity2 = shooter2.getVelocity();
             if (velocity1 == 0) {
-                return 67;
+                return -1.0;
             } else if (velocity2 == 0) {
-                return 67;
+                return -1.0;
             } else {
                 return (velocity1 + velocity2) / 2.0;
             }
@@ -112,11 +112,11 @@ public class Shooter {
 
     public static class Hood {
         private final Servo hoodServo;
-        public static final double MIN_POSITION = 0.0;
-        public static final double MAX_POSITION = 1.0;
-        public static final double MIN_ANGLE = 45.0;
-        public static final double MAX_ANGLE = 90.0;
-        private static final double HOME_ANGLE = 90.0;
+        public static final double MIN_POSITION = 0.87;
+        public static final double MAX_POSITION = 0.0;
+        public static final double MIN_ANGLE = 12;
+        public static final double MAX_ANGLE = 39;
+        private static final double HOME_ANGLE = 12;
         public Hood(HardwareMap hardwareMap) {
             hoodServo = hardwareMap.get(Servo.class, "hood");
         }
@@ -144,8 +144,8 @@ public class Shooter {
         private final Servo turret2;
         public static double MIN_POSITION = 0.0;
         public static double MAX_POSITION = 1.0;
-        public static double MIN_ANGLE = -180.0;
-        public static double MAX_ANGLE = 180.0;
+        public static double MIN_ANGLE = -158;
+        public static double MAX_ANGLE = 158;
         private static final double HOME_ANGLE = 0.0;
         public Turret(HardwareMap hardwareMap) {
             turret1 = hardwareMap.get(Servo.class, "turret1");

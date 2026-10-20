@@ -54,8 +54,8 @@ public class TurretTester extends OpMode {
         if (player1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)) position -= 0.001;
         position = Range.clip(position, 0, 1);
 
-        if (player1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) turret.setPosition(position);
         if (player1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) turret.setAngle(angle);
+        else turret.setPosition(position);
 
         tele.addData("Current Position", position)
                 .addData("Calculated Angle", turret.getAngle())
