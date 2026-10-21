@@ -45,6 +45,15 @@ public class Shooter {
     public boolean isReady() {
         return flywheel.isReady();
     }
+    public double getFlywheelVelo() {
+        return flywheel.getVelocity();
+    }
+    public double getHoodAngle() {
+        return hood.getAngle();
+    }
+    public double getTurretAngle() {
+        return turret.getAngle();
+    }
     public void stop() {
         flywheel.stop();
         turret.home();
@@ -84,11 +93,9 @@ public class Shooter {
             shooter1.setPower(output);
             shooter2.setPower(output);
         }
-
         public double getWheel1Velo(){
             return shooter1.getVelocity();
         }
-
         public double getWheel2Velo(){
             return shooter2.getVelocity();
         }
@@ -96,9 +103,9 @@ public class Shooter {
             double velocity1 = shooter1.getVelocity();
             double velocity2 = shooter2.getVelocity();
             if (velocity1 == 0) {
-                return -1.0;
+                return velocity2;
             } else if (velocity2 == 0) {
-                return -1.0;
+                return velocity1;
             } else {
                 return (velocity1 + velocity2) / 2.0;
             }
