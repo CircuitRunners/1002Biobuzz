@@ -18,12 +18,11 @@ public class DistanceSensorTester extends OpMode {
         tele = new GlobalTelemetry(telemetry, false);
         tele.addLine("Initializing...").update();
 
-        sensor = hardwareMap.get(DigitalChannel.class, "distanceSensor");
-//        sensors[0] = hardwareMap.get(DigitalChannel.class, "bottomLeft");
-//        sensors[1] = hardwareMap.get(DigitalChannel.class, "bottomRight");
-//        sensors[2] = hardwareMap.get(DigitalChannel.class, "transfer3");
-//        sensors[3] = hardwareMap.get(DigitalChannel.class, "transfer2");
-//        sensors[4] = hardwareMap.get(DigitalChannel.class, "transfer1");
+        sensors[0] = hardwareMap.get(DigitalChannel.class, "sensor1");
+        sensors[1] = hardwareMap.get(DigitalChannel.class, "sensor2");
+        sensors[2] = hardwareMap.get(DigitalChannel.class, "sensor3");
+        sensors[3] = hardwareMap.get(DigitalChannel.class, "rampL");
+        sensors[4] = hardwareMap.get(DigitalChannel.class, "rampR");
 
         tele.addLine("Ready").update();
     }

@@ -5,6 +5,7 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
 import org.firstinspires.ftc.teamcode.util.Logger;
@@ -17,12 +18,15 @@ public class FlywheelTester extends OpMode {
 
     private GlobalTelemetry tele;
     private Shooter.Flywheel flywheel;
+    private Intake intake;
     private List<LynxModule> hubs;
     public static double targetTicksPerSecond = 0;
     public static double kP = 0.1;
     public static double kD = 0;
     public static double kI = 0;
     public static double kF = 0;
+
+    public static boolean INTAKEING = false;
 
     @Override
     public void init() {
@@ -31,6 +35,7 @@ public class FlywheelTester extends OpMode {
         tele.addLine("Initializing...")
             .update();
 
+        intake = new Intake(hardwareMap);
         hubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : hubs) hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
 
@@ -47,6 +52,13 @@ public class FlywheelTester extends OpMode {
         flywheel.flywheelPIDF.setPIDF(kP, kI, kD, kF);
         flywheel.setTargetVelocity(targetTicksPerSecond);
         flywheel.update();
+
+        if (INTAKEING){
+            intake.transfer();
+        }
+        else{
+            intake.stop();
+        }
 
         tele.addData("Current Velocity", flywheel.getVelocity())
             .addData("Target Velocity", targetTicksPerSecond)
