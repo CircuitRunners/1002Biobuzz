@@ -29,8 +29,13 @@ public class DistanceSensorTester extends OpMode {
 
     @Override
     public void loop() {
-        tele.addData("Detecting?", sensor.getState()).update();
-        // tele.addData("Num Balls", numBalls()).update();
+        tele.addData("Sensor 1", sensors[0].getState())
+            .addData("Sensor 2", sensors[1].getState())
+            .addData("Sensor 3", sensors[2].getState())
+            .addData("Ramp L", sensors[3].getState())
+            .addData("Ramp R", sensors[4].getState())
+            .addData("Num Balls", numBalls())
+            .update();
     }
 
     private int numBalls() {

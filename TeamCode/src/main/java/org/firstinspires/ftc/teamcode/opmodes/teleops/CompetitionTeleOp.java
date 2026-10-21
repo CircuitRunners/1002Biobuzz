@@ -119,7 +119,7 @@ public class CompetitionTeleOp extends OpMode {
     }
 
     private void handleShootingState() {
-        shooter.setTargetsNoTurret(currentPose, targetPose, 1.245);
+        shooter.setTargets(currentPose, targetPose, 1.245, 0, 0);
         if (player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2 && shooter.isReady()) intake.transfer();
         else if (player1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.2) intake.outtake();
         else intake.stop();

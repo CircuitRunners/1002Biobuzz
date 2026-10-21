@@ -18,7 +18,8 @@ public class Shooter {
     private final Flywheel flywheel;
     private final Hood hood;
     private final Turret turret;
-
+    public enum Mode {NO_TURRET, TURRET_ONLY, SOTM}
+    private Mode mode = Mode.TURRET_ONLY;
     public Shooter(HardwareMap hardwareMap) {
         flywheel = new Flywheel(hardwareMap);
         hood = new Hood(hardwareMap);
@@ -27,20 +28,29 @@ public class Shooter {
     public void update() {
         flywheel.update();
     }
-    public void setTargets(Pose currentPose, Pose targetPose, double dy) {
+    public void setTargets(Pose currentPose, Pose targetPose, double dy, double robotVeloX, double robotVeloY) {
         double flywheelVelocity = ShooterUtil.getTargetFlywheelVelocity(currentPose, targetPose, dy);
         double hoodAngle = Math.toDegrees(ShooterUtil.getHoodTargetAngle(currentPose, targetPose, dy));
 
+        switch (mode) {
+            case NO_TURRET:
+                break;
+
+            case TURRET_ONLY:
+                turret.setTarget(currentPose, targetPose);
+                break;
+
+            case SOTM:
+                Pose SOTM_TARGET = ShooterUtil.SOTM_Target(currentPose, targetPose, dy, robotVeloX, robotVeloY);
+                flywheelVelocity = ShooterUtil.getTargetFlywheelVelocity(currentPose, SOTM_TARGET, dy);
+                hoodAngle = Math.toDegrees(ShooterUtil.getHoodTargetAngle(currentPose, targetPose, dy));
+        }
+
         flywheel.setTargetVelocity(flywheelVelocity);
         hood.setAngle(hoodAngle);
-        turret.setTarget(currentPose, targetPose);
     }
-    public void setTargetsNoTurret(Pose currentPose, Pose targetPose, double dy) {
-        double flywheelVelocity = ShooterUtil.getTargetFlywheelVelocity(currentPose, targetPose, dy);
-        double hoodAngle = Math.toDegrees(ShooterUtil.getHoodTargetAngle(currentPose, targetPose, dy));
-
-        flywheel.setTargetVelocity(flywheelVelocity);
-        hood.setAngle(hoodAngle);
+    public void setMode(Mode m) {
+        mode = m;
     }
     public boolean isReady() {
         return flywheel.isReady();
@@ -103,9 +113,9 @@ public class Shooter {
             double velocity1 = shooter1.getVelocity();
             double velocity2 = shooter2.getVelocity();
             if (velocity1 == 0) {
-                return velocity2;
+                return 67;
             } else if (velocity2 == 0) {
-                return velocity1;
+                return -67;
             } else {
                 return (velocity1 + velocity2) / 2.0;
             }

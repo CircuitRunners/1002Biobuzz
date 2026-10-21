@@ -42,10 +42,21 @@ public class ShooterUtil {
         return ballVeloToFlywheelVelo(getTargetBallVelocity(currentPose, targetPose, dy));
     }
     public static double getTimeOfFlight(Pose currentPose, Pose targetPose, double dy) {
-        double theta = getHoodTargetAngle(currentPose, targetPose, dy);
+        double theta = Math.toRadians(90.0) - getHoodTargetAngle(currentPose, targetPose, dy);
         double dx = inchesToMeters(currentPose.distance(targetPose));
         double v0 = getTargetBallVelocity(currentPose, targetPose, dy);
         return dx / (v0 * Math.cos(theta));
+    }
+    public static Pose SOTM_Target(Pose currentPose, Pose targetPose, double dy, double robotVeloX, double robotVeloY) {
+        double timeOfFlight = getTimeOfFlight(currentPose, targetPose, dy);
+        double targetX = targetPose.x();
+        double targetY = targetPose.y();
+        for (int i = 0; i < 10; i++) {
+            targetX = targetPose.x() - timeOfFlight * robotVeloX;
+            targetY = targetPose.y() - timeOfFlight * robotVeloY;
+            timeOfFlight = getTimeOfFlight(currentPose, new Pose(targetX, targetY), dy);
+        }
+        return new Pose(targetX, targetY);
     }
     public static double inchesToMeters(double inches) {
         return inches * 0.0254;
@@ -68,4 +79,34 @@ public class ShooterUtil {
         }
         throw new IllegalStateException("Lookup Table misconfigured");
     }
+
+    public static double[][] veloLUT = {
+            {10, 0},
+            {15, 0},
+            {20, 0},
+            {25, 0},
+            {30, 0},
+            {35, 0},
+            {40, 0},
+            {45, 0},
+            {50, 0},
+            {55, 0},
+            {60, 0},
+            {65, 0}
+    };
+
+    public static double[][] hoodLUT = {
+            {10, 0},
+            {15, 0},
+            {20, 0},
+            {25, 0},
+            {30, 0},
+            {35, 0},
+            {40, 0},
+            {45, 0},
+            {50, 0},
+            {55, 0},
+            {60, 0},
+            {65, 0}
+    };
 }
