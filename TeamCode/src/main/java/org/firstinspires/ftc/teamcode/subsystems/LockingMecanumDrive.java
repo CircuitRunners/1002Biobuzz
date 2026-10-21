@@ -6,14 +6,15 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class LockingMecanumDrive extends MecanumDrive {
 
     private final Servo lockingServo;
-    public static double lockPos = 0.34;
-    public static double unlockPos = 1;
+    public static double LOCK_POSITION = 0.34;
+    public static double UNLOCK_POSITION = 1;
     public enum LMecDriveState {LOCKED, UNLOCKED}
     private LMecDriveState state;
     public LockingMecanumDrive(HardwareMap hardwareMap) {
         super(hardwareMap);
-        state = LMecDriveState.LOCKED;
+        state = LMecDriveState.UNLOCKED;
         lockingServo = hardwareMap.get(Servo.class, "lockingServo");
+        lockingServo.setPosition(UNLOCK_POSITION);
     }
 
     @Override
@@ -44,12 +45,12 @@ public class LockingMecanumDrive extends MecanumDrive {
     }
 
     public void lock() {
-        lockingServo.setPosition(lockPos);
+        lockingServo.setPosition(LOCK_POSITION);
         state = LMecDriveState.LOCKED;
     }
 
     public void unlock() {
-        lockingServo.setPosition(unlockPos);
+        lockingServo.setPosition(UNLOCK_POSITION);
         state = LMecDriveState.UNLOCKED;
     }
 

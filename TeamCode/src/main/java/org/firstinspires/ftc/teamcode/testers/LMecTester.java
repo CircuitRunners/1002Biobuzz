@@ -1,14 +1,10 @@
 package org.firstinspires.ftc.teamcode.testers;
 import com.bylazar.gamepad.PanelsGamepad;
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.subsystems.LockingMecanumDrive;
-import org.firstinspires.ftc.teamcode.subsystems.MecanumDrive;
 import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
 import org.firstinspires.ftc.teamcode.util.Logger;
 
@@ -69,18 +65,18 @@ public class LMecTester extends OpMode {
          */
         if (locked) {
             if (g1.dpad_up && !lastDpadUp) {
-                LockingMecanumDrive.lockPos += 0.01;
+                LockingMecanumDrive.LOCK_POSITION += 0.01;
             }
             if (g1.dpad_down && !lastDpadDown) {
-                LockingMecanumDrive.lockPos -= 0.01;
+                LockingMecanumDrive.LOCK_POSITION -= 0.01;
             }
             drive.lock();
         } else {
             if (g1.dpad_up && !lastDpadUp) {
-                LockingMecanumDrive.unlockPos += 0.01;
+                LockingMecanumDrive.UNLOCK_POSITION += 0.01;
             }
             if (g1.dpad_down && !lastDpadDown) {
-                LockingMecanumDrive.unlockPos -= 0.01;
+                LockingMecanumDrive.UNLOCK_POSITION -= 0.01;
             }
             drive.unlock();
         }
@@ -97,8 +93,8 @@ public class LMecTester extends OpMode {
             .addData("FR Power", drive.frontRightMotor.getPower())
             .addData("BL Power", drive.backLeftMotor.getPower())
             .addData("BR Power", drive.backRightMotor.getPower())
-            .addData("Unlocked Position", LockingMecanumDrive.unlockPos)
-            .addData("Locked Position", LockingMecanumDrive.lockPos)
+            .addData("Unlocked Position", LockingMecanumDrive.UNLOCK_POSITION)
+            .addData("Locked Position", LockingMecanumDrive.LOCK_POSITION)
             .addData("Locked?", locked)
             .addData("LMec State", drive.getState())
             .addData("Field Centric?", fieldCentric)
