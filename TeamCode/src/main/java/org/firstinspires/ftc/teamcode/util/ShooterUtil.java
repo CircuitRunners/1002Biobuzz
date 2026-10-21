@@ -1,23 +1,22 @@
 package org.firstinspires.ftc.teamcode.util;
 
 import com.pedropathing.math.Pose;
+import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 public class ShooterUtil {
-    private static final double TICKS_PER_REV = 103.6;
-    private static final double FLYWHEEL_RADIUS = 0.04; // in meters
+    private static final double TICKS_PER_REV = 145.1;
+    private static final double FLYWHEEL_RADIUS = 0.036; // in meters
     private static final double FLYWHEEL_VELOCITY_CONSTANT = 0.55;
     private static final double G = 9.81;
-    public static double flywheelVeloToBallVelo(double velocity) {
-        double angularVelocity = (velocity / TICKS_PER_REV) * 2 * Math.PI;
-        double tangentialVelocity = angularVelocity * FLYWHEEL_RADIUS;
-        double theoretical = tangentialVelocity / 2;
-        return theoretical * FLYWHEEL_VELOCITY_CONSTANT;
+    private static final double HEIGHT = 0.267;
+    private static final double BALL_VELO_PER_TICK = 0.0037; // (dy / (t sin (theta)) + gt / (2 sin (theta))) / current TPS
+    public static double flywheelVeloToBallVelo(double ticksPerSecond) {
+        return ticksPerSecond * BALL_VELO_PER_TICK;
     }
-    public static double ballVeloToFlywheelVelo(double velocity) {
-        double theoretical = velocity / FLYWHEEL_VELOCITY_CONSTANT;
-        double tangentialVelocity = theoretical * 2;
-        double angularVelocity = tangentialVelocity / FLYWHEEL_RADIUS;
-        return angularVelocity * TICKS_PER_REV / (2 * Math.PI);
+    public static double ballVeloToFlywheelVelo(double ballVelo) {
+        return ballVelo / BALL_VELO_PER_TICK;
     }
 
     /**
@@ -31,7 +30,8 @@ public class ShooterUtil {
      */
     public static double getHoodTargetAngle(Pose currentPose, Pose targetPose, double dy) {
         double dx = inchesToMeters(currentPose.distance(targetPose));
-        return Math.atan(dy / dx) / 2 + Math.toRadians(45.0);
+        double desired = Math.toRadians(45.0) - Math.atan(dy / dx) / 2;
+        return Range.clip(desired, Math.toRadians(Shooter.Hood.MIN_ANGLE), Math.toRadians(Shooter.Hood.MAX_ANGLE));
     }
     public static double getTargetBallVelocity(Pose currentPose, Pose targetPose, double dy) {
         double theta = getHoodTargetAngle(currentPose, targetPose, dy);
@@ -63,7 +63,7 @@ public class ShooterUtil {
                 double v1 = lut[i+1][1];
                 double t = (input - i0) / (i1 - i0);
 
-                return v0 + t * v1;
+                return v0 + t * (v1 - v0);
             }
         }
         throw new IllegalStateException("Lookup Table misconfigured");

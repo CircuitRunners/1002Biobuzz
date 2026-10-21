@@ -35,6 +35,13 @@ public class Shooter {
         hood.setAngle(hoodAngle);
         turret.setTarget(currentPose, targetPose);
     }
+    public void setTargetsNoTurret(Pose currentPose, Pose targetPose, double dy) {
+        double flywheelVelocity = ShooterUtil.getTargetFlywheelVelocity(currentPose, targetPose, dy);
+        double hoodAngle = Math.toDegrees(ShooterUtil.getHoodTargetAngle(currentPose, targetPose, dy));
+
+        flywheel.setTargetVelocity(flywheelVelocity);
+        hood.setAngle(hoodAngle);
+    }
     public boolean isReady() {
         return flywheel.isReady();
     }
