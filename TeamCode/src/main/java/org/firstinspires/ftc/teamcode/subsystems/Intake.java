@@ -110,12 +110,7 @@ public class Intake {
     }
     public void rampUp() {ramp.setPosition(RAMP_UP);}
     public void rampDown() {ramp.setPosition(RAMP_DOWN);}
-//    public int numBalls() {
-//        int count = 0;
-//        for (int i = 0; i < 5; i++) {
-//                if (sensors[i].getDistance(DistanceUnit.MM) <= DISTANCE_THRESHOLD) count++;
-//        }
-//        return count;
-//    }
-    //look at documentation - this will return either 0 or 1
+    public boolean rampHasBalls() {
+        return sensors[3].getState() || sensors[4].getState();
+    }
 }

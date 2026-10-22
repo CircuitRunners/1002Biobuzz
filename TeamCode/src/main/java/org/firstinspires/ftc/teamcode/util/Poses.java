@@ -27,6 +27,18 @@ public class Poses {
         }
     }
 
+    public static final Pose startPoseScoring = p.of(134, 129, 90);
+    public static final Pose intakeGarden = p.of(134, 133, 90);
+    public static final Pose[] intakeScoringFlower = {p.of(130, 95, 0),
+            p.of(87, 133, 0),
+            p.of(106, 91, 0)
+    };
+    public static final Pose[] intakeAudienceFlower = {p.of(94, 14, 270),
+            p.of(91, 36, 0)
+    };
+    public static final Pose shootPoseAudience1 = p.of(110, 34, 180);
+    public static final Pose shootPoseScoring1 = p.of(110, 110, 180);
+
     public static Pose targetHivePose(Zones zone) {
         switch (zone) {
             case BLUE_SCORING:

@@ -3,11 +3,12 @@ package org.firstinspires.ftc.teamcode.opmodes.autos;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.interpolator.Interpolator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.pedro.routine.AutoBase;
 import org.firstinspires.ftc.teamcode.pedro.routine.Routine;
 import org.firstinspires.ftc.teamcode.util.Poses;
-
+@Disabled
 @Autonomous(name="Routine Auto")
 public class RoutineAuto extends AutoBase {
     private enum RoutineType {

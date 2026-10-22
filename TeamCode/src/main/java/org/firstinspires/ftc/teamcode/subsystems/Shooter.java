@@ -76,10 +76,10 @@ public class Shooter {
         private final DcMotorEx shooter2;
         private double targetVelocity = 0;
         private double currentVelocity;
-        private static final double VELOCITY_TOLERANCE = 50;
-        public static final double MAX_VELOCITY = 1300;
+        private static final double VELOCITY_TOLERANCE = 100;
+        public static final double MAX_VELOCITY = 1600;
         public PIDFController flywheelPIDF;
-        public final static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.7, 0.0, 0.0, 0.00051);
+        public final static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.8, 0.0, 0.1, 0.0018);
         public Flywheel(HardwareMap hardwareMap) {
             shooter1 = hardwareMap.get(DcMotorEx.class, "shooterTop");
             shooter1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

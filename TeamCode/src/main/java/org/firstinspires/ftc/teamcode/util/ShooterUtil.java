@@ -6,12 +6,10 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 public class ShooterUtil {
-    private static final double TICKS_PER_REV = 145.1;
-    private static final double FLYWHEEL_RADIUS = 0.036; // in meters
-    private static final double FLYWHEEL_VELOCITY_CONSTANT = 0.55;
     private static final double G = 9.81;
     private static final double HEIGHT = 0.267;
     private static final double BALL_VELO_PER_TICK = 0.0037; // (dy / (t sin (theta)) + gt / (2 sin (theta))) / current TPS
+    public static final double DY = 1.245;
     public static double flywheelVeloToBallVelo(double ticksPerSecond) {
         return ticksPerSecond * BALL_VELO_PER_TICK;
     }

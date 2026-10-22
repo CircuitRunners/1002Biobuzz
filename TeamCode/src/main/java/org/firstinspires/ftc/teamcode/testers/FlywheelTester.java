@@ -28,7 +28,7 @@ public class FlywheelTester extends OpMode {
     public static double kI = 0;
     public static double kF = 0;
 
-    public static boolean INTAKEING = false;
+    public static boolean TRANSFERING = false;
 
     @Override
     public void init() {
@@ -39,6 +39,7 @@ public class FlywheelTester extends OpMode {
 
         intake = new Intake(hardwareMap);
         hood = new Shooter.Hood(hardwareMap);
+
         hubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : hubs) hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
 
@@ -56,12 +57,13 @@ public class FlywheelTester extends OpMode {
         flywheel.update();
 
         hood.setAngle(angle);
-        if (INTAKEING){
+        if (TRANSFERING){
             intake.transfer();
         }
-        else{
+        else {
             intake.stop();
         }
+        intake.update();
 
         tele.addData("Current Velocity", flywheel.getVelocity())
             .addData("Target Velocity", targetTicksPerSecond)
