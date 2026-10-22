@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.autos;
 
 import android.provider.Settings;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.interpolator.Interpolator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
 import org.firstinspires.ftc.teamcode.util.Poses;
 import org.firstinspires.ftc.teamcode.util.ShooterUtil;
+@Configurable
 
 @Autonomous(name="Scoring Side Auto", group = "COMPETITION")
 public class ScoringSideAuto extends AutoBase {
@@ -24,6 +26,8 @@ public class ScoringSideAuto extends AutoBase {
 
     private RoutineType routineType = RoutineType.TWO_TIP;
     private int routineIndex = 0;
+    public static double shooterOffset = 0;
+    public static double turretOffset = 0;
     private Intake intake;
     private Shooter shooter;
     @Override
@@ -114,7 +118,7 @@ public class ScoringSideAuto extends AutoBase {
     private void updateShooting() {
         if (shotState == ShotState.IDLE || shotState == ShotState.DONE) return;
 
-        shooter.setTargets(currentPose, targetPose, ShooterUtil.DY, 0, 0);
+        shooter.setTargets(currentPose, targetPose, ShooterUtil.DY, 0, 0, shooterOffset,turretOffset);
         switch (shotState) {
             case SPINNING_UP:
                 if (shooter.isReady()) {

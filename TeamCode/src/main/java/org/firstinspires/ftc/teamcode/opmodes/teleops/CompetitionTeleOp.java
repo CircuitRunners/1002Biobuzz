@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleops;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -13,73 +14,167 @@ import org.firstinspires.ftc.teamcode.subsystems.LockingMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
 import org.firstinspires.ftc.teamcode.util.Poses;
+import org.firstinspires.ftc.teamcode.util.ShooterUtil;
 
-@TeleOp(name = "COMPETITION TELEOP", group = "COMPETITION")
+@Configurable
+@TeleOp(
+        name = "COMPETITION TELEOP",
+        group = "COMPETITION"
+)
 public class CompetitionTeleOp extends OpMode {
+
+    private static final double TARGET_DY_INCHES = 1.245;
+    public static double shooterOffset = 0;
 
     private GlobalTelemetry tele;
     private LockingMecanumDrive lMecDrive;
-    private boolean locked = false;
     private Intake intake;
     private Shooter shooter;
     private Follower follower;
-    private Pose currentPose;
-    private Pose targetPose;
-    private Poses.Zones currentZone;
-    private GamepadEx player1;
+
+    private boolean locked = false;
     private boolean isRedAlliance;
-    private enum Mode {INTAKING, SHOOTING}
+
+    private Pose currentPose;
+    public static double turretOffsets;
+    private Pose targetPose;
+
+    private Poses.Zones currentZone;
+
+    private GamepadEx player1;
+
+    private enum Mode {
+        INTAKING,
+        SHOOTING
+    }
+
     private Mode mode = Mode.INTAKING;
 
     @Override
     public void init() {
-        tele = new GlobalTelemetry(telemetry, false);
-        tele.addLine("Initializing").update();
+        tele =
+                new GlobalTelemetry(
+                        telemetry,
+                        false
+                );
 
-        lMecDrive = new LockingMecanumDrive(hardwareMap);
-        intake = new Intake(hardwareMap);
-        shooter = new Shooter(hardwareMap);
-        player1 = new GamepadEx(gamepad1);
+        tele.addLine("Initializing")
+                .update();
 
-        follower = Constants.create(hardwareMap);
-        follower.setPose(Poses.startingPose);
+        lMecDrive =
+                new LockingMecanumDrive(hardwareMap);
 
-        if (Poses.currentAlliance == null) Poses.setCurrentAlliance(Poses.Alliance.BLUE);
+        intake =
+                new Intake(hardwareMap);
 
-        tele.addLine("Ready").update();
+        shooter =
+                new Shooter(hardwareMap);
+
+        player1 =
+                new GamepadEx(gamepad1);
+
+        follower =
+                Constants.create(hardwareMap);
+
+        follower.setPose(
+                Poses.startingPose
+        );
+
+        if (Poses.currentAlliance == null) {
+            Poses.setCurrentAlliance(
+                    Poses.Alliance.BLUE
+            );
+        }
+
+        isRedAlliance =
+                Poses.currentAlliance
+                        == Poses.Alliance.RED;
+
+        tele.addLine("Ready")
+                .update();
     }
 
     @Override
     public void init_loop() {
         player1.readButtons();
-        tele.addLine("ALLIANCE SELECTION")
-            .addLine("DPAD LEFT -> RED || DPAD RIGHT -> BLUE")
-            .addData("Current Alliance", Poses.currentAlliance)
-            .update();
 
-        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)) Poses.setCurrentAlliance(Poses.Alliance.RED);
-        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)) Poses.setCurrentAlliance(Poses.Alliance.BLUE);
-        isRedAlliance = Poses.currentAlliance == Poses.Alliance.RED;
+
+        tele.addLine("ALLIANCE SELECTION")
+                .addLine(
+                        "DPAD LEFT -> RED || DPAD RIGHT -> BLUE"
+                )
+                .addData(
+                        "Current Alliance",
+                        Poses.currentAlliance
+                )
+                .update();
+
+        if (player1.wasJustPressed(
+                GamepadKeys.Button.DPAD_LEFT
+        )) {
+            Poses.setCurrentAlliance(
+                    Poses.Alliance.RED
+            );
+        }
+
+        if (player1.wasJustPressed(
+                GamepadKeys.Button.DPAD_RIGHT
+        )) {
+            Poses.setCurrentAlliance(
+                    Poses.Alliance.BLUE
+            );
+        }
+
+        isRedAlliance =
+                Poses.currentAlliance
+                        == Poses.Alliance.RED;
     }
 
     @Override
     public void loop() {
         player1.readButtons();
+
         follower.update();
         intake.update();
         shooter.update();
 
+        if (gamepad1.options){
+            isRedAlliance = false;
+        }
+        else if (gamepad1.start){
+            isRedAlliance = true;
+        }
+
         currentPose = follower.pose();
-        currentZone = Poses.currentZone(currentPose);
-        targetPose = Poses.targetHivePose(currentZone);
+
+        currentZone =
+                Poses.currentZone(currentPose);
+
+        targetPose =
+                Poses.targetHivePose(currentZone);
 
         handleDriving();
-        if (player1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER) && mode == Mode.INTAKING) {
-            mode = Mode.SHOOTING;
-            gamepad1.rumble(0.5, 1.0, 200);
-        } else if (player1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER) && mode == Mode.SHOOTING) {
-            mode = Mode.INTAKING;
-            gamepad1.rumble(1.0, 0.5, 200);
+
+        if (player1.wasJustPressed(
+                GamepadKeys.Button.RIGHT_BUMPER
+        )) {
+            if (mode == Mode.INTAKING) {
+                mode = Mode.SHOOTING;
+
+                gamepad1.rumble(
+                        0.5,
+                        1.0,
+                        200
+                );
+            } else {
+                mode = Mode.INTAKING;
+
+                gamepad1.rumble(
+                        1.0,
+                        0.5,
+                        200
+                );
+            }
         }
 
         if (mode == Mode.INTAKING) {
@@ -89,59 +184,157 @@ public class CompetitionTeleOp extends OpMode {
             handleShootingState();
         }
 
-        telemetry();
+        updateTelemetry();
     }
 
     private void handleDriving() {
-        if (player1.wasJustPressed(GamepadKeys.Button.SQUARE)) follower.setPose(Poses.relocPose1);
-        if (player1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) {
+        if (player1.wasJustPressed(
+                GamepadKeys.Button.SQUARE
+        )) {
+            follower.setPose(
+                    Poses.relocPose1
+            );
+        }
+
+        if (player1.wasJustPressed(
+                GamepadKeys.Button.LEFT_BUMPER
+        )) {
             locked = !locked;
+
             if (locked) {
                 lMecDrive.lock();
-                gamepad1.rumble(1.0, 1.0, 200);
-            }
-            else {
+
+                gamepad1.rumble(
+                        1.0,
+                        1.0,
+                        200
+                );
+            } else {
                 lMecDrive.unlock();
-                gamepad1.rumble(0.2, 0.2, 200);
+
+                gamepad1.rumble(
+                        0.2,
+                        0.2,
+                        200
+                );
             }
         }
 
-        double forward = player1.getLeftY();
-        double strafe = player1.getLeftX();
-        double rotate = player1.getRightX();
-        lMecDrive.driveFieldCentric(forward, strafe, rotate, currentPose.heading());
+        double forward =
+                player1.getLeftY();
+
+        double strafe =
+                player1.getLeftX();
+
+        double rotate =
+                player1.getRightX();
+
+        lMecDrive.driveFieldCentric(
+                -forward,
+                -strafe,
+                rotate,
+                currentPose.heading()
+        );
     }
 
     private void handleIntakeState() {
-        if (player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2) intake.intake();
-        else if (player1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.2) intake.outtake();
-        else intake.stop();
+        if (player1.getTrigger(
+                GamepadKeys.Trigger.RIGHT_TRIGGER
+        ) > 0.2) {
+            intake.intake();
+        } else if (player1.getTrigger(
+                GamepadKeys.Trigger.LEFT_TRIGGER
+        ) > 0.2) {
+            intake.outtake();
+        } else {
+            intake.stop();
+        }
     }
 
     private void handleShootingState() {
-        shooter.setTargets(currentPose, targetPose, 1.245, 0, 0);
-        if (player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2 && shooter.isReady()) intake.transfer();
-        else if (player1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.2) intake.outtake();
-        else intake.stop();
+        shooter.setTargets(
+                currentPose,
+                targetPose,
+                TARGET_DY_INCHES,
+                0.0,
+                0.0,shooterOffset, turretOffsets
+        );
+
+        if (player1.getTrigger(
+                GamepadKeys.Trigger.RIGHT_TRIGGER
+        ) > 0.2 && shooter.isReady()) {
+            intake.transfer();
+        } else if (player1.getTrigger(
+                GamepadKeys.Trigger.LEFT_TRIGGER
+        ) > 0.2) {
+            intake.outtake();
+        } else {
+            intake.stop();
+        }
     }
 
-    private void telemetry() {
+    private void updateTelemetry() {
+        double targetFlywheelVelocity =
+                ShooterUtil.getTargetFlywheelVelocity(
+                        currentPose,
+                        targetPose,
+                        TARGET_DY_INCHES
+                );
+
         tele.header("POSITIONS")
-            .addData("Current Pose", currentPose)
-            .addData("Target Pose", targetPose)
-            .addData("Alliance", Poses.currentAlliance)
-            .addData("Current Zone", currentZone)
-            .addLine()
-            .header("STATES")
-            .addData("Drive State", lMecDrive.getState())
-            .addData("Intake State", intake.getState())
-            .addData("TeleOp State", mode)
-            .addLine()
-            .header("DIAGNOSTICS")
-            .addData("Flywheel Velocity", shooter.getFlywheelVelo())
-            .addData("Hood Angle", shooter.getHoodAngle())
-            .addData("Turret Angle", shooter.getTurretAngle())
-            .showLoopTime()
-            .update();
+                .addData(
+                        "Current Pose",
+                        currentPose
+                )
+                .addData(
+                        "Target Pose",
+                        targetPose
+                )
+                .addData(
+                        "Alliance",
+                        Poses.currentAlliance
+                )
+                .addData(
+                        "Current Zone",
+                        currentZone
+                )
+                .addLine()
+                .header("STATES")
+                .addData(
+                        "Drive State",
+                        lMecDrive.getState()
+                )
+                .addData(
+                        "Intake State",
+                        intake.getState()
+                )
+                .addData(
+                        "TeleOp State",
+                        mode
+                )
+                .addLine()
+                .header("DIAGNOSTICS")
+                .addData(
+                        "Flywheel Velocity",
+                        shooter.getFlywheelVelo()
+                )
+                .addData(
+                        "Target Flywheel Velocity",
+                        targetFlywheelVelocity
+                )
+                .addData(
+                        "Hood Angle",
+                        shooter.getHoodAngle()
+                )
+                .addData(
+                        "Turret Angle",
+                        shooter.getTurretAngle()
+                )
+                .addData(
+                        "Target DY Inches",
+                        TARGET_DY_INCHES
+                )
+                .showLoopTime()
+                .update();
     }
 }

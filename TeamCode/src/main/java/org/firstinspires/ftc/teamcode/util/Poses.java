@@ -19,10 +19,10 @@ public class Poses {
 
     public static Zones currentZone(Pose pose) {
         if (currentAlliance == Alliance.RED) {
-            if (pose.y() > 72) return Zones.RED_AUDIENCE;
+            if (pose.y() < 72) return Zones.RED_AUDIENCE;
             return Zones.RED_SCORING;
         } else {
-            if (pose.y() > 72) return Zones.BLUE_SCORING;
+            if (pose.y() < 72) return Zones.BLUE_SCORING;
             return Zones.BLUE_AUDIENCE;
         }
     }

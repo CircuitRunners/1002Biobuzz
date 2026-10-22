@@ -13,189 +13,445 @@ import com.seattlesolvers.solverslib.controller.PIDFController;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.util.ShooterUtil;
+
 @Configurable
 public class Shooter {
+
     private final Flywheel flywheel;
     private final Hood hood;
     private final Turret turret;
-    public enum Mode {NO_TURRET, TURRET_ONLY, SOTM}
+
+    public enum Mode {
+        NO_TURRET,
+        TURRET_ONLY,
+        SOTM
+    }
+
     private Mode mode = Mode.TURRET_ONLY;
+
     public Shooter(HardwareMap hardwareMap) {
         flywheel = new Flywheel(hardwareMap);
         hood = new Hood(hardwareMap);
         turret = new Turret(hardwareMap);
     }
+
     public void update() {
         flywheel.update();
     }
-    public void setTargets(Pose currentPose, Pose targetPose, double dy, double robotVeloX, double robotVeloY) {
-        double flywheelVelocity = ShooterUtil.getTargetFlywheelVelocity(currentPose, targetPose, dy);
-        double hoodAngle = Math.toDegrees(ShooterUtil.getHoodTargetAngle(currentPose, targetPose, dy));
+
+    public void setTargets(
+            Pose currentPose,
+            Pose targetPose,
+            double dyInches,
+            double robotVeloX,
+            double robotVeloY, double shooterOffset, double turretOffset
+    ) {
+        Pose aimingTarget = targetPose;
+
+        if (mode == Mode.SOTM) {
+            aimingTarget =
+                    ShooterUtil.SOTM_Target(
+                            currentPose,
+                            targetPose,
+                            dyInches,
+                            robotVeloX,
+                            robotVeloY
+                    );
+        }
+
+        double flywheelVelocity =
+                ShooterUtil.getTargetFlywheelVelocity(
+                        currentPose,
+                        aimingTarget,
+                        dyInches
+                );
+
+        double hoodAngle =
+                Math.toDegrees(
+                        ShooterUtil.getHoodTargetAngle(
+                                currentPose,
+                                aimingTarget,
+                                dyInches
+                        )
+                );
 
         switch (mode) {
             case NO_TURRET:
                 break;
 
             case TURRET_ONLY:
-                turret.setTarget(currentPose, targetPose);
+                turret.setTarget(currentPose, targetPose, turretOffset);
                 break;
 
             case SOTM:
-                Pose SOTM_TARGET = ShooterUtil.SOTM_Target(currentPose, targetPose, dy, robotVeloX, robotVeloY);
-                flywheelVelocity = ShooterUtil.getTargetFlywheelVelocity(currentPose, SOTM_TARGET, dy);
-                hoodAngle = Math.toDegrees(ShooterUtil.getHoodTargetAngle(currentPose, targetPose, dy));
+                turret.setTarget(currentPose, aimingTarget,turretOffset);
+                break;
         }
 
-        flywheel.setTargetVelocity(flywheelVelocity);
+        flywheel.setTargetVelocity(flywheelVelocity + shooterOffset);
         hood.setAngle(hoodAngle);
     }
-    public void setMode(Mode m) {
-        mode = m;
+
+    public void setMode(Mode mode) {
+        if (mode != null) {
+            this.mode = mode;
+        }
     }
+
+    public Mode getMode() {
+        return mode;
+    }
+
     public boolean isReady() {
         return flywheel.isReady();
     }
+
     public double getFlywheelVelo() {
         return flywheel.getVelocity();
     }
+
+    public double getTargetFlywheelVelo() {
+        return flywheel.getTargetVelocity();
+    }
+
     public double getHoodAngle() {
         return hood.getAngle();
     }
+
     public double getTurretAngle() {
         return turret.getAngle();
     }
+
     public void stop() {
         flywheel.stop();
         turret.home();
         hood.home();
     }
 
-
     public static class Flywheel {
+
         private final DcMotorEx shooter1;
         private final DcMotorEx shooter2;
-        private double targetVelocity = 0;
-        private double currentVelocity;
-        private static final double VELOCITY_TOLERANCE = 100;
-        public static final double MAX_VELOCITY = 1600;
+
+        private double targetVelocity = 0.0;
+        private double currentVelocity = 0.0;
+
+        private static final double VELOCITY_TOLERANCE = 100.0;
+
+        public static final double MAX_VELOCITY = 1600.0;
+
         public PIDFController flywheelPIDF;
-        public final static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.8, 0.0, 0.1, 0.0018);
+
+        public static final PIDFCoefficients pidfCoefficients =
+                new PIDFCoefficients(
+                        0.8,
+                        0.0,
+                        0.1,
+                        0.0018
+                );
+
+
+
         public Flywheel(HardwareMap hardwareMap) {
-            shooter1 = hardwareMap.get(DcMotorEx.class, "shooterTop");
-            shooter1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            shooter1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            shooter1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            shooter1 =
+                    hardwareMap.get(
+                            DcMotorEx.class,
+                            "shooterTop"
+                    );
 
-            shooter2 = hardwareMap.get(DcMotorEx.class, "shooterBottom");
-            shooter2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            shooter2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            shooter2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
+            shooter1.setMode(
+                    DcMotor.RunMode.STOP_AND_RESET_ENCODER
+            );
 
-            flywheelPIDF = new PIDFController(pidfCoefficients);
+            shooter1.setMode(
+                    DcMotor.RunMode.RUN_WITHOUT_ENCODER
+            );
+
+            shooter1.setZeroPowerBehavior(
+                    DcMotor.ZeroPowerBehavior.FLOAT
+            );
+
+            shooter2 =
+                    hardwareMap.get(
+                            DcMotorEx.class,
+                            "shooterBottom"
+                    );
+
+            shooter2.setMode(
+                    DcMotor.RunMode.STOP_AND_RESET_ENCODER
+            );
+
+            shooter2.setMode(
+                    DcMotor.RunMode.RUN_WITHOUT_ENCODER
+            );
+
+            shooter2.setZeroPowerBehavior(
+                    DcMotor.ZeroPowerBehavior.FLOAT
+            );
+
+            shooter2.setDirection(
+                    DcMotorSimple.Direction.REVERSE
+            );
+
+            flywheelPIDF =
+                    new PIDFController(pidfCoefficients);
         }
 
         public void update() {
             currentVelocity = getVelocity();
-            double output = flywheelPIDF.calculate(currentVelocity, targetVelocity);
-            output = Range.clip(output, 0, 1);
+
+            double output =
+                    flywheelPIDF.calculate(
+                            currentVelocity,
+                            targetVelocity
+                    );
+
+            if (!Double.isFinite(output)) {
+                output = 0.0;
+            }
+
+            output = Range.clip(output, 0.0, 1.0);
 
             shooter1.setPower(output);
             shooter2.setPower(output);
         }
-        public double getWheel1Velo(){
+
+        public double getWheel1Velo() {
             return shooter1.getVelocity();
         }
-        public double getWheel2Velo(){
+
+        public double getWheel2Velo() {
             return shooter2.getVelocity();
         }
+
         public double getVelocity() {
             double velocity1 = shooter1.getVelocity();
             double velocity2 = shooter2.getVelocity();
-            if (velocity1 == 0) {
-                return 67;
-            } else if (velocity2 == 0) {
-                return -67;
-            } else {
-                return (velocity1 + velocity2) / 2.0;
+
+            /*
+             * Since shooter2 is reversed, its reported encoder velocity
+             * should be normalized before averaging.
+             */
+            velocity2 = Math.abs(velocity2);
+            velocity1 = Math.abs(velocity1);
+
+            if (!Double.isFinite(velocity1)
+                    || !Double.isFinite(velocity2)) {
+                return 0.0;
             }
+
+            return (velocity1 + velocity2) / 2.0;
         }
+
         public void setTargetVelocity(double target) {
-            targetVelocity = Range.clip(target, 0, MAX_VELOCITY);
+            if (!Double.isFinite(target)) {
+                target = 0.0;
+            }
+
+            targetVelocity =
+                    Range.clip(
+                            target,
+                            0.0,
+                            MAX_VELOCITY
+                    );
         }
+
+        public double getTargetVelocity() {
+            return targetVelocity;
+        }
+
         public boolean isReady() {
-            return Math.abs(currentVelocity - targetVelocity) < VELOCITY_TOLERANCE;
+            return Math.abs(currentVelocity - targetVelocity)
+                    < VELOCITY_TOLERANCE;
         }
+
         public void stop() {
-            setTargetVelocity(0.0);
+            targetVelocity = 0.0;
+
             shooter1.setPower(0.0);
             shooter2.setPower(0.0);
         }
-
     }
 
     public static class Hood {
+
         private final Servo hoodServo;
+
         public static final double MIN_POSITION = 0.87;
         public static final double MAX_POSITION = 0.0;
-        public static final double MIN_ANGLE = 12;
-        public static final double MAX_ANGLE = 39;
-        private static final double HOME_ANGLE = 12;
+
+        public static final double MIN_ANGLE = 12.0;
+        public static final double MAX_ANGLE = 39.0;
+
+        private static final double HOME_ANGLE = MIN_ANGLE+7.5;
+
         public Hood(HardwareMap hardwareMap) {
-            hoodServo = hardwareMap.get(Servo.class, "hood");
+            hoodServo =
+                    hardwareMap.get(
+                            Servo.class,
+                            "hood"
+                    );
         }
+
         public void setAngle(double angle) {
-            angle = Range.clip(angle, MIN_ANGLE, MAX_ANGLE);
+            if (!Double.isFinite(angle)) {
+                angle = HOME_ANGLE;
+            }
+
+            angle =
+                    Range.clip(
+                            angle,
+                            MIN_ANGLE,
+                            MAX_ANGLE
+                    );
+
             hoodServo.setPosition(
-                    Range.scale(angle, MIN_ANGLE, MAX_ANGLE, MIN_POSITION, MAX_POSITION)
+                    Range.scale(
+                            angle,
+                            MIN_ANGLE,
+                            MAX_ANGLE,
+                            MIN_POSITION,
+                            MAX_POSITION
+                    )
             );
         }
+
         public void setPosition(double position) {
-            hoodServo.setPosition(position);
+            hoodServo.setPosition(
+                    Range.clip(position, 0.0, 1.0)
+            );
         }
+
         public double getAngle() {
-            return Range.scale(hoodServo.getPosition(), MIN_POSITION, MAX_POSITION, MIN_ANGLE, MAX_ANGLE);
+            return Range.scale(
+                    hoodServo.getPosition(),
+                    MIN_POSITION,
+                    MAX_POSITION,
+                    MIN_ANGLE,
+                    MAX_ANGLE
+            );
         }
+
         public double getPosition() {
             return hoodServo.getPosition();
         }
-        public void home() {setAngle(HOME_ANGLE);}
 
+        public void home() {
+            setAngle(HOME_ANGLE);
+        }
     }
 
     public static class Turret {
+
         private final Servo turret1;
         private final Servo turret2;
+
         public static double MIN_POSITION = 0.0;
         public static double MAX_POSITION = 1.0;
-        public static double MIN_ANGLE = -158;
-        public static double MAX_ANGLE = 158;
+
+        public static double MIN_ANGLE = -158.0;
+        public static double MAX_ANGLE = 158.0;
+
         private static final double HOME_ANGLE = 0.0;
+
         public Turret(HardwareMap hardwareMap) {
-            turret1 = hardwareMap.get(Servo.class, "turret1");
-            turret2 = hardwareMap.get(Servo.class, "turret2");
+            turret1 =
+                    hardwareMap.get(
+                            Servo.class,
+                            "turret1"
+                    );
+
+            turret2 =
+                    hardwareMap.get(
+                            Servo.class,
+                            "turret2"
+                    );
         }
-        public void setTarget(Pose currentPose, Pose targetPose) {
-            double atan2 = Math.atan2(targetPose.y() - currentPose.y(), targetPose.x() - currentPose.x());
-            double robotRelative = atan2 - currentPose.heading();
-            double normalized = AngleUnit.normalizeRadians(robotRelative);
-            setAngle(Math.toDegrees(normalized));
+
+        public void setTarget(
+                Pose currentPose,
+                Pose targetPose, double offset
+        ) {
+            double targetAngle =
+                    Math.atan2(
+                            targetPose.y() - currentPose.y(),
+                            targetPose.x() - currentPose.x()
+                    );
+
+            double robotRelativeAngle =
+                    targetAngle - currentPose.heading();
+
+            double normalizedAngle =
+                    AngleUnit.normalizeRadians(
+                            robotRelativeAngle
+                    );
+
+            setAngle(
+                    Math.toDegrees(normalizedAngle + offset)
+            );
         }
+
         public void setAngle(double angle) {
-            double targetPosition = Range.scale(angle, MIN_ANGLE, MAX_ANGLE, MIN_POSITION, MAX_POSITION);
+            if (!Double.isFinite(angle)) {
+                angle = HOME_ANGLE;
+            }
+
+            angle =
+                    Range.clip(
+                            angle,
+                            MIN_ANGLE,
+                            MAX_ANGLE
+                    );
+
+            double targetPosition =
+                    Range.scale(
+                            angle,
+                            MIN_ANGLE,
+                            MAX_ANGLE,
+                            MIN_POSITION,
+                            MAX_POSITION
+                    );
+
             setPosition(targetPosition);
         }
+
         public void setPosition(double position) {
+            position =
+                    Range.clip(
+                            position,
+                            MIN_POSITION,
+                            MAX_POSITION
+                    );
+
             turret1.setPosition(position);
             turret2.setPosition(position);
         }
+
         public double getAngle() {
-            return Range.scale(getPosition(), MIN_POSITION, MAX_POSITION, MIN_ANGLE, MAX_ANGLE);
+            return Range.scale(
+                    getPosition(),
+                    MIN_POSITION,
+                    MAX_POSITION,
+                    MIN_ANGLE,
+                    MAX_ANGLE
+            );
         }
+
         public double getPosition() {
-            return (turret1.getPosition() + turret2.getPosition()) / 2;
+            return (
+                    turret1.getPosition()
+                            + turret2.getPosition()
+            ) / 2.0;
         }
-        public void home() {setAngle(HOME_ANGLE);}
+
+        public void home() {
+            setAngle(HOME_ANGLE);
+        }
     }
 
+
+    public void setManualTargets(double flywheelVelocity, double hoodAngle) {
+        flywheel.setTargetVelocity(flywheelVelocity);
+        hood.setAngle(hoodAngle);
+    }
 }
