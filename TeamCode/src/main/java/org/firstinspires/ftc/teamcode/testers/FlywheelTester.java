@@ -23,10 +23,10 @@ public class FlywheelTester extends OpMode {
     private Intake intake;
     private List<LynxModule> hubs;
     public static double targetTicksPerSecond = 0;
-    public static double kP = 0.1;
-    public static double kD = 0;
+    public static double kP = 1.8;
+    public static double kD = 0.4;
     public static double kI = 0;
-    public static double kF = 0;
+    public static double kF = 0.0018;
 
     public static boolean TRANSFERING = false;
 
@@ -39,6 +39,7 @@ public class FlywheelTester extends OpMode {
 
         intake = new Intake(hardwareMap);
         hood = new Shooter.Hood(hardwareMap);
+        hood.setAngle(angle);
 
         hubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : hubs) hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);

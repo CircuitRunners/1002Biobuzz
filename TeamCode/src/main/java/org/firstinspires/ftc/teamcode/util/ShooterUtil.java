@@ -46,43 +46,28 @@ public class ShooterUtil {
      * @param dyInches vertical target displacement in inches
      * @return hood angle in radians
      */
-    public static double getHoodTargetAngle(
-            Pose currentPose,
-            Pose targetPose,
-            double dyInches
-    ) {
+    public static double getHoodTargetAngle(Pose currentPose, Pose targetPose, double dyInches) {
         double dxMeters = getDistanceMeters(currentPose, targetPose);
         double dyMeters = inchesToMeters(dyInches);
 
         return getHoodTargetAngleMeters(dxMeters, dyMeters);
     }
 
+    public static double getHoodTargetAngle(double distance) {
+        return getLUTValue(hoodLUT, distance);
+    }
+
     /**
      * Internal hood-angle calculation.
      * Both dx and dy must be in meters.
      */
-    private static double getHoodTargetAngleMeters(
-            double dxMeters,
-            double dyMeters
-    ) {
-        if (!Double.isFinite(dxMeters)
-                || !Double.isFinite(dyMeters)
-                || dxMeters <= 0.0) {
+    private static double getHoodTargetAngleMeters(double dxMeters, double dyMeters) {
+        if (!Double.isFinite(dxMeters) || !Double.isFinite(dyMeters) || dxMeters <= 0.0) {
             return Math.toRadians(Shooter.Hood.MIN_ANGLE);
         }
 
-        /*
-         * This angle is based on the trajectory geometry.
-         */
-        double desiredAngle =
-                Math.toRadians(45.0)
-                        - Math.atan2(dyMeters, dxMeters) / 2.0;
-
-        return Range.clip(
-                desiredAngle,
-                Math.toRadians(Shooter.Hood.MIN_ANGLE),
-                Math.toRadians(Shooter.Hood.MAX_ANGLE)
-        );
+        double desiredAngle = Math.toRadians(45.0) - Math.atan2(dyMeters, dxMeters) / 2.0;
+        return Range.clip(desiredAngle, Math.toRadians(Shooter.Hood.MIN_ANGLE), Math.toRadians(Shooter.Hood.MAX_ANGLE));
     }
 
     /**
@@ -93,43 +78,23 @@ public class ShooterUtil {
      * @param dyInches vertical target displacement in inches
      * @return ball velocity in meters per second
      */
-    public static double getTargetBallVelocity(
-            Pose currentPose,
-            Pose targetPose,
-            double dyInches
-    ) {
+    public static double getTargetBallVelocity(Pose currentPose, Pose targetPose, double dyInches) {
         double dxMeters = getDistanceMeters(currentPose, targetPose);
         double dyMeters = inchesToMeters(dyInches);
 
-        if (!Double.isFinite(dxMeters)
-                || !Double.isFinite(dyMeters)
-                || dxMeters <= 0.0) {
+        if (!Double.isFinite(dxMeters) || !Double.isFinite(dyMeters) || dxMeters <= 0.0) {
             return 0.0;
         }
 
         double theta = getHoodTargetAngleMeters(dxMeters, dyMeters);
-
         double cosine = Math.cos(theta);
         double denominator = dxMeters * Math.tan(theta) - dyMeters;
 
-        /*
-         * The projectile equation requires:
-         *
-         * dx * tan(theta) - dy > 0
-         *
-         * If this is zero or negative, sqrt() would produce NaN.
-         */
-        if (!Double.isFinite(cosine)
-                || Math.abs(cosine) < 1e-6
-                || !Double.isFinite(denominator)
-                || denominator <= 0.0) {
+        if (!Double.isFinite(cosine) || Math.abs(cosine) < 1e-6 || !Double.isFinite(denominator) || denominator <= 0.0) {
             return 0.0;
         }
 
-        double ballVelocity =
-                (dxMeters / cosine)
-                        * Math.sqrt(G / (2.0 * denominator));
-
+        double ballVelocity = (dxMeters / cosine) * Math.sqrt(G / (2.0 * denominator));
         if (!Double.isFinite(ballVelocity) || ballVelocity < 0.0) {
             return 0.0;
         }
@@ -145,22 +110,17 @@ public class ShooterUtil {
      * @param dyInches vertical target displacement in inches
      * @return target flywheel velocity in ticks per second
      */
-    public static double getTargetFlywheelVelocity(
-            Pose currentPose,
-            Pose targetPose,
-            double dyInches
-    ) {
-        double ballVelocity =
-                getTargetBallVelocity(currentPose, targetPose, dyInches);
-
-        double flywheelVelocity =
-                ballVeloToFlywheelVelo(ballVelocity);
-
+    public static double getTargetFlywheelVelocity(Pose currentPose, Pose targetPose, double dyInches) {
+        double ballVelocity = getTargetBallVelocity(currentPose, targetPose, dyInches);
+        double flywheelVelocity = ballVeloToFlywheelVelo(ballVelocity);
         if (!Double.isFinite(flywheelVelocity)) {
             return 0.0;
         }
-
         return flywheelVelocity;
+    }
+
+    public static double getTargetFlywheelVelocity(double distance) {
+        return getLUTValue(veloLUT, distance);
     }
 
     /**
@@ -171,30 +131,19 @@ public class ShooterUtil {
      * @param dyInches vertical target displacement in inches
      * @return time of flight in seconds
      */
-    public static double getTimeOfFlight(
-            Pose currentPose,
-            Pose targetPose,
-            double dyInches
-    ) {
+    public static double getTimeOfFlight(Pose currentPose, Pose targetPose, double dyInches) {
         double dxMeters = getDistanceMeters(currentPose, targetPose);
         double dyMeters = inchesToMeters(dyInches);
 
         double theta = getHoodTargetAngleMeters(dxMeters, dyMeters);
-        double ballVelocity =
-                getTargetBallVelocity(currentPose, targetPose, dyInches);
+        double ballVelocity = getTargetBallVelocity(currentPose, targetPose, dyInches);
+        double horizontalVelocity = ballVelocity * Math.cos(theta);
 
-        double horizontalVelocity =
-                ballVelocity * Math.cos(theta);
-
-        if (!Double.isFinite(dxMeters)
-                || !Double.isFinite(horizontalVelocity)
-                || dxMeters <= 0.0
-                || horizontalVelocity <= 0.0) {
+        if (!Double.isFinite(dxMeters) || !Double.isFinite(horizontalVelocity) || dxMeters <= 0.0 || horizontalVelocity <= 0.0) {
             return 0.0;
         }
 
         double timeOfFlight = dxMeters / horizontalVelocity;
-
         if (!Double.isFinite(timeOfFlight) || timeOfFlight < 0.0) {
             return 0.0;
         }
@@ -215,15 +164,8 @@ public class ShooterUtil {
      * @param robotVeloY robot Y velocity
      * @return compensated target pose
      */
-    public static Pose SOTM_Target(
-            Pose currentPose,
-            Pose targetPose,
-            double dyInches,
-            double robotVeloX,
-            double robotVeloY
-    ) {
-        double timeOfFlight =
-                getTimeOfFlight(currentPose, targetPose, dyInches);
+    public static Pose SOTM_Target(Pose currentPose, Pose targetPose, double dyInches, double robotVeloX, double robotVeloY) {
+        double timeOfFlight = getTimeOfFlight(currentPose, targetPose, dyInches);
 
         if (!Double.isFinite(timeOfFlight)) {
             timeOfFlight = 0.0;
@@ -238,12 +180,7 @@ public class ShooterUtil {
 
             Pose compensatedTarget = new Pose(targetX, targetY);
 
-            timeOfFlight =
-                    getTimeOfFlight(
-                            currentPose,
-                            compensatedTarget,
-                            dyInches
-                    );
+            timeOfFlight = getTimeOfFlight(currentPose, compensatedTarget, dyInches);
 
             if (!Double.isFinite(timeOfFlight)) {
                 timeOfFlight = 0.0;
@@ -253,10 +190,7 @@ public class ShooterUtil {
         return new Pose(targetX, targetY);
     }
 
-    private static double getDistanceMeters(
-            Pose currentPose,
-            Pose targetPose
-    ) {
+    private static double getDistanceMeters(Pose currentPose, Pose targetPose) {
         double distanceInches = currentPose.distance(targetPose);
         double distanceMeters = inchesToMeters(distanceInches);
 
@@ -306,32 +240,24 @@ public class ShooterUtil {
     }
 
     public static double[][] veloLUT = {
-            {10, 0},
-            {15, 0},
-            {20, 0},
-            {25, 0},
-            {30, 0},
-            {35, 0},
-            {40, 0},
-            {45, 0},
-            {50, 0},
-            {55, 0},
-            {60, 0},
-            {65, 0}
+            {16, 825},
+            {20, 850},
+            {25, 875},
+            {30, 900},
+            {35, 920},
+            {40, 930},
+            {45, 940},
+            {50, 950},
     };
 
     public static double[][] hoodLUT = {
-            {10, 0},
-            {15, 0},
-            {20, 0},
-            {25, 0},
-            {30, 0},
-            {35, 0},
-            {40, 0},
-            {45, 0},
-            {50, 0},
-            {55, 0},
-            {60, 0},
-            {65, 0}
+            {16, 17},
+            {20, 18.5},
+            {25, 21},
+            {30, 25.5},
+            {35, 27},
+            {40, 30},
+            {45, 34.5},
+            {50, 37},
     };
 }

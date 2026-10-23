@@ -44,26 +44,15 @@ public class Constants {
         c.xPodPort.set(6);
         c.yPodPort.set(7);
         c.ticksPerUnit.set(505.316944406);
-        c.xPodOffset.set(-3.228346456692914);
-        c.yPodOffset.set(-5.728346456692913);
-        c.xPodDirection.set(OctoQuad.EncoderDirection.FORWARD);
-        c.yPodDirection.set(OctoQuad.EncoderDirection.FORWARD);
+        c.xPodOffset.set(-3.11);
+        c.yPodOffset.set(-2.05);
+        c.xPodDirection.set(OctoQuad.EncoderDirection.REVERSE);
+        c.yPodDirection.set(OctoQuad.EncoderDirection.REVERSE);
         c.globalDistanceUnit.set(DistanceUnit.INCH);
         c.offsetUnits.set(DistanceUnit.INCH);
         c.i2cRecoveryMode.set(OctoQuad.I2cRecoveryMode.MODE_1_PERIPH_RST_ON_FRAME_ERR);
-        c.headingScalar.set(0.953499492228424);
+        c.headingScalar.set(1.0109);
     });
-
-//    public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
-//        c.name.set("pp");
-//        c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-//        c.xPodOffset.set(4.720662034402682);
-//        c.yPodOffset.set(-1.9713952973132998);
-//        c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
-//        c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
-//        c.globalDistanceUnit.set(DistanceUnit.INCH);
-//        c.offsetUnits.set(DistanceUnit.INCH);
-//    });
 
     public static ForesightConfig foresightConfig = new ForesightConfig(
             c -> {

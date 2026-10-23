@@ -72,7 +72,7 @@ public class Intake {
 
             case TRANSFERING:
                 targetIntakePower = 1.0;
-                targetTransferPower = 1.0;
+                targetTransferPower = 0.5;
         }
 
         if (currentIntakePower != targetIntakePower) {
