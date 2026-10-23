@@ -23,13 +23,15 @@ public class FlywheelTester extends OpMode {
     private Intake intake;
     private List<LynxModule> hubs;
     public static double targetTicksPerSecond = 0;
-    public static double kP = 1.8;
-    public static double kD = 0.4;
+    public static double kP = 0.032;
+    public static double kD = 0.000000001;
     public static double kI = 0;
-    public static double kF = 0.0018;
+    public static double kF = 0.00015;
+
+    //0.032, 0.0, 0.000000001, 0.00015
 
     public static boolean TRANSFERING = false;
-    public static boolean kFTuning = true;
+    public static boolean kFTuning = false;
     public static double power = 0.0;
 
     @Override
