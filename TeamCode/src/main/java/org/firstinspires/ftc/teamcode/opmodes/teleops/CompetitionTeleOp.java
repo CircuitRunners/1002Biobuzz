@@ -12,10 +12,8 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.LockingMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.subsystems.SwyftCamera;
 import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
 import org.firstinspires.ftc.teamcode.util.Poses;
-import org.firstinspires.ftc.teamcode.util.ShooterUtil;
 
 @Configurable
 @TeleOp(name = "COMPETITION TELEOP", group = "COMPETITION")
@@ -29,7 +27,7 @@ public class CompetitionTeleOp extends OpMode {
 
     private boolean isRedAlliance;
     private Pose currentPose;
-    private static final double TARGET_DY_INCHES = 1.245;
+    private static final double TARGET_DY_INCHES = 49.0;
     public static double shooterOffset = 0;
     public static double turretOffsets;
     private Pose targetPose;
@@ -52,7 +50,7 @@ public class CompetitionTeleOp extends OpMode {
         shooter.setMode(Shooter.Mode.TURRET_ONLY);
         player1 = new GamepadEx(gamepad1);
         follower = Constants.create(hardwareMap);
-        follower.setPose(Poses.startingPose);
+        follower.setPose(Poses.teleOpStartingPose);
 
         if (Poses.currentAlliance == null) {
             Poses.setCurrentAlliance(Poses.Alliance.BLUE);

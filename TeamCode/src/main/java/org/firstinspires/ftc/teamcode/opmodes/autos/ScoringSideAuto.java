@@ -44,8 +44,8 @@ public class ScoringSideAuto extends AutoBase {
     protected void initLoop() {
         if (gamepad1.dpadUpWasPressed()) routineIndex++;
         if (gamepad1.dpadDownWasPressed()) routineIndex--;
-        if (gamepad1.dpadRightWasPressed()) Poses.setCurrentAlliance(Poses.Alliance.RED);
-        if (gamepad1.dpadLeftWasPressed()) Poses.setCurrentAlliance(Poses.Alliance.BLUE);
+        if (gamepad1.dpadLeftWasPressed()) Poses.setCurrentAlliance(Poses.Alliance.RED);
+        if (gamepad1.dpadRightWasPressed()) Poses.setCurrentAlliance(Poses.Alliance.BLUE);
         routineType = RoutineType.values()[Math.floorMod(routineIndex, RoutineType.values().length)];
 
         tele.header("ROUTING SELECTION")
@@ -91,7 +91,7 @@ public class ScoringSideAuto extends AutoBase {
                                    intake.intake();
                                })
                            .to(Poses.shootPoseAudience1)
-                               .onArrival(this::shoot)
+                               .onArrival(() -> {shoot(); Poses.setTeleOpStartingPose(currentPose);})
                                .waitUntil(this::doneShooting, 5.0)
                            .build();
             default:

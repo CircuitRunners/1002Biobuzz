@@ -29,6 +29,8 @@ public class FlywheelTester extends OpMode {
     public static double kF = 0.0018;
 
     public static boolean TRANSFERING = false;
+    public static boolean kFTuning = true;
+    public static double power = 0.0;
 
     @Override
     public void init() {
@@ -55,19 +57,18 @@ public class FlywheelTester extends OpMode {
         for (LynxModule hub : hubs) hub.clearBulkCache();
         flywheel.flywheelPIDF.setPIDF(kP, kI, kD, kF);
         flywheel.setTargetVelocity(targetTicksPerSecond);
-        flywheel.update();
+
+        if (kFTuning) flywheel.setPower(power);
+        else flywheel.update();
 
         hood.setAngle(angle);
-        if (TRANSFERING){
-            intake.transfer();
-        }
-        else {
-            intake.stop();
-        }
+        if (TRANSFERING) intake.transfer();
+        else intake.stop();
         intake.update();
 
         tele.addData("Current Velocity", flywheel.getVelocity())
             .addData("Target Velocity", targetTicksPerSecond)
+            .addData("Calculated kF (power / velocity)", power / flywheel.getVelocity())
             .addData("Is Ready?", flywheel.isReady())
             .addData("Max Velocity", Shooter.Flywheel.MAX_VELOCITY)
             .addData("Wheel 1 Velo", flywheel.getWheel1Velo())

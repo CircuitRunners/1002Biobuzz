@@ -13,17 +13,17 @@ public class Poses {
     public static void setCurrentAlliance(Alliance a) {currentAlliance = a;}
 
     public static final PoseFactory p = PoseFactory.degrees();
-    public static Pose startingPose = p.of(72, 72, 90);
-    public static void setStartingPose(Pose p) {startingPose = p;}
+    public static Pose teleOpStartingPose = p.of(72, 72, 90);
+    public static void setTeleOpStartingPose(Pose p) {teleOpStartingPose = p;}
     public static final Pose relocPose1 = p.of(72, 72, 90);
 
     public static Zones currentZone(Pose pose) {
         if (currentAlliance == Alliance.RED) {
-            if (pose.y() < 72) return Zones.RED_AUDIENCE;
-            return Zones.RED_SCORING;
+            if (pose.y() > 72) return Zones.RED_AUDIENCE;
+            else return Zones.RED_SCORING;
         } else {
-            if (pose.y() < 72) return Zones.BLUE_SCORING;
-            return Zones.BLUE_AUDIENCE;
+            if (pose.y() > 72) return Zones.BLUE_SCORING;
+            else return Zones.BLUE_AUDIENCE;
         }
     }
 

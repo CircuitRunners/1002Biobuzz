@@ -167,6 +167,10 @@ public class Shooter {
         public double getTargetVelocity() {
             return targetVelocity;
         }
+        public void setPower(double power) {
+            shooter1.setPower(power);
+            shooter2.setPower(power);
+        }
 
         public boolean isReady() {
             return Math.abs(currentVelocity - targetVelocity) < VELOCITY_TOLERANCE;
@@ -200,7 +204,7 @@ public class Shooter {
         }
 
         public void setPosition(double position) {
-            hoodServo.setPosition(Range.clip(position, 0.0, 1.0));
+            hoodServo.setPosition(Range.clip(position, MIN_POSITION, MAX_POSITION));
         }
 
         public double getAngle() {
@@ -236,9 +240,9 @@ public class Shooter {
 
         public void setTarget(Pose currentPose, Pose targetPose, double offset) {
             double targetAngle = Math.atan2(targetPose.y() - currentPose.y(), targetPose.x() - currentPose.x());
-            double robotRelativeAngle = targetAngle - currentPose.heading();
+            double robotRelativeAngle = targetAngle - currentPose.heading() + offset;
             double normalizedAngle = AngleUnit.normalizeRadians(robotRelativeAngle);
-            setAngle(Math.toDegrees(normalizedAngle + offset));
+            setAngle(Math.toDegrees(normalizedAngle));
         }
 
         public void setAngle(double angle) {

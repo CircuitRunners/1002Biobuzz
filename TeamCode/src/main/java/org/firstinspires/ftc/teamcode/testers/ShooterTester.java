@@ -27,7 +27,7 @@ public class ShooterTester extends OpMode {
      * Change these values to match the robot's known starting position.
      * This is the pose assigned when the robot is re-zeroed.
      */
-    private static final Pose REZERO_POSE = Poses.startingPose;
+    private static final Pose REZERO_POSE = Poses.teleOpStartingPose;
 
     /*
      * Manual shooter settings.
