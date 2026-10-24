@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.subsystems.LockingMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
 import org.firstinspires.ftc.teamcode.util.Poses;
+import org.firstinspires.ftc.teamcode.util.ShooterUtil;
 
 @Configurable
 @TeleOp(name = "COMPETITION TELEOP", group = "COMPETITION")
@@ -35,6 +36,13 @@ public class CompetitionTeleOp extends OpMode {
     private Poses.Zones currentZone;
     private boolean rampDown = false;
     private boolean driveAutoAlign = false;
+    private double headingError = 0;
+
+    public static double ALIGN_KP = 1.0;
+    public static double ALIGN_KS = 0.05;
+    public static double ALIGN_MAX_POWER = 0.75;
+    public static double ALIGN_TOLERANCE_DEG = 2.0;
+    public static double ALIGN_STICK_DEADBAND = 0.1;
 
     private enum Mode {
         INTAKING,
@@ -101,9 +109,11 @@ public class CompetitionTeleOp extends OpMode {
         }
 
         if (mode == Mode.INTAKING) {
+            driveAutoAlign = false;
             shooter.stop();
             handleIntakeState();
         } else {
+            driveAutoAlign = true;
             handleShootingState();
         }
 
@@ -111,9 +121,9 @@ public class CompetitionTeleOp extends OpMode {
     }
 
     private void handleDriving() {
-        if (player1.wasJustPressed(GamepadKeys.Button.SQUARE)) follower.setPose(Poses.relocPose1);
-        if (player1.wasJustPressed(GamepadKeys.Button.TRIANGLE)) follower.setPose(Poses.relocPoseGardenCorner);
-        if (player1.wasJustPressed(GamepadKeys.Button.CIRCLE)) follower.setPose(Poses.relocPoseParkCorner);
+        if (player1.wasJustPressed(GamepadKeys.Button.TRIANGLE)) follower.setPose(Poses.relocPose1);
+        if (player1.wasJustPressed(GamepadKeys.Button.CIRCLE)) follower.setPose(Poses.relocPoseGardenCorner);
+        if (player1.wasJustPressed(GamepadKeys.Button.SQUARE)) follower.setPose(Poses.relocPoseParkCorner);
         if (player1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) {
             if (lMecDrive.getState() == LockingMecanumDrive.LMecDriveState.UNLOCKED) {
                 lMecDrive.lock();
@@ -124,15 +134,23 @@ public class CompetitionTeleOp extends OpMode {
             }
         }
 
-        if (player1.wasJustPressed(GamepadKeys.Button.CROSS)) {
-            driveAutoAlign = !driveAutoAlign;
-            gamepad1.rumble(500);
-        }
-
         double forward = player1.getLeftY();
         double strafe = player1.getLeftX();
         double rotate = player1.getRightX();
+
+        if (driveAutoAlign && Math.abs(rotate) < ALIGN_STICK_DEADBAND) {
+            rotate = autoAlignRotate();
+        }
+
         lMecDrive.driveFieldCentric(-forward, -strafe, rotate, currentPose.heading());
+    }
+
+    private double autoAlignRotate() {
+        headingError = ShooterUtil.getTurretTargetAngle(currentPose, targetPose);
+        if (Math.abs(headingError) < Math.toRadians(ALIGN_TOLERANCE_DEG)) return 0;
+
+        double output = ALIGN_KP * headingError + Math.signum(headingError) * ALIGN_KS;
+        return -Math.max(-ALIGN_MAX_POWER, Math.min(ALIGN_MAX_POWER, output));
     }
 
     private void handleIntakeState() {
@@ -144,7 +162,7 @@ public class CompetitionTeleOp extends OpMode {
             intake.stop();
         }
 
-        // if (player1.wasJustPressed(GamepadKeys.Button.CROSS)) rampDown = !rampDown;
+        if (player1.wasJustPressed(GamepadKeys.Button.CROSS)) rampDown = !rampDown;
         if (rampDown) intake.rampDown();
         else intake.rampUp();
     }
@@ -190,6 +208,8 @@ public class CompetitionTeleOp extends OpMode {
                 .addLine()
                 .header("STATES")
                 .addData("Drive State", lMecDrive.getState())
+                .addData("Auto Align", driveAutoAlign)
+                .addData("Heading Error (deg)", Math.toDegrees(headingError))
                 .addData("Intake State", intake.getState())
                 .addData("Shooter State", shooter.getMode())
                 .addData("TeleOp State", mode)

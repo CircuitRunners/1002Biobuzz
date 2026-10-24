@@ -33,7 +33,7 @@ public class ScoringSideAuto extends AutoBase {
     protected Pose startPose() {
         switch (routineType) {
             case ONLY_PARK:
-                return Poses.startPoseOnlyPark;
+                return Poses.startPoseAudienceOnlyPark;
             case ONE_TIP:
                 return Poses.startPoseScoringWall[0];
 
@@ -96,7 +96,6 @@ public class ScoringSideAuto extends AutoBase {
                                .waitUntil(this::doneShooting, 7.5)
                            .curveTo(Poses.parkFromScoring[0],
                                     Poses.parkFromScoring[1])
-                               .onArrival(() -> Poses.setTeleOpStartingPose(currentPose))
                            .build();
 
             case TWO_TIP:
@@ -118,7 +117,6 @@ public class ScoringSideAuto extends AutoBase {
                                    intake.intake();
                                })
                            .to(Poses.shootPoseAudience1)
-                               .onArrival(() -> {shoot(); Poses.setTeleOpStartingPose(currentPose);})
                                .waitUntil(this::doneShooting, 7.5)
                            .build();
             default:

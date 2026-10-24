@@ -46,7 +46,6 @@ public class Intake {
 
         ramp = hardwareMap.get(CRServo.class, "flower");
         ramp.setDirection(DcMotorSimple.Direction.REVERSE);
-        rampUp();
 
         sensors[0] = hardwareMap.get(DigitalChannel.class, "sensor1");
         sensors[1] = hardwareMap.get(DigitalChannel.class, "sensor2");
@@ -103,7 +102,10 @@ public class Intake {
             case UP:
                 if (rampState != lastRampState) {
                     if (rampTimer.seconds() < 0.3) ramp.setPower(0.5);
-                    else ramp.setPower(0.0);
+                    else {
+                        ramp.setPower(0.0);
+                        lastRampState = RampState.UP;
+                    }
                 }
                 break;
         }

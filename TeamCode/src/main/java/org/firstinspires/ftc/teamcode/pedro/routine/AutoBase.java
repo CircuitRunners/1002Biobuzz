@@ -85,6 +85,11 @@ public abstract class AutoBase extends OpMode {
     }
 
     @Override
+    public void stop() {
+        Poses.setTeleOpStartingPose(currentPose);
+    }
+
+    @Override
     public void loop() {
         follower.update();
         currentPose = follower.pose();

@@ -241,11 +241,6 @@ public class Shooter {
             double normalizedAngle = AngleUnit.normalizeRadians(robotRelativeAngle);
             setAngle(Math.toDegrees(normalizedAngle));
         }
-        public double getTargetAngle(Pose currentPose, Pose targetPose) {
-            double targetAngle = Math.atan2(targetPose.y() - currentPose.y(), targetPose.x() - currentPose.x());
-            double robotRelativeAngle = targetAngle - currentPose.heading();
-            return AngleUnit.normalizeRadians(robotRelativeAngle);
-        }
 
         public void setAngle(double angle) {
 //            if (!Double.isFinite(angle)) {

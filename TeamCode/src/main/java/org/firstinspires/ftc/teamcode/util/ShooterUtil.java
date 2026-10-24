@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.util;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 public class ShooterUtil {
@@ -68,6 +69,12 @@ public class ShooterUtil {
 
         double desiredAngle = Math.toRadians(45.0) - Math.atan2(dyMeters, dxMeters) / 2.0;
         return Range.clip(desiredAngle, Math.toRadians(Shooter.Hood.MIN_ANGLE), Math.toRadians(Shooter.Hood.MAX_ANGLE));
+    }
+
+    public static double getTurretTargetAngle(Pose currentPose, Pose targetPose) {
+        double targetAngle = Math.atan2(targetPose.y() - currentPose.y(), targetPose.x() - currentPose.x());
+        double robotRelativeAngle = targetAngle - currentPose.heading();
+        return AngleUnit.normalizeRadians(robotRelativeAngle);
     }
 
     /**
