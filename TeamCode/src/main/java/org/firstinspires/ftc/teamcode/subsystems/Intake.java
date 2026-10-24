@@ -18,10 +18,9 @@ public class Intake {
     public static double UNBLOCK_POSITION = 0.88;
     public static double BLOCK_POSITION = 0.58;
     private final Servo ramp;
-    public static double RAMP_DOWN = 0.0;
+    public static double RAMP_DOWN = 0.67;
     public static double RAMP_UP = 1.0;
     private final DigitalChannel[] sensors = new DigitalChannel[5];
-    public static double DISTANCE_THRESHOLD = 2.0;
     public enum IntakeState {IDLE, INTAKING, OUTTAKING, TRANSFERING}
     private IntakeState state;
     private double currentIntakePower;
@@ -43,6 +42,8 @@ public class Intake {
         unblockTransfer();
 
         ramp = hardwareMap.get(Servo.class, "flower");
+        ramp.setDirection(Servo.Direction.REVERSE);
+        rampUp();
 
         sensors[0] = hardwareMap.get(DigitalChannel.class, "sensor1");
         sensors[1] = hardwareMap.get(DigitalChannel.class, "sensor2");
@@ -62,7 +63,7 @@ public class Intake {
 
             case INTAKING:
                 targetIntakePower = 1.0;
-                targetTransferPower = 0.0;
+                targetTransferPower = transferHasBall() ? 0.0 : 1.0;
                 break;
 
             case OUTTAKING:
@@ -90,7 +91,7 @@ public class Intake {
     }
     public void intake() {
         state = IntakeState.INTAKING;
-        unblockTransfer();
+        blockTransfer();
     }
     public void outtake() {
         state = IntakeState.OUTTAKING;
@@ -113,4 +114,5 @@ public class Intake {
     public boolean rampHasBalls() {
         return sensors[3].getState() || sensors[4].getState();
     }
+    public boolean transferHasBall() {return sensors[0].getState();}
 }

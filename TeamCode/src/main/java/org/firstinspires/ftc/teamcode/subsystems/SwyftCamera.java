@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.util.Poses;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.firstinspires.ftc.vision.apriltag.AprilTagSingleDetection;
 
 import java.util.EnumMap;
 import java.util.LinkedHashSet;
@@ -89,7 +90,10 @@ public class SwyftCamera {
     private int validIDsDetected() {
         Set<Integer> tagsDetected = new LinkedHashSet<>();
         for (AprilTagDetection tag : getDetections()) {
-            if (validIDs.contains(tag.id)) tagsDetected.add(tag.id);
+            if (tag instanceof AprilTagSingleDetection) {
+                int id =((AprilTagSingleDetection) tag).id;
+                if (validIDs.contains(id)) tagsDetected.add(id);
+            }
         }
         return tagsDetected.size();
     }

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.testers;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.Range;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
@@ -20,6 +21,8 @@ public class IntakeTester extends OpMode {
     private List<LynxModule> hubs;
     private boolean blocked = false;
     private boolean rampDown = false;
+    private double RAMP_DOWN = 0.0;
+    private double RAMP_UP = 1.0;
 
     @Override
     public void init() {
@@ -49,7 +52,7 @@ public class IntakeTester extends OpMode {
 
         // Ramp position
         if (player1.wasJustPressed(GamepadKeys.Button.TRIANGLE)) Intake.RAMP_DOWN += 0.01;
-        if (player1.wasJustPressed(GamepadKeys.Button.X)) Intake.RAMP_DOWN -= 0.01;
+        if (player1.wasJustPressed(GamepadKeys.Button.CROSS)) Intake.RAMP_DOWN -= 0.01;
         if (player1.wasJustPressed(GamepadKeys.Button.CIRCLE)) Intake.RAMP_UP += 0.01;
         if (player1.wasJustPressed(GamepadKeys.Button.SQUARE)) Intake.RAMP_UP -= 0.01;
 
@@ -68,6 +71,8 @@ public class IntakeTester extends OpMode {
         if (player1.getLeftY() > 0.2) intake.intake();
         else if (player1.getLeftY() < -0.2) intake.outtake();
         else if (player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2) intake.transfer();
+        else intake.stop();
+        intake.update();
 
         // Telemetry
         tele.addLine("Dpad UP/DOWN for BLOCK position")

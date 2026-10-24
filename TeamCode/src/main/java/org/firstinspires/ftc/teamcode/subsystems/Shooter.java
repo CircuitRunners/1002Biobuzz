@@ -31,8 +31,12 @@ public class Shooter {
 
     public Shooter(HardwareMap hardwareMap) {
         flywheel = new Flywheel(hardwareMap);
+
         hood = new Hood(hardwareMap);
+        hood.home();
+
         turret = new Turret(hardwareMap);
+        turret.home();
     }
 
     public void update() {
@@ -46,7 +50,7 @@ public class Shooter {
 
         switch (mode) {
             case NO_TURRET:
-                turret.setAngle(0.0);
+                turret.home();
                 break;
 
             case TURRET_ONLY:
@@ -68,12 +72,7 @@ public class Shooter {
         hood.setAngle(hoodAngle);
     }
 
-    public void setMode(Mode mode) {
-        if (mode != null) {
-            this.mode = mode;
-        }
-    }
-
+    public void setMode(Mode mode) {this.mode = mode;}
     public Mode getMode() {
         return mode;
     }
@@ -81,19 +80,16 @@ public class Shooter {
     public boolean isReady() {
         return flywheel.isReady();
     }
-
     public double getFlywheelVelo() {
         return flywheel.getVelocity();
     }
-
     public double getTargetFlywheelVelo() {
         return flywheel.getTargetVelocity();
     }
-
     public double getHoodAngle() {
         return hood.getAngle();
     }
-
+    public void setHoodAngle(double angle) {hood.setAngle(angle);}
     public double getTurretAngle() {
         return turret.getAngle();
     }
@@ -112,7 +108,7 @@ public class Shooter {
         private static final double VELOCITY_TOLERANCE = 100.0;
         public static final double MAX_VELOCITY = 1600.0;
         public PIDFController flywheelPIDF;
-        public static final PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.032, 0.0, 0.000000001, 0.00015); //new PIDFCoefficients(1.8, 0.0, 0.4, 0.0018);
+        public static final PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.032, 0.0, 0.000000001, 0.00065); //new PIDFCoefficients(1.8, 0.0, 0.4, 0.0018);
         public Flywheel(HardwareMap hardwareMap) {
             shooter1 = hardwareMap.get(DcMotorEx.class, "shooterTop");
             shooter1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -185,14 +181,15 @@ public class Shooter {
 
     public static class Hood {
         private final Servo hoodServo;
-        public static final double MIN_POSITION = 0.90;
-        public static final double MAX_POSITION = 0.02;
-        public static final double MIN_ANGLE = 13.0;
-        public static final double MAX_ANGLE = 39.0;
-        private static final double HOME_ANGLE = MIN_ANGLE;
+        public static final double MIN_POSITION = 0.08;
+        public static final double MAX_POSITION = 1.0;
+        public static final double MIN_ANGLE = 9.0;
+        public static final double MAX_ANGLE = 38.0;
+        private static final double HOME_ANGLE = 25.0;
 
         public Hood(HardwareMap hardwareMap) {
             hoodServo = hardwareMap.get(Servo.class, "hood");
+            hoodServo.setDirection(Servo.Direction.REVERSE);
         }
 
         public void setAngle(double angle) {

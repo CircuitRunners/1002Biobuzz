@@ -29,9 +29,11 @@ public class CompetitionTeleOp extends OpMode {
     private Pose currentPose;
     private static final double TARGET_DY_INCHES = 49.0;
     public static double shooterOffset = 0;
+    public int shooterModeIndex = 1;
     public static double turretOffsets;
     private Pose targetPose;
     private Poses.Zones currentZone;
+    private boolean rampDown = false;
 
     private enum Mode {
         INTAKING,
@@ -84,6 +86,7 @@ public class CompetitionTeleOp extends OpMode {
         currentZone = Poses.currentZone(currentPose);
         targetPose = Poses.targetHivePose(currentZone);
         handleDriving();
+        handleShooterMode();
 
         if (player1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) {
             if (mode == Mode.INTAKING) {
@@ -132,6 +135,12 @@ public class CompetitionTeleOp extends OpMode {
         } else {
             intake.stop();
         }
+
+        if (player1.wasJustPressed(GamepadKeys.Button.SHARE)) shooter.setHoodAngle(34.0);
+
+        if (player1.wasJustPressed(GamepadKeys.Button.CROSS)) rampDown = !rampDown;
+        if (rampDown) intake.rampDown();
+        else intake.rampUp();
     }
 
     private void handleShootingState() {
@@ -148,16 +157,27 @@ public class CompetitionTeleOp extends OpMode {
         }
     }
 
+    private void handleShooterMode() {
+        Shooter.Mode previousMode = shooter.getMode();
+        if (player1.wasJustPressed(GamepadKeys.Button.OPTIONS)) shooterModeIndex++;
+        shooter.setMode(Shooter.Mode.values()[Math.floorMod(shooterModeIndex, Shooter.Mode.values().length)]);
+        if (shooter.getMode() != previousMode) {
+            gamepad1.rumbleBlips(Math.floorMod(shooterModeIndex, Shooter.Mode.values().length));
+        }
+    }
+
     private void updateTelemetry() {
         tele.header("POSITIONS")
                 .addData("Current Pose", currentPose)
                 .addData("Target Pose", targetPose)
+                .addData("Distance to Target", currentPose.distance(targetPose))
                 .addData("Alliance", Poses.currentAlliance)
                 .addData("Current Zone", currentZone)
                 .addLine()
                 .header("STATES")
                 .addData("Drive State", lMecDrive.getState())
                 .addData("Intake State", intake.getState())
+                .addData("Shooter State", shooter.getMode())
                 .addData("TeleOp State", mode)
                 .addLine()
                 .header("DIAGNOSTICS")

@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
 import org.firstinspires.ftc.teamcode.util.Logger;
 import org.firstinspires.ftc.teamcode.util.Poses;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagSingleDetection;
 
 import java.util.List;
 
@@ -76,7 +77,9 @@ public class SwyftCameraTester extends OpMode {
         tele.addData("Exposure (ms)", exposureMs)
             .addData("Gain", gain);
 
-        for (AprilTagDetection d : camera.getDetections()) {
+        for (AprilTagDetection det : camera.getDetections()) {
+            if (!(det instanceof AprilTagSingleDetection)) continue;
+            AprilTagSingleDetection d = (AprilTagSingleDetection) det;
             if (d.metadata == null) {
                 tele.addData("Unknown tag", d.id);
                 continue;

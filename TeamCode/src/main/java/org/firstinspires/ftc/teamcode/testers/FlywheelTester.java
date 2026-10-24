@@ -64,6 +64,10 @@ public class FlywheelTester extends OpMode {
         else flywheel.update();
 
         hood.setAngle(angle);
+
+        if (gamepad1.right_trigger > 0.2) TRANSFERING = true;
+        else TRANSFERING = false;
+
         if (TRANSFERING) intake.transfer();
         else intake.stop();
         intake.update();
