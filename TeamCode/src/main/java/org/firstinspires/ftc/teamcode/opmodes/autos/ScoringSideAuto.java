@@ -1,19 +1,14 @@
 package org.firstinspires.ftc.teamcode.opmodes.autos;
 
-import android.provider.Settings;
-
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.math.Pose;
-import com.pedropathing.paths.interpolator.Interpolator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedro.routine.AutoBase;
 import org.firstinspires.ftc.teamcode.pedro.routine.Routine;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
 import org.firstinspires.ftc.teamcode.util.Poses;
 import org.firstinspires.ftc.teamcode.util.ShooterUtil;
 @Configurable
@@ -21,18 +16,28 @@ import org.firstinspires.ftc.teamcode.util.ShooterUtil;
 @Autonomous(name="Scoring Side Auto", group = "COMPETITION")
 public class ScoringSideAuto extends AutoBase {
     private enum RoutineType {
+        ONE_TIP,
         TWO_TIP
     }
 
-    private RoutineType routineType = RoutineType.TWO_TIP;
+    private RoutineType routineType = RoutineType.values()[0];
     private int routineIndex = 0;
+    private Poses.Alliance currentAlliance = Poses.Alliance.BLUE;
     public static double shooterOffset = 0;
     public static double turretOffset = 0;
+    public static double TRANSFER_TIMEOUT_SECONDS = 2.0;
     private Intake intake;
     private Shooter shooter;
     @Override
     protected Pose startPose() {
-        return Poses.startPoseScoring;
+        switch (routineType) {
+            case ONE_TIP:
+                return Poses.startPoseScoringWall;
+
+            case TWO_TIP:
+            default:
+                return Poses.startPoseScoringGarden;
+        }
     }
 
     @Override
@@ -44,9 +49,11 @@ public class ScoringSideAuto extends AutoBase {
     protected void initLoop() {
         if (gamepad1.dpadUpWasPressed()) routineIndex++;
         if (gamepad1.dpadDownWasPressed()) routineIndex--;
-        if (gamepad1.dpadLeftWasPressed()) Poses.setCurrentAlliance(Poses.Alliance.RED);
-        if (gamepad1.dpadRightWasPressed()) Poses.setCurrentAlliance(Poses.Alliance.BLUE);
         routineType = RoutineType.values()[Math.floorMod(routineIndex, RoutineType.values().length)];
+
+        if (gamepad1.dpadLeftWasPressed()) currentAlliance = Poses.Alliance.RED;
+        if (gamepad1.dpadRightWasPressed()) currentAlliance = Poses.Alliance.BLUE;
+        Poses.setCurrentAlliance(currentAlliance);
 
         tele.header("ROUTING SELECTION")
             .addLine()
@@ -62,6 +69,7 @@ public class ScoringSideAuto extends AutoBase {
     protected void onLoop() {
         intake.update();
         shooter.update();
+        updateShooting();
     }
 
     @Override
@@ -73,26 +81,37 @@ public class ScoringSideAuto extends AutoBase {
     @Override
     protected Routine routine() {
         switch (routineType) {
+            case ONE_TIP:
+                return Routine.from(startPose())
+                           .to(startPose())
+                               .onStart(this::shoot)
+                               .waitUntil(this::doneShooting, 7.5)
+                           .curveTo(Poses.parkFromScoring[0],
+                                    Poses.parkFromScoring[1])
+                               .onArrival(() -> Poses.setTeleOpStartingPose(currentPose))
+                           .build();
+
             case TWO_TIP:
                 return Routine.from(startPose())
                            .to(startPose())
                                .onStart(this::shoot)
-                               .waitUntil(this::doneShooting, 5.0)
+                               .waitUntil(this::doneShooting, 7.5)
                            .to(Poses.intakeGarden)
                                .onStart(intake::intake)
                            .to(Poses.shootPoseAudience1)
                                .reverseTangentHeading()
+                               .onStart(intake::intake)
                                .onArrival(this::shoot)
-                               .waitUntil(this::doneShooting, 5.0)
+                               .waitUntil(this::doneShooting, 10.0)
                            .curveTo(Poses.intakeAudienceFlower[0],
-                                    Poses.intakeAudienceFlower[1], Poses.intakeAudienceFlower[2])
+                                    Poses.intakeAudienceFlower[1])
                                .onStart(() -> {
                                    intake.rampDown();
                                    intake.intake();
                                })
                            .to(Poses.shootPoseAudience1)
                                .onArrival(() -> {shoot(); Poses.setTeleOpStartingPose(currentPose);})
-                               .waitUntil(this::doneShooting, 5.0)
+                               .waitUntil(this::doneShooting, 7.5)
                            .build();
             default:
                 throw new IllegalStateException("New routine type has not been set");
@@ -102,12 +121,13 @@ public class ScoringSideAuto extends AutoBase {
 
     private enum ShotState {IDLE, SPINNING_UP, TRANSFERING, DONE}
     private ShotState shotState = ShotState.IDLE;
+    private final ElapsedTime transferTimer = new ElapsedTime();
     @Override
     protected void beginLeg() {
-        super.beginLeg();
         shotState = ShotState.IDLE;
         intake.stop();
         shooter.stop();
+        super.beginLeg();
     }
     private void shoot() {
         shotState = ShotState.SPINNING_UP;
@@ -118,19 +138,28 @@ public class ScoringSideAuto extends AutoBase {
     private void updateShooting() {
         if (shotState == ShotState.IDLE || shotState == ShotState.DONE) return;
 
-        shooter.setTargets(currentPose, targetPose, ShooterUtil.DY, 0, 0, shooterOffset,turretOffset);
+        shooter.setTargets(currentPose, targetPose, ShooterUtil.DY, 0, 0, shooterOffset, turretOffset);
         switch (shotState) {
             case SPINNING_UP:
+                intake.intake();
                 if (shooter.isReady()) {
                     intake.transfer();
                     shotState = ShotState.TRANSFERING;
+                    transferTimer.reset();
                 }
                 break;
             case TRANSFERING:
-                if (!intake.rampHasBalls()) {
-                    intake.stop();
-                    shooter.stop();
-                    shotState = ShotState.DONE;
+                if (!shooter.isReady()) intake.intake();
+                else intake.transfer();
+
+                if (!intake.transferHasBall()) {
+                    if (transferTimer.seconds() > TRANSFER_TIMEOUT_SECONDS) {
+                        intake.stop();
+                        shooter.stop();
+                        shotState = ShotState.DONE;
+                    }
+                } else {
+                    transferTimer.reset();
                 }
         }
     }

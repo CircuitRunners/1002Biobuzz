@@ -68,7 +68,7 @@ public abstract class AutoBase extends OpMode {
     private void rebuild() {
         lastKey = selectionKey();
 
-        Pose start = mirrored() ? mirror(startPose()) : startPose();
+        Pose start = startPose();
         follower.setPose(start);
         routine = routine();
         routine.materializePaths(mirrored());

@@ -88,6 +88,7 @@ public class Intake {
     }
     public void stop() {
         state = IntakeState.IDLE;
+        blockTransfer();
     }
     public void intake() {
         state = IntakeState.INTAKING;

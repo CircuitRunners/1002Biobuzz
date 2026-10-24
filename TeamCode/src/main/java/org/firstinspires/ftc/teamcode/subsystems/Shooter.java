@@ -105,7 +105,7 @@ public class Shooter {
         private final DcMotorEx shooter2;
         private double targetVelocity = 0.0;
         private double currentVelocity = 0.0;
-        private static final double VELOCITY_TOLERANCE = 100.0;
+        private static final double VELOCITY_TOLERANCE = 50.0;
         public static final double MAX_VELOCITY = 1600.0;
         public PIDFController flywheelPIDF;
         public static final PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.032, 0.0, 0.000000001, 0.00065); //new PIDFCoefficients(1.8, 0.0, 0.4, 0.0018);

@@ -91,6 +91,7 @@ public class Routine {
                         ? Paths.curve(ctrlPoses.toArray(new Pose[0]))
                         : Paths.line(cursor, end);
 
+                if (cursor == end) leg.heading = Heading.CONSTANT;
                 switch (leg.heading) {
                     case LINEAR:
                         path = path.linear(cursor, end);
