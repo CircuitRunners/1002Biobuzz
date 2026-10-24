@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.util.ShooterUtil;
 @Autonomous(name="Scoring Side Auto", group = "COMPETITION")
 public class ScoringSideAuto extends AutoBase {
     private enum RoutineType {
+        ONLY_PARK,
         ONE_TIP,
         TWO_TIP
     }
@@ -23,7 +24,7 @@ public class ScoringSideAuto extends AutoBase {
     private RoutineType routineType = RoutineType.values()[0];
     private int routineIndex = 0;
     private Poses.Alliance currentAlliance = Poses.Alliance.BLUE;
-    public static double shooterOffset = 0;
+    public static double hoodOffset = 2.5;
     public static double turretOffset = 0;
     public static double TRANSFER_TIMEOUT_SECONDS = 2.0;
     private Intake intake;
@@ -31,8 +32,10 @@ public class ScoringSideAuto extends AutoBase {
     @Override
     protected Pose startPose() {
         switch (routineType) {
+            case ONLY_PARK:
+                return Poses.startPoseOnlyPark;
             case ONE_TIP:
-                return Poses.startPoseScoringWall;
+                return Poses.startPoseScoringWall[0];
 
             case TWO_TIP:
             default:
@@ -81,9 +84,14 @@ public class ScoringSideAuto extends AutoBase {
     @Override
     protected Routine routine() {
         switch (routineType) {
+            case ONLY_PARK:
+                return Routine.from(startPose())
+                           .to(Poses.parkFromOnlyPark)
+                               .onArrival(() -> Poses.setTeleOpStartingPose(currentPose))
+                           .build();
             case ONE_TIP:
                 return Routine.from(startPose())
-                           .to(startPose())
+                           .to(Poses.startPoseScoringWall[1])
                                .onStart(this::shoot)
                                .waitUntil(this::doneShooting, 7.5)
                            .curveTo(Poses.parkFromScoring[0],
@@ -93,7 +101,7 @@ public class ScoringSideAuto extends AutoBase {
 
             case TWO_TIP:
                 return Routine.from(startPose())
-                           .to(startPose())
+                           .to(Poses.startPoseScoringWall[1])
                                .onStart(this::shoot)
                                .waitUntil(this::doneShooting, 7.5)
                            .to(Poses.intakeGarden)
@@ -138,7 +146,7 @@ public class ScoringSideAuto extends AutoBase {
     private void updateShooting() {
         if (shotState == ShotState.IDLE || shotState == ShotState.DONE) return;
 
-        shooter.setTargets(currentPose, targetPose, ShooterUtil.DY, 0, 0, shooterOffset, turretOffset);
+        shooter.setTargets(currentPose, targetPose, ShooterUtil.DY, 0, 0, hoodOffset, turretOffset);
         switch (shotState) {
             case SPINNING_UP:
                 intake.intake();

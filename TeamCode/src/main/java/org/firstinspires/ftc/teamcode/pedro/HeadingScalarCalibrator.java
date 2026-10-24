@@ -21,6 +21,7 @@
 
 package org.firstinspires.ftc.teamcode.pedro;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -30,6 +31,7 @@ import org.firstinspires.ftc.teamcode.pedro.OctoQuadFWv3;
  * This OpMode helps calibrate the heading scalar for the IMU on the
  * OctoQuad FTC Edition MK2
  */
+@Disabled
 @TeleOp
 public class HeadingScalarCalibrator extends LinearOpMode
 {

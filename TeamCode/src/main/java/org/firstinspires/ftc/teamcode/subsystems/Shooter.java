@@ -33,17 +33,17 @@ public class Shooter {
         flywheel = new Flywheel(hardwareMap);
 
         hood = new Hood(hardwareMap);
-        hood.home();
+        // hood.home();
 
         turret = new Turret(hardwareMap);
-        turret.home();
+        // turret.home();
     }
 
     public void update() {
         flywheel.update();
     }
 
-    public void setTargets(Pose currentPose, Pose targetPose, double dyInches, double robotVeloX, double robotVeloY, double shooterOffset, double turretOffset) {
+    public void setTargets(Pose currentPose, Pose targetPose, double dyInches, double robotVeloX, double robotVeloY, double hoodOffset, double turretOffset) {
         double distance = currentPose.distance(targetPose);
         double flywheelVelocity = ShooterUtil.getTargetFlywheelVelocity(distance);
         double hoodAngle = ShooterUtil.getHoodTargetAngle(distance);
@@ -54,7 +54,7 @@ public class Shooter {
                 break;
 
             case TURRET_ONLY:
-                turret.setTarget(currentPose, targetPose, turretOffset);
+                // turret.setTarget(currentPose, targetPose, turretOffset);
                 break;
 
             case SOTM:
@@ -64,12 +64,12 @@ public class Shooter {
                 flywheelVelocity = ShooterUtil.getTargetFlywheelVelocity(aimingTargetDistance);
                 hoodAngle = ShooterUtil.getHoodTargetAngle(aimingTargetDistance);
 
-                turret.setTarget(currentPose, aimingTarget, turretOffset);
+                // turret.setTarget(currentPose, aimingTarget, turretOffset);
                 break;
         }
 
-        flywheel.setTargetVelocity(flywheelVelocity + shooterOffset);
-        hood.setAngle(hoodAngle);
+        flywheel.setTargetVelocity(flywheelVelocity);
+        // hood.setAngle(hoodAngle + hoodOffset);
     }
 
     public void setMode(Mode mode) {this.mode = mode;}
@@ -193,15 +193,15 @@ public class Shooter {
         }
 
         public void setAngle(double angle) {
-            if (!Double.isFinite(angle)) {
-                angle = HOME_ANGLE;
-            }
-            angle = Range.clip(angle, MIN_ANGLE, MAX_ANGLE);
-            hoodServo.setPosition(Range.scale(angle, MIN_ANGLE, MAX_ANGLE, MIN_POSITION, MAX_POSITION));
+//            if (!Double.isFinite(angle)) {
+//                angle = HOME_ANGLE;
+//            }
+//            angle = Range.clip(angle, MIN_ANGLE, MAX_ANGLE);
+//            hoodServo.setPosition(Range.scale(angle, MIN_ANGLE, MAX_ANGLE, MIN_POSITION, MAX_POSITION));
         }
 
         public void setPosition(double position) {
-            hoodServo.setPosition(Range.clip(position, MIN_POSITION, MAX_POSITION));
+//            hoodServo.setPosition(Range.clip(position, MIN_POSITION, MAX_POSITION));
         }
 
         public double getAngle() {
@@ -237,26 +237,31 @@ public class Shooter {
 
         public void setTarget(Pose currentPose, Pose targetPose, double offset) {
             double targetAngle = Math.atan2(targetPose.y() - currentPose.y(), targetPose.x() - currentPose.x());
-            double robotRelativeAngle = targetAngle - currentPose.heading() + offset;
+            double robotRelativeAngle = targetAngle - currentPose.heading() + Math.toRadians(offset);
             double normalizedAngle = AngleUnit.normalizeRadians(robotRelativeAngle);
             setAngle(Math.toDegrees(normalizedAngle));
         }
+        public double getTargetAngle(Pose currentPose, Pose targetPose) {
+            double targetAngle = Math.atan2(targetPose.y() - currentPose.y(), targetPose.x() - currentPose.x());
+            double robotRelativeAngle = targetAngle - currentPose.heading();
+            return AngleUnit.normalizeRadians(robotRelativeAngle);
+        }
 
         public void setAngle(double angle) {
-            if (!Double.isFinite(angle)) {
-                angle = HOME_ANGLE;
-            }
-
-            angle = Range.clip(angle, MIN_ANGLE, MAX_ANGLE);
-            double targetPosition = Range.scale(angle, MIN_ANGLE, MAX_ANGLE, MIN_POSITION, MAX_POSITION);
-            setPosition(targetPosition);
+//            if (!Double.isFinite(angle)) {
+//                angle = HOME_ANGLE;
+//            }
+//
+//            angle = Range.clip(angle, MIN_ANGLE, MAX_ANGLE);
+//            double targetPosition = Range.scale(angle, MIN_ANGLE, MAX_ANGLE, MIN_POSITION, MAX_POSITION);
+//            setPosition(targetPosition);
         }
 
         public void setPosition(double position) {
-            position = Range.clip(position, MIN_POSITION, MAX_POSITION);
-
-            turret1.setPosition(position);
-            turret2.setPosition(position);
+//            position = Range.clip(position, MIN_POSITION, MAX_POSITION);
+//
+//            turret1.setPosition(position);
+//            turret2.setPosition(position);
         }
 
         public double getAngle() {

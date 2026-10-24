@@ -16,6 +16,9 @@ public class Poses {
     public static Pose teleOpStartingPose = p.of(72, 72, 90);
     public static void setTeleOpStartingPose(Pose p) {teleOpStartingPose = p;}
     public static final Pose relocPose1 = p.of(72, 72, 90);
+    public static final Pose relocPoseGardenCorner = p.of(133, 134, 180);
+    public static final Pose relocPoseParkCorner = p.of(133, 10, 180);
+
 
     public static Zones currentZone(Pose pose) {
         if (currentAlliance == Alliance.RED) {
@@ -28,7 +31,10 @@ public class Poses {
     }
 
     public static final Pose startPoseScoringGarden = p.of(134, 129, 90);
-    public static final Pose startPoseScoringWall = p.of(86.7, 132.2, 270);
+    public static final Pose[] startPoseScoringWall = {p.of(86.7, 132.2, 270),
+            p.of(86.7, 132.1, 270)
+    };
+    public static final Pose startPoseOnlyPark = p.of(134, 11, 90);
     public static final Pose intakeGarden = p.of(134, 133, 90);
     public static final Pose[] intakeScoringFlower = {p.of(130, 95, 0),
             p.of(87, 133, 0),
@@ -42,6 +48,7 @@ public class Poses {
     public static final Pose[] parkFromScoring = {p.of(130, 42, 270),
             p.of(121, 117, 0)
     };
+    public static final Pose parkFromOnlyPark = p.of(134, 30, 90);
 
     public static Pose targetHivePose(Zones zone) {
         switch (zone) {
