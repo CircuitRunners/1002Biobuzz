@@ -6,10 +6,10 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class MecanumDrive {
-    public DcMotorEx frontLeftMotor;
-    public DcMotorEx frontRightMotor;
-    public DcMotorEx backLeftMotor;
-    public DcMotorEx backRightMotor;
+    public final DcMotorEx frontLeftMotor;
+    public final DcMotorEx frontRightMotor;
+    public final DcMotorEx backLeftMotor;
+    public final DcMotorEx backRightMotor;
 
     private DcMotorEx[] motors;
 
@@ -29,7 +29,6 @@ public class MecanumDrive {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
     }
-
     public void setPowers(double frontLeftPower, double frontRightPower, double backLeftPower, double backRightPower) {
         double maxSpeed = 1.0;
         maxSpeed = Math.max(maxSpeed, Math.abs(frontLeftPower));

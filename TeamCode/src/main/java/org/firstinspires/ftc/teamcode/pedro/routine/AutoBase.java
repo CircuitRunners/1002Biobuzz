@@ -6,6 +6,8 @@ import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
+import org.firstinspires.ftc.teamcode.util.Poses;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,6 +25,10 @@ public abstract class AutoBase extends OpMode {
     private boolean arrived;
     private double arrivalTime;
     private Object lastKey;
+    protected GlobalTelemetry tele;
+    protected Pose currentPose;
+    protected Pose targetPose;
+    protected Poses.Zones currentZone;
 
     private final Set<String> firedTCallbacks = new HashSet<>();
     private final Set<String> firedTimeCallbacks = new HashSet<>();
@@ -36,33 +42,33 @@ public abstract class AutoBase extends OpMode {
     protected void initLoop() {}
     protected void onLoop() {}
     protected Object selectionKey() { return null; }
+    protected boolean useLogging() { return false; }
 
     @Override
     public void init() {
-        telemetry.addLine("Initializing...");
+        tele = new GlobalTelemetry(telemetry, useLogging());
+        tele.addLine("Initializing...");
         follower = Constants.create(hardwareMap);
         onInit();
         rebuild();
-        telemetry.addLine("Done!");
-        telemetry.update();
+        tele.addLine("Done!").update();
     }
 
     @Override
     public void init_loop() {
         initLoop();
         if (!Objects.equals(lastKey, selectionKey())) {
-            telemetry.clearAll();
-            telemetry.addLine("Building...");
+            tele.clearAll();
+            tele.addLine("Building...");
             rebuild();
-            telemetry.addLine("Done!");
-            telemetry.update();
+            tele.addLine("Done!").update();
         }
     }
 
     private void rebuild() {
         lastKey = selectionKey();
 
-        Pose start = mirrored() ? mirror(startPose()) : startPose();
+        Pose start = startPose();
         follower.setPose(start);
         routine = routine();
         routine.materializePaths(mirrored());
@@ -79,14 +85,22 @@ public abstract class AutoBase extends OpMode {
     }
 
     @Override
+    public void stop() {
+        Poses.setTeleOpStartingPose(currentPose);
+    }
+
+    @Override
     public void loop() {
         follower.update();
+        currentPose = follower.pose();
+        currentZone = Poses.currentZone(currentPose);
+        targetPose = Poses.targetHivePose(currentZone);
         onLoop();
 
         if (index >= routine.size()) {
-            telemetry.addData("state", "done");
-            telemetry.addLine(follower.debug().toString());
-            telemetry.update();
+            tele.addData("state", "done")
+                .addLine(follower.debug().toString())
+                .update();
             requestOpModeStop();
             return;
         }
@@ -110,12 +124,11 @@ public abstract class AutoBase extends OpMode {
             beginLeg();
         }
 
-        telemetry.addData("leg", index + "/" + routine.size());
-        telemetry.addData("held", arrived && !ready(leg));
-        telemetry.addData("t", follower.parametricCompletion());
-        telemetry.addData("pose", follower.pose());
-        telemetry.addLine(follower.debug().toString());
-        telemetry.update();
+        tele.addData("Leg", index + "/" + routine.size())
+            .addData("Held?", arrived && !ready(leg))
+            .addData("T Value", follower.parametricCompletion())
+            .addData("Pose", follower.pose())
+            .update();
     }
 
     private void runParametricCallbacks(Routine.Leg leg) {
@@ -157,7 +170,7 @@ public abstract class AutoBase extends OpMode {
         return leg.waitUntil.getAsBoolean();
     }
 
-    private void beginLeg() {
+    protected void beginLeg() {
         arrived = false;
         arrivalTime = getRuntime();
 

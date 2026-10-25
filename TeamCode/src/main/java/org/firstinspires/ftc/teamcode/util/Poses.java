@@ -2,14 +2,75 @@ package org.firstinspires.ftc.teamcode.util;
 
 import com.bylazar.configurables.annotations.Configurable;
 //import com.pedropathing.geometry.Pose;
+import com.pedropathing.api.PoseFactory;
 import com.pedropathing.math.Pose;
 
 @Configurable
 public class Poses {
-    public static final Pose startLine1 = new Pose(72, 72, Math.toRadians(90));
-    public static final Pose endLine1 = new Pose(72, 108, Math.toRadians(90));
-    public static final Pose curve1 = new Pose(108, 72, Math.toRadians(180));
-    public static final Pose curve1ControlPoint = new Pose(108, 108);
-    public static final Pose startLine2 = new Pose(108, 108, Math.toRadians(-90));
-    public static final Pose endLine2 = new Pose(108, 72, Math.toRadians(-90));
+    public enum Zones {RED_AUDIENCE, RED_SCORING, BLUE_AUDIENCE, BLUE_SCORING}
+    public enum Alliance {RED, BLUE}
+    public static Alliance currentAlliance;
+    public static void setCurrentAlliance(Alliance a) {currentAlliance = a;}
+
+    public static final PoseFactory p = PoseFactory.degrees();
+    public static Pose teleOpStartingPose = p.of(72, 72, 90);
+    public static void setTeleOpStartingPose(Pose p) {teleOpStartingPose = p;}
+    public static final Pose relocPose1 = p.of(72, 72, 90);
+    public static final Pose relocPoseGardenCorner = p.of(133, 134, 180);
+    public static final Pose relocPoseParkCorner = p.of(133, 10, 180);
+
+
+    public static Zones currentZone(Pose pose) {
+        if (currentAlliance == Alliance.RED) {
+            if (pose.y() > 72) return Zones.RED_AUDIENCE;
+            else return Zones.RED_SCORING;
+        } else {
+            if (pose.y() > 72) return Zones.BLUE_SCORING;
+            else return Zones.BLUE_AUDIENCE;
+        }
+    }
+
+    public static final Pose startPoseScoringGarden = p.of(134, 129, 90);
+    public static final Pose[] startPoseScoringWall = {p.of(86.7, 132.2, 270),
+            p.of(86.7, 130.0, 270)
+    };
+    public static final Pose startPoseAudienceOnlyPark = p.of(134, 11, 90);
+    public static final Pose[] startPoseAudienceWall = {p.of(81.6, 9.6, 90),
+            p.of(81.6, 12.6, 90),
+            p.of(94, 38, 0)
+    };
+    public static final Pose intakeGarden = p.of(134, 133, 90);
+    public static final Pose[] intakeScoringFlower = {p.of(130, 95, 0),
+            p.of(87, 133, 0),
+            p.of(106, 91, 0)
+    };
+    public static final Pose[] intakeAudienceFlower = {p.of(94, 14, 270),
+            p.of(91, 36, 0)
+    };
+    public static final Pose shootPoseAudience1 = p.of(110, 34, 180);
+    public static final Pose shootPoseScoring1 = p.of(110, 110, 180);
+    public static final Pose[] parkFromScoring = {p.of(130, 42, 270),
+            p.of(121, 117, 0)
+    };
+    public static final Pose parkFromOnlyPark = p.of(134, 28, 90);
+
+    public static Pose targetHivePose(Zones zone) {
+        switch (zone) {
+            case BLUE_SCORING:
+            case RED_AUDIENCE:
+                return p.of(84, 86, 0);
+
+            case BLUE_AUDIENCE:
+            case RED_SCORING:
+                return p.of(84, 58, 0);
+        }
+        throw new IllegalStateException("No target hive pose found");
+    }
+    public static final Pose startLine1 = p.of(72, 72, 90);
+    public static final Pose endLine1 = p.of(72, 108, 90);
+    public static final Pose curve1 = p.of(108, 72, 180);
+    public static final Pose curve1ControlPoint = p.of(108, 108, 0);
+    public static final Pose startLine2 = p.of(108, 108, -90);
+    public static final Pose endLine2 = p.of(108, 72, -90);
+
 }
