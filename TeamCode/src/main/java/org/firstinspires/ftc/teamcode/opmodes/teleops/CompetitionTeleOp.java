@@ -33,7 +33,7 @@ public class CompetitionTeleOp extends OpMode {
     public int shooterModeIndex = 1;
     public double turretOffset;
     private Pose targetPose;
-    private Poses.Zones currentZone;
+    private Poses.Zone currentZone;
     private boolean rampDown = false;
     private boolean driveAutoAlign = false;
     private double headingError = 0;
@@ -61,13 +61,13 @@ public class CompetitionTeleOp extends OpMode {
         shooter.setMode(Shooter.Mode.TURRET_ONLY);
         player1 = new GamepadEx(gamepad1);
         follower = Constants.create(hardwareMap);
-        follower.setPose(Poses.teleOpStartingPose);
+        follower.setPose(Poses.TeleOpPoses.teleOpStartingPose);
 
-        if (Poses.currentAlliance == null) {
+        if (Poses.getCurrentAlliance() == null) {
             Poses.setCurrentAlliance(Poses.Alliance.BLUE);
         }
 
-        isRedAlliance = Poses.currentAlliance == Poses.Alliance.RED;
+        isRedAlliance = Poses.getCurrentAlliance() == Poses.Alliance.RED;
         tele.addLine("Ready").update();
     }
 
@@ -76,12 +76,12 @@ public class CompetitionTeleOp extends OpMode {
         player1.readButtons();
         tele.addLine("ALLIANCE SELECTION")
                 .addLine("DPAD LEFT -> RED || DPAD RIGHT -> BLUE")
-                .addData("Current Alliance", Poses.currentAlliance)
+                .addData("Current Alliance", Poses.getCurrentAlliance())
                 .update();
 
         if (player1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)) Poses.setCurrentAlliance(Poses.Alliance.RED);
         if (player1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)) Poses.setCurrentAlliance(Poses.Alliance.BLUE);
-        isRedAlliance = Poses.currentAlliance == Poses.Alliance.RED;
+        isRedAlliance = Poses.getCurrentAlliance() == Poses.Alliance.RED;
     }
 
     @Override
@@ -121,9 +121,9 @@ public class CompetitionTeleOp extends OpMode {
     }
 
     private void handleDriving() {
-        if (player1.wasJustPressed(GamepadKeys.Button.TRIANGLE)) follower.setPose(Poses.relocPose1);
-        if (player1.wasJustPressed(GamepadKeys.Button.CIRCLE)) follower.setPose(Poses.relocPoseGardenCorner);
-        if (player1.wasJustPressed(GamepadKeys.Button.SQUARE)) follower.setPose(Poses.relocPoseParkCorner);
+        if (player1.wasJustPressed(GamepadKeys.Button.TRIANGLE)) follower.setPose(Poses.TeleOpPoses.relocPoseCenter);
+        if (player1.wasJustPressed(GamepadKeys.Button.CIRCLE)) follower.setPose(Poses.TeleOpPoses.relocPoseGardenCorner);
+        if (player1.wasJustPressed(GamepadKeys.Button.SQUARE)) follower.setPose(Poses.TeleOpPoses.relocPoseParkCorner);
         if (player1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) {
             if (lMecDrive.getState() == LockingMecanumDrive.LMecDriveState.UNLOCKED) {
                 lMecDrive.lock();
@@ -173,11 +173,9 @@ public class CompetitionTeleOp extends OpMode {
         if (player1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)) turretOffset -= 1;
         if (player1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)) turretOffset += 1;
 
-
-
         shooter.setTargets(currentPose, targetPose, TARGET_DY_INCHES,
                         follower.velocity().vx, follower.velocity().vy,
-                hoodOffset, turretOffset);
+                        hoodOffset, turretOffset);
 
         intake.unblockTransfer();
         if (player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2 && shooter.isReady()) {
@@ -203,18 +201,18 @@ public class CompetitionTeleOp extends OpMode {
                 .addData("Current Pose", currentPose)
                 .addData("Target Pose", targetPose)
                 .addData("Distance to Target", currentPose.distance(targetPose))
-                .addData("Alliance", Poses.currentAlliance)
+                .addData("Alliance", Poses.getCurrentAlliance())
                 .addData("Current Zone", currentZone)
                 .addLine()
                 .header("STATES")
                 .addData("Drive State", lMecDrive.getState())
                 .addData("Auto Align", driveAutoAlign)
-                .addData("Heading Error (deg)", Math.toDegrees(headingError))
                 .addData("Intake State", intake.getState())
                 .addData("Shooter State", shooter.getMode())
                 .addData("TeleOp State", mode)
                 .addLine()
                 .header("DIAGNOSTICS")
+                .addData("Heading Error (deg)", Math.toDegrees(headingError))
                 .addData("Flywheel Velocity", shooter.getFlywheelVelo())
                 .addData("Target Flywheel Velocity", shooter.getTargetFlywheelVelo())
                 .addData("Hood Angle", shooter.getHoodAngle())

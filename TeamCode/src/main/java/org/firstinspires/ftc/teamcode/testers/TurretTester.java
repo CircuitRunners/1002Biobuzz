@@ -16,7 +16,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
 import org.firstinspires.ftc.teamcode.util.Logger;
 import org.firstinspires.ftc.teamcode.util.Poses;
-import org.firstinspires.ftc.teamcode.util.ShooterUtil;
 
 import java.util.List;
 
@@ -48,7 +47,7 @@ public class TurretTester extends OpMode {
         lMec = new LockingMecanumDrive(hardwareMap);
         turret = new Shooter.Turret(hardwareMap);
         follower = Constants.create(hardwareMap);
-        follower.setPose(Poses.relocPose1);
+        follower.setPose(Poses.TeleOpPoses.relocPoseCenter);
 
         player1 = new GamepadEx(gamepad1);
 
@@ -63,7 +62,7 @@ public class TurretTester extends OpMode {
         player1.readButtons();
         follower.update();
         Pose currentPose = follower.pose();
-        Poses.Zones currentZone = Poses.currentZone(currentPose);
+        Poses.Zone currentZone = Poses.currentZone(currentPose);
         Pose targetPose = Poses.targetHivePose(currentZone);
 
         if (player1.wasJustPressed(GamepadKeys.Button.DPAD_UP)) position += 0.01;
@@ -76,7 +75,7 @@ public class TurretTester extends OpMode {
         if (!angleToggle) turret.setPosition(position);
         else turret.setTarget(currentPose, targetPose, offset);
 
-        if (player1.wasJustPressed(GamepadKeys.Button.SQUARE)) follower.setPose(Poses.relocPose1);
+        if (player1.wasJustPressed(GamepadKeys.Button.SQUARE)) follower.setPose(Poses.TeleOpPoses.relocPoseCenter);
         double forward = player1.getLeftY();
         double strafe = player1.getLeftX();
         double rotate = player1.getRightX();

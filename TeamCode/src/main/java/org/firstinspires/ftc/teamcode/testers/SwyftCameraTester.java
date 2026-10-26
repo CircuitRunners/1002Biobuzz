@@ -21,7 +21,7 @@ public class SwyftCameraTester extends OpMode {
     private long exposureMs = SwyftCamera.EXPOSURE_MS;
     private int gain = SwyftCamera.GAIN;
     private int zoneIndex = 0;
-    private Poses.Zones zone = Poses.Zones.values()[zoneIndex];
+    private Poses.Zone zone = Poses.Zone.values()[zoneIndex];
     private boolean lastDpadUp = false;
     private boolean lastDpadDown = false;
     private boolean lastDpadLeft = false;
@@ -60,7 +60,7 @@ public class SwyftCameraTester extends OpMode {
             camera.setExposure(exposureMs, gain);
         }
         if (gamepad1.right_bumper && !lastRightBumper) zoneIndex++;
-        zone = Poses.Zones.values()[zoneIndex % Poses.Zones.values().length];
+        zone = Poses.Zone.values()[zoneIndex % Poses.Zone.values().length];
 
         lastDpadUp = gamepad1.dpad_up;
         lastDpadDown = gamepad1.dpad_down;

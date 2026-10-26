@@ -31,7 +31,7 @@ public class SwyftCamera {
     private boolean controlsApplied = false;
     private Set<Integer> validIDs = new LinkedHashSet<>();
     private static final int REQUIRED_IDS = 2;
-    private final Map<Poses.Zones, Double> zoneLastTipMs = new EnumMap<>(Poses.Zones.class);
+    private final Map<Poses.Zone, Double> zoneLastTipMs = new EnumMap<>(Poses.Zone.class);
     private final ElapsedTime tipTimer = new ElapsedTime();
     private static final double TIP_CONFIRM_MS = 400;
 
@@ -52,7 +52,7 @@ public class SwyftCamera {
                 .enableLiveView(true)
                 .build();
 
-        for (Poses.Zones zone : Poses.Zones.values()) {
+        for (Poses.Zone zone : Poses.Zone.values()) {
             zoneLastTipMs.put(zone, Double.NEGATIVE_INFINITY);
         }
     }
@@ -98,7 +98,7 @@ public class SwyftCamera {
         return tagsDetected.size();
     }
 
-    public boolean hiveTippedFor(Poses.Zones zone) {
+    public boolean hiveTippedFor(Poses.Zone zone) {
         switch (zone) {
             case RED_SCORING:
                 setValidIDs(30, 31, 32, 33);

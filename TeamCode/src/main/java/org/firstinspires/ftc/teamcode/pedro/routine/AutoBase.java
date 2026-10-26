@@ -11,7 +11,6 @@ import org.firstinspires.ftc.teamcode.util.Poses;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -28,7 +27,7 @@ public abstract class AutoBase extends OpMode {
     protected GlobalTelemetry tele;
     protected Pose currentPose;
     protected Pose targetPose;
-    protected Poses.Zones currentZone;
+    protected Poses.Zone currentZone;
 
     private final Set<String> firedTCallbacks = new HashSet<>();
     private final Set<String> firedTimeCallbacks = new HashSet<>();
@@ -86,7 +85,7 @@ public abstract class AutoBase extends OpMode {
 
     @Override
     public void stop() {
-        Poses.setTeleOpStartingPose(currentPose);
+        Poses.TeleOpPoses.setTeleOpStartingPose(currentPose);
     }
 
     @Override
@@ -179,7 +178,9 @@ public abstract class AutoBase extends OpMode {
             if (leg.onStart != null) {
                 leg.onStart.run();
             }
-            follower.follow(leg.path);
+            if (leg.path != null) {
+                follower.follow(leg.path);
+            }
         }
     }
 

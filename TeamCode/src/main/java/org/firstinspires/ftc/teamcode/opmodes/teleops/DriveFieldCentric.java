@@ -21,7 +21,7 @@ public class DriveFieldCentric extends OpMode {
     public void init() {
         telemetry.addLine("Initializing...");
         follower = Constants.create(hardwareMap);
-        follower.setPose(Poses.startLine1);
+        follower.setPose(Poses.TeleOpPoses.relocPoseCenter);
         telemetry.addLine("Done!");
     }
 
@@ -39,7 +39,7 @@ public class DriveFieldCentric extends OpMode {
         follower.manual(powers);
 
         if (gamepad1.squareWasPressed()) {
-            follower.setPose(Poses.startLine1);
+            follower.setPose(Poses.TeleOpPoses.relocPoseCenter);
         }
 
         telemetry.addData("X: ", currentPose.x());

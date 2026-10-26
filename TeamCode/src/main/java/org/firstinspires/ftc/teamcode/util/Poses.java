@@ -7,54 +7,17 @@ import com.pedropathing.math.Pose;
 
 @Configurable
 public class Poses {
-    public enum Zones {RED_AUDIENCE, RED_SCORING, BLUE_AUDIENCE, BLUE_SCORING}
-    public enum Alliance {RED, BLUE}
-    public static Alliance currentAlliance;
-    public static void setCurrentAlliance(Alliance a) {currentAlliance = a;}
-
-    public static final PoseFactory p = PoseFactory.degrees();
-    public static Pose teleOpStartingPose = p.of(72, 72, 90);
-    public static void setTeleOpStartingPose(Pose p) {teleOpStartingPose = p;}
-    public static final Pose relocPose1 = p.of(72, 72, 90);
-    public static final Pose relocPoseGardenCorner = p.of(133, 134, 180);
-    public static final Pose relocPoseParkCorner = p.of(133, 10, 180);
-
-
-    public static Zones currentZone(Pose pose) {
+    public enum Zone {RED_AUDIENCE, RED_SCORING, BLUE_AUDIENCE, BLUE_SCORING}
+    public static Zone currentZone(Pose pose) {
         if (currentAlliance == Alliance.RED) {
-            if (pose.y() > 72) return Zones.RED_AUDIENCE;
-            else return Zones.RED_SCORING;
+            if (pose.y() > 72) return Zone.RED_AUDIENCE;
+            else return Zone.RED_SCORING;
         } else {
-            if (pose.y() > 72) return Zones.BLUE_SCORING;
-            else return Zones.BLUE_AUDIENCE;
+            if (pose.y() > 72) return Zone.BLUE_SCORING;
+            else return Zone.BLUE_AUDIENCE;
         }
     }
-
-    public static final Pose startPoseScoringGarden = p.of(134, 129, 90);
-    public static final Pose[] startPoseScoringWall = {p.of(86.7, 132.2, 270),
-            p.of(86.7, 130.0, 270)
-    };
-    public static final Pose startPoseAudienceOnlyPark = p.of(134, 11, 90);
-    public static final Pose[] startPoseAudienceWall = {p.of(81.6, 9.6, 90),
-            p.of(81.6, 12.6, 90),
-            p.of(94, 38, 0)
-    };
-    public static final Pose intakeGarden = p.of(134, 133, 90);
-    public static final Pose[] intakeScoringFlower = {p.of(130, 95, 0),
-            p.of(87, 133, 0),
-            p.of(106, 91, 0)
-    };
-    public static final Pose[] intakeAudienceFlower = {p.of(94, 14, 270),
-            p.of(91, 36, 0)
-    };
-    public static final Pose shootPoseAudience1 = p.of(110, 34, 180);
-    public static final Pose shootPoseScoring1 = p.of(110, 110, 180);
-    public static final Pose[] parkFromScoring = {p.of(130, 42, 270),
-            p.of(121, 117, 0)
-    };
-    public static final Pose parkFromOnlyPark = p.of(134, 28, 90);
-
-    public static Pose targetHivePose(Zones zone) {
+    public static Pose targetHivePose(Zone zone) {
         switch (zone) {
             case BLUE_SCORING:
             case RED_AUDIENCE:
@@ -66,11 +29,50 @@ public class Poses {
         }
         throw new IllegalStateException("No target hive pose found");
     }
-    public static final Pose startLine1 = p.of(72, 72, 90);
-    public static final Pose endLine1 = p.of(72, 108, 90);
-    public static final Pose curve1 = p.of(108, 72, 180);
-    public static final Pose curve1ControlPoint = p.of(108, 108, 0);
-    public static final Pose startLine2 = p.of(108, 108, -90);
-    public static final Pose endLine2 = p.of(108, 72, -90);
+
+    public enum Alliance {RED, BLUE}
+    private static Alliance currentAlliance;
+    public static void setCurrentAlliance(Alliance a) {currentAlliance = a;}
+    public static Alliance getCurrentAlliance() {return currentAlliance;}
+
+    private static final PoseFactory p = PoseFactory.degrees();
+    public static class TeleOpPoses {
+        public static Pose teleOpStartingPose = p.of(72, 72, 90);
+
+        public static void setTeleOpStartingPose(Pose p) {
+            teleOpStartingPose = p;
+        }
+
+        public static Pose relocPoseCenter = p.of(72, 72, 90);
+        public static Pose relocPoseGardenCorner = p.of(133, 134, 180);
+        public static Pose relocPoseParkCorner = p.of(133, 10, 180);
+    }
+
+    public static class StartPoses {
+        public static Pose startPoseScoringGarden = p.of(134, 129, 90);
+        public static Pose startPoseScoringWall = p.of(86.7, 132.2, 270);
+        public static Pose startPoseAudienceOnlyPark = p.of(134, 11, 90);
+        public static Pose startPoseAudienceWall = p.of(81.6, 9.6, 90);
+    }
+
+    public static class IntakePoses {
+        public static Pose intakeGarden = p.of(134, 133, 90);
+        public static Pose intakeScoringFlower = p.of(130, 95, 0);
+        public static Pose intakeAudienceFlower = p.of(94, 14, 270);
+    }
+
+    public static class ShootPoses {
+        public static Pose shootPoseAudience1 = p.of(110, 34, 180);
+        public static Pose shootPoseScoring1 = p.of(110, 110, 180);
+    }
+
+    public static class ParkPoses {
+        public static Pose parkFromScoring = p.of(130, 42, 270);
+        public static Pose parkFromOnlyPark = p.of(134, 28, 90);
+    }
+
+    public static Pose ctrl(double x, double y) {
+        return p.of(x, y, 0);
+    }
 
 }

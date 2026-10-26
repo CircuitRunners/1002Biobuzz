@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.testers;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
@@ -17,6 +18,7 @@ import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
 import org.firstinspires.ftc.teamcode.util.Poses;
 
 @Configurable
+@Disabled
 @TeleOp(
         name = "SHOOTER TESTER",
         group = "TESTING"
@@ -27,7 +29,7 @@ public class ShooterTester extends OpMode {
      * Change these values to match the robot's known starting position.
      * This is the pose assigned when the robot is re-zeroed.
      */
-    private static final Pose REZERO_POSE = Poses.teleOpStartingPose;
+    private static final Pose REZERO_POSE = Poses.TeleOpPoses.teleOpStartingPose;
 
     /*
      * Manual shooter settings.

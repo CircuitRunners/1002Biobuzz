@@ -35,6 +35,7 @@ public class Routine {
 
     static class Leg {
         final List<Segment> segments = new ArrayList<>();
+        boolean stationary = false;
         Heading heading = Heading.TANGENT;
         Interpolator customInterpolator = null;
         Pose facingPoint = null;
@@ -72,6 +73,11 @@ public class Routine {
         Pose cursor = mirrored ? AutoBase.mirror(start) : start;
 
         for (Leg leg : legs) {
+            if (leg.stationary) {
+                leg.path = null;
+                continue;
+            }
+
             List<Path> built = new ArrayList<>();
 
             for (Segment s : leg.segments) {
@@ -165,6 +171,16 @@ public class Routine {
             }
             pending.clear();
             leg.segments.add(new Segment(end, controlPoses));
+            legs.add(leg);
+            return this;
+        }
+
+        public Builder stay() {
+            if (!pending.isEmpty()) {
+                throw new IllegalStateException("through() not followed by to()/curveTo()");
+            }
+            Leg leg = new Leg();
+            leg.stationary = true;
             legs.add(leg);
             return this;
         }

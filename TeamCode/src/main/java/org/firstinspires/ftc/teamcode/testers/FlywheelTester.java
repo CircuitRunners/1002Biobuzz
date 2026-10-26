@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import static org.firstinspires.ftc.teamcode.subsystems.Shooter.Flywheel;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
 import org.firstinspires.ftc.teamcode.util.Logger;
@@ -17,7 +18,7 @@ import java.util.List;
 public class FlywheelTester extends OpMode {
 
     private GlobalTelemetry tele;
-    private Shooter.Flywheel flywheel;
+    private Flywheel flywheel;
     private Shooter.Hood hood;
     public static double angle = 25;
     private Intake intake;
@@ -76,7 +77,7 @@ public class FlywheelTester extends OpMode {
             .addData("Target Velocity", targetTicksPerSecond)
             .addData("Calculated kF (power / velocity)", power / flywheel.getVelocity())
             .addData("Is Ready?", flywheel.isReady())
-            .addData("Max Velocity", Shooter.Flywheel.MAX_VELOCITY)
+            .addData("Max Velocity", Flywheel.MAX_VELOCITY)
             .addData("Wheel 1 Velo", flywheel.getWheel1Velo())
             .addData("Wheel 2 Velo", flywheel.getWheel2Velo())
             .addData("kP", kP)
