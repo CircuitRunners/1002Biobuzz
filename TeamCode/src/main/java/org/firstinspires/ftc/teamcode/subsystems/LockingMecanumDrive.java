@@ -17,11 +17,12 @@ public class LockingMecanumDrive extends MecanumDrive {
         lockingServo.setPosition(UNLOCK_POSITION);
     }
 
-    @Override
+
     public void drive(double forward, double right, double rotate) {
         switch (state) {
             case LOCKED:
                 super.drive(forward, 0, rotate);
+
                 break;
 
             case UNLOCKED:
