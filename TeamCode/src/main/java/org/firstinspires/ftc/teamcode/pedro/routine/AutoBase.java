@@ -85,7 +85,7 @@ public abstract class AutoBase extends OpMode {
 
     @Override
     public void stop() {
-        Poses.TeleOpPoses.setTeleOpStartingPose(currentPose);
+        if (currentPose != null) Poses.TeleOpPoses.setTeleOpStartingPose(currentPose);
     }
 
     @Override
@@ -113,9 +113,8 @@ public abstract class AutoBase extends OpMode {
         if (!arrived && !follower.isBusy()) {
             arrived = true;
             arrivalTime = getRuntime();
-            if (leg.onArrival != null) {
-                leg.onArrival.run();
-            }
+            if (leg.onArrival != null) leg.onArrival.run();
+            if (leg.holdEnd) follower.hold(currentPose);
         }
 
         if (arrived && (getRuntime() - arrivalTime >= leg.pause) && ready(leg)) {
@@ -175,12 +174,8 @@ public abstract class AutoBase extends OpMode {
 
         if (index < routine.size()) {
             Routine.Leg leg = routine.leg(index);
-            if (leg.onStart != null) {
-                leg.onStart.run();
-            }
-            if (leg.path != null) {
-                follower.follow(leg.path);
-            }
+            if (leg.onStart != null) leg.onStart.run();
+            if (leg.path != null) follower.follow(leg.path);
         }
     }
 
