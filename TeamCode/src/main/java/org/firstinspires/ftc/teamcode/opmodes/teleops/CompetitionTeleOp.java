@@ -142,7 +142,12 @@ public class CompetitionTeleOp extends OpMode {
             rotate = autoAlignRotate();
         }
 
-        lMecDrive.driveFieldCentric(-forward, -strafe, rotate, currentPose.heading());
+        if (lMecDrive.getState() == LockingMecanumDrive.LMecDriveState.UNLOCKED){
+            lMecDrive.driveFieldCentric(-forward, -strafe, rotate, currentPose.heading());
+        }
+        else{
+            lMecDrive.drive(forward,0,rotate);
+        }
     }
 
     private double autoAlignRotate() {
