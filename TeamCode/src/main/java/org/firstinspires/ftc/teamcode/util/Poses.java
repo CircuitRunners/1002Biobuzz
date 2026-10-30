@@ -21,11 +21,11 @@ public class Poses {
         switch (zone) {
             case BLUE_SCORING:
             case RED_AUDIENCE:
-                return p.of(84, 86, 0);
+                return p.of(82, 86, 0);
 
             case BLUE_AUDIENCE:
             case RED_SCORING:
-                return p.of(84, 58, 0);
+                return p.of(82, 58, 0);
         }
         throw new IllegalStateException("No target hive pose found");
     }

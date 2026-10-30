@@ -36,6 +36,7 @@ public class CompetitionTeleOp extends OpMode {
     private Poses.Zone currentZone;
     private boolean rampDown = false;
     private boolean driveAutoAlign = false;
+    public boolean lMecOverride = false;
     private double headingError = 0;
 
     public static double ALIGN_KP = 1.0;
@@ -43,7 +44,7 @@ public class CompetitionTeleOp extends OpMode {
     public static double ALIGN_MAX_POWER = 0.75;
     public static double ALIGN_TOLERANCE_DEG = 2.0;
     public static double ALIGN_STICK_DEADBAND = 0.1;
-
+    public static double LMEC_TOLERANCE_DEG = 10.0;
     private enum Mode {
         INTAKING,
         SHOOTING
@@ -127,9 +128,11 @@ public class CompetitionTeleOp extends OpMode {
         if (player1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) {
             if (lMecDrive.getState() == LockingMecanumDrive.LMecDriveState.UNLOCKED) {
                 lMecDrive.lock();
+                lMecOverride = true;
                 gamepad1.rumble(1.0, 1.0, 200);
             } else {
                 lMecDrive.unlock();
+                lMecOverride = false;
                 gamepad1.rumble(0.2, 0.2, 200);
             }
         }
@@ -138,16 +141,19 @@ public class CompetitionTeleOp extends OpMode {
         double strafe = player1.getLeftX();
         double rotate = player1.getRightX();
 
-        if (driveAutoAlign && Math.abs(rotate) < ALIGN_STICK_DEADBAND) {
-            rotate = autoAlignRotate();
+        if (!lMecOverride) {
+            double magnitude = Math.hypot(forward, strafe);
+            double robotAngle = Math.atan2(-forward, -strafe) - currentPose.heading();
+            double robotForward = magnitude * Math.sin(robotAngle);
+            double robotRight = magnitude * Math.cos(robotAngle);
+
+            double offAxis = Math.atan2(Math.abs(robotRight), Math.abs(robotForward));
+            if (offAxis < Math.toRadians(LMEC_TOLERANCE_DEG)) lMecDrive.lock();
+            else lMecDrive.unlock();
         }
 
-        if (lMecDrive.getState() == LockingMecanumDrive.LMecDriveState.UNLOCKED){
-            lMecDrive.driveFieldCentric(-forward, -strafe, rotate, currentPose.heading());
-        }
-        else{
-            lMecDrive.drive(forward,0,rotate);
-        }
+        if (driveAutoAlign && Math.abs(rotate) < ALIGN_STICK_DEADBAND) rotate = autoAlignRotate();
+        lMecDrive.driveFieldCentric(-forward, -strafe, rotate, currentPose.heading());
     }
 
     private double autoAlignRotate() {
