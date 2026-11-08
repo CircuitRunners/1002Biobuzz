@@ -118,6 +118,17 @@ public abstract class AutoBase extends OpMode {
         }
 
         if (arrived && (getRuntime() - arrivalTime >= leg.pause) && ready(leg)) {
+            if (leg.decision != null && leg.decision.getAsBoolean()) {
+                routine = leg.branch;
+                routine.materializePaths(mirrored());
+
+                firedTCallbacks.clear();
+                firedTimeCallbacks.clear();
+                firedPoseCallbacks.clear();
+                start();
+                return;
+            }
+
             index++;
             beginLeg();
         }

@@ -45,10 +45,10 @@ public class IntakeTester extends OpMode {
         player1.readButtons();
 
         // Blocker position
-        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_UP)) Intake.BLOCK_POSITION += 0.01;
-        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) Intake.BLOCK_POSITION -= 0.01;
-        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)) Intake.UNBLOCK_POSITION += 0.01;
-        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)) Intake.UNBLOCK_POSITION -= 0.01;
+//        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_UP)) Intake.BLOCK_POSITION += 0.01;
+//        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) Intake.BLOCK_POSITION -= 0.01;
+//        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)) Intake.UNBLOCK_POSITION += 0.01;
+//        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)) Intake.UNBLOCK_POSITION -= 0.01;
 
         // Ramp position
         if (player1.wasJustPressed(GamepadKeys.Button.TRIANGLE)) Intake.RAMP_DOWN += 0.01;
@@ -61,8 +61,8 @@ public class IntakeTester extends OpMode {
         if (player1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) rampDown = !rampDown;
 
         // Position sets
-        if (blocked) intake.blockTransfer();
-        else intake.unblockTransfer();
+//        if (blocked) intake.blockTransfer();
+//        else intake.unblockTransfer();
 
         if (rampDown) intake.rampDown();
         else intake.rampUp();
@@ -94,6 +94,8 @@ public class IntakeTester extends OpMode {
             .addData("Ramp Up Pos", Intake.RAMP_UP)
             .addLine()
             .addData("Intake State", intake.getState())
+            .addData("Sensor 1", intake.transferHasBall())
+            .addData("Transfer has balls", intake.transferHasBalls())
             .showLoopTime()
             .update();
     }

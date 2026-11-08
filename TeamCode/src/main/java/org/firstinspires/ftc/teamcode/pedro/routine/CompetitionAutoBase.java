@@ -86,7 +86,7 @@ public abstract class CompetitionAutoBase<R extends Enum<R>> extends AutoBase {
         return shotState == ShotState.DONE;
     }
     protected boolean outOfBalls() {
-        return !intake.transferHasBall() && !intake.rampHasBalls();
+        return !intake.transferHasBalls();
     }
     private void updateShooting() {
         if (shotState == ShotState.IDLE || shotState == ShotState.DONE) return;

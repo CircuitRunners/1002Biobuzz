@@ -16,16 +16,12 @@ public class Intake {
 
     public static double UNBLOCK_POSITION = 0.88;
     public static double BLOCK_POSITION = 0.58;
-    private final CRServo ramp;
+    private final Servo ramp;
     public static double RAMP_DOWN = 0.67;
     public static double RAMP_UP = 1.0;
     private final DigitalChannel[] sensors = new DigitalChannel[5];
     public enum IntakeState {IDLE, INTAKING, OUTTAKING, TRANSFERING}
     private IntakeState state;
-    public enum RampState {DOWN, UP}
-    private RampState rampState = RampState.UP;
-    private RampState lastRampState = RampState.UP;
-    private ElapsedTime rampTimer = new ElapsedTime();
     private double currentIntakePower;
     private double targetIntakePower;
     private double currentTransferPower;
@@ -44,8 +40,8 @@ public class Intake {
 
         unblockTransfer();
 
-        ramp = hardwareMap.get(CRServo.class, "flower");
-        ramp.setDirection(DcMotorSimple.Direction.REVERSE);
+        ramp = hardwareMap.get(Servo.class, "flower");
+        ramp.setDirection(Servo.Direction.REVERSE);
 
         sensors[0] = hardwareMap.get(DigitalChannel.class, "sensor1");
         sensors[1] = hardwareMap.get(DigitalChannel.class, "sensor2");
@@ -87,28 +83,6 @@ public class Intake {
             transfer.setPower(targetTransferPower);
             currentTransferPower = targetTransferPower;
         }
-
-        switch (rampState) {
-            case DOWN:
-                if (rampState != lastRampState) {
-                    if (rampTimer.seconds() < 0.3) ramp.setPower(-0.5);
-                    else {
-                        ramp.setPower(0.0);
-                        lastRampState = RampState.DOWN;
-                    }
-                }
-                break;
-
-            case UP:
-                if (rampState != lastRampState) {
-                    if (rampTimer.seconds() < 0.3) ramp.setPower(0.5);
-                    else {
-                        ramp.setPower(0.0);
-                        lastRampState = RampState.UP;
-                    }
-                }
-                break;
-        }
     }
     public void stop() {
         state = IntakeState.IDLE;
@@ -139,15 +113,9 @@ public class Intake {
         blocker1.setPosition(UNBLOCK_POSITION);
     }
     public void rampUp() {
-        rampState = RampState.UP;
-        rampTimer.reset();
+        ramp.setPosition(RAMP_UP);
     }
-    public void rampDown() {
-        rampState = RampState.DOWN;
-        rampTimer.reset();
-    }
-    public boolean rampHasBalls() {
-        return sensors[3].getState() || sensors[4].getState();
-    }
+    public void rampDown() {ramp.setPosition(RAMP_DOWN);}
+    public boolean transferHasBalls() {return sensors[0].getState() || sensors[1].getState() || sensors[2].getState();}
     public boolean transferHasBall() {return sensors[0].getState();}
 }

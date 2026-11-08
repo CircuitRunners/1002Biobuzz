@@ -50,6 +50,8 @@ public class Routine {
         final Map<Double, Runnable> parametricTriggers = new LinkedHashMap<>();
         final Map<Double, Runnable> temporalTriggers = new LinkedHashMap<>();
         final Map<Pose, Runnable> poseTriggers = new LinkedHashMap<>();
+        BooleanSupplier decision;
+        Routine branch;
         Path path;
     }
 
@@ -281,6 +283,12 @@ public class Routine {
                 throw new IllegalStateException("modifier called before the first to()/curveTo()");
             }
             return legs.get(legs.size() - 1);
+        }
+
+        public Builder decide(BooleanSupplier condition, Routine branch) {
+            last().decision = condition;
+            last().branch = branch;
+            return this;
         }
 
         public Routine build() {
