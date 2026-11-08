@@ -113,7 +113,7 @@ public class CompetitionTeleOp extends OpMode {
             shooter.stop();
             handleIntakeState();
         } else {
-            driveAutoAlign = true;
+            driveAutoAlign = false;
             handleShootingState();
         }
 
