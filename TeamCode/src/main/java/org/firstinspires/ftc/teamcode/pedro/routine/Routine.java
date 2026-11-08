@@ -71,8 +71,11 @@ public class Routine {
         return legs.get(i);
     }
 
-    void materializePaths(boolean mirrored) {
-        Pose cursor = mirrored ? AutoBase.mirror(start) : start;
+    void materializePaths(Pose currentPose) {
+        Pose cursor = currentPose == null ? start : currentPose;
+        if (cursor == null) {
+            throw new IllegalStateException("fromCurrent() should only be called on branches");
+        }
 
         for (Leg leg : legs) {
             if (leg.stationary) {
@@ -83,12 +86,10 @@ public class Routine {
             List<Path> built = new ArrayList<>();
 
             for (Segment s : leg.segments) {
-                Pose end = mirrored ? AutoBase.mirror(s.end) : s.end;
+                Pose end = s.end;
 
                 boolean controlled = !s.controlPoses.isEmpty();
-                ArrayList<Pose> ctrlPoses = controlled
-                        ? (mirrored ? AutoBase.mirror(s.controlPoses) : new ArrayList<>(s.controlPoses))
-                        : null;
+                ArrayList<Pose> ctrlPoses = controlled ? new ArrayList<>(s.controlPoses) : null;
 
                 if (controlled) {
                     ctrlPoses.add(0, cursor);
@@ -113,7 +114,7 @@ public class Routine {
                         path = path.reverseTangent();
                         break;
                     case FACING_POINT:
-                        path = path.facingPoint(leg.facingPoint == null ? end : (mirrored ? AutoBase.mirror(leg.facingPoint) : leg.facingPoint));
+                        path = path.facingPoint(leg.facingPoint == null ? end : leg.facingPoint);
                         break;
                     case CUSTOM:
                         if (leg.customInterpolator != null) {
@@ -139,6 +140,7 @@ public class Routine {
     public static Builder from(Pose start) {
         return new Builder(start);
     }
+    public static Builder fromCurrent() { return new Builder(null); }
 
     public static class Builder {
         private final Pose start;

@@ -37,7 +37,6 @@ public abstract class AutoBase extends OpMode {
     protected abstract Routine routine();
 
     protected void onInit() {}
-    protected boolean mirrored() { return false; }
     protected void initLoop() {}
     protected void onLoop() {}
     protected Object selectionKey() { return null; }
@@ -70,7 +69,7 @@ public abstract class AutoBase extends OpMode {
         Pose start = startPose();
         follower.setPose(start);
         routine = routine();
-        routine.materializePaths(mirrored());
+        routine.materializePaths(null);
 
         firedTCallbacks.clear();
         firedTimeCallbacks.clear();
@@ -120,7 +119,7 @@ public abstract class AutoBase extends OpMode {
         if (arrived && (getRuntime() - arrivalTime >= leg.pause) && ready(leg)) {
             if (leg.decision != null && leg.decision.getAsBoolean()) {
                 routine = leg.branch;
-                routine.materializePaths(mirrored());
+                routine.materializePaths(currentPose);
 
                 firedTCallbacks.clear();
                 firedTimeCallbacks.clear();
@@ -188,15 +187,5 @@ public abstract class AutoBase extends OpMode {
             if (leg.onStart != null) leg.onStart.run();
             if (leg.path != null) follower.follow(leg.path);
         }
-    }
-
-    static Pose mirror(Pose pose) {
-        return MIRROR.of(pose.x(), pose.y(), pose.heading());
-    }
-
-    static ArrayList<Pose> mirror(ArrayList<Pose> poses) {
-        ArrayList<Pose> mirroredPoses = new ArrayList<>();
-        poses.forEach((p) -> mirroredPoses.add(mirror(p)));
-        return mirroredPoses;
     }
 }
