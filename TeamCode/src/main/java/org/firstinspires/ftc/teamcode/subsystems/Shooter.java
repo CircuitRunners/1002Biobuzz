@@ -108,7 +108,7 @@ public class Shooter {
         private static final double VELOCITY_TOLERANCE = 50.0;
         public static final double MAX_VELOCITY = 1600.0;
         public PIDFController flywheelPIDF;
-        public static final PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.032, 0.0, 0.000000001, 0.00065); //new PIDFCoefficients(1.8, 0.0, 0.4, 0.0018);
+        public static final PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.09, 0.0, 0.001, 0.0006); //new PIDFCoefficients(1.8, 0.0, 0.4, 0.0018);
         public Flywheel(HardwareMap hardwareMap) {
             shooter1 = hardwareMap.get(DcMotorEx.class, "shooterTop");
             shooter1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -181,10 +181,10 @@ public class Shooter {
 
     public static class Hood {
         private final Servo hoodServo;
-        public static final double MIN_POSITION = 0.08;
+        public static final double MIN_POSITION = 0.24;
         public static final double MAX_POSITION = 1.0;
-        public static final double MIN_ANGLE = 9.0;
-        public static final double MAX_ANGLE = 38.0;
+        public static final double MIN_ANGLE = 3.0;
+        public static final double MAX_ANGLE = 28.0;
         private static final double HOME_ANGLE = 25.0;
 
         public Hood(HardwareMap hardwareMap) {
@@ -193,15 +193,15 @@ public class Shooter {
         }
 
         public void setAngle(double angle) {
-//            if (!Double.isFinite(angle)) {
-//                angle = HOME_ANGLE;
-//            }
-//            angle = Range.clip(angle, MIN_ANGLE, MAX_ANGLE);
-//            hoodServo.setPosition(Range.scale(angle, MIN_ANGLE, MAX_ANGLE, MIN_POSITION, MAX_POSITION));
+            if (!Double.isFinite(angle)) {
+                angle = HOME_ANGLE;
+            }
+            angle = Range.clip(angle, MIN_ANGLE, MAX_ANGLE);
+            hoodServo.setPosition(Range.scale(angle, MIN_ANGLE, MAX_ANGLE, MIN_POSITION, MAX_POSITION));
         }
 
         public void setPosition(double position) {
-//            hoodServo.setPosition(Range.clip(position, MIN_POSITION, MAX_POSITION));
+            hoodServo.setPosition(Range.clip(position, MIN_POSITION, MAX_POSITION));
         }
 
         public double getAngle() {
@@ -243,13 +243,13 @@ public class Shooter {
         }
 
         public void setAngle(double angle) {
-//            if (!Double.isFinite(angle)) {
-//                angle = HOME_ANGLE;
-//            }
-//
-//            angle = Range.clip(angle, MIN_ANGLE, MAX_ANGLE);
-//            double targetPosition = Range.scale(angle, MIN_ANGLE, MAX_ANGLE, MIN_POSITION, MAX_POSITION);
-//            setPosition(targetPosition);
+            if (!Double.isFinite(angle)) {
+                angle = HOME_ANGLE;
+            }
+
+            angle = Range.clip(angle, MIN_ANGLE, MAX_ANGLE);
+            double targetPosition = Range.scale(angle, MIN_ANGLE, MAX_ANGLE, MIN_POSITION, MAX_POSITION);
+            setPosition(targetPosition);
         }
 
         public void setPosition(double position) {
