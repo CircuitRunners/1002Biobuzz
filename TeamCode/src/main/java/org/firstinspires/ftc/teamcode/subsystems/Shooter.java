@@ -54,7 +54,7 @@ public class Shooter {
                 break;
 
             case TURRET_ONLY:
-                // turret.setTarget(currentPose, targetPose, turretOffset);
+                 turret.setTarget(currentPose, targetPose, turretOffset);
                 break;
 
             case SOTM:
@@ -64,12 +64,12 @@ public class Shooter {
                 flywheelVelocity = ShooterUtil.getTargetFlywheelVelocity(aimingTargetDistance);
                 hoodAngle = ShooterUtil.getHoodTargetAngle(aimingTargetDistance);
 
-                // turret.setTarget(currentPose, aimingTarget, turretOffset);
+                 turret.setTarget(currentPose, aimingTarget, turretOffset);
                 break;
         }
 
         flywheel.setTargetVelocity(flywheelVelocity);
-        // hood.setAngle(hoodAngle + hoodOffset);
+        hood.setAngle(hoodAngle + hoodOffset);
     }
 
     public void setMode(Mode mode) {this.mode = mode;}
@@ -253,10 +253,10 @@ public class Shooter {
         }
 
         public void setPosition(double position) {
-//            position = Range.clip(position, MIN_POSITION, MAX_POSITION);
+            position = Range.clip(position, MIN_POSITION, MAX_POSITION);
 //
-//            turret1.setPosition(position);
-//            turret2.setPosition(position);
+            turret1.setPosition(position);
+            turret2.setPosition(position);
         }
 
         public double getAngle() {

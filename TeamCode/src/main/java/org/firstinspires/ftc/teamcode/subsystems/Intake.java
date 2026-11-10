@@ -17,8 +17,8 @@ public class Intake {
     public static double UNBLOCK_POSITION = 0.88;
     public static double BLOCK_POSITION = 0.58;
     private final Servo ramp;
-    public static double RAMP_DOWN = 0.67;
-    public static double RAMP_UP = 1.0;
+    public static double RAMP_DOWN = 0.53;
+    public static double RAMP_UP = 0.95;
     private final DigitalChannel[] sensors = new DigitalChannel[5];
     public enum IntakeState {IDLE, INTAKING, OUTTAKING, TRANSFERING}
     private IntakeState state;
@@ -112,9 +112,7 @@ public class Intake {
     public void unblockTransfer() {
         blocker1.setPosition(UNBLOCK_POSITION);
     }
-    public void rampUp() {
-        ramp.setPosition(RAMP_UP);
-    }
+    public void rampUp() {ramp.setPosition(RAMP_UP);}
     public void rampDown() {ramp.setPosition(RAMP_DOWN);}
     public boolean transferHasBalls() {return sensors[0].getState() || sensors[1].getState() || sensors[2].getState();}
     public boolean transferHasBall() {return sensors[0].getState();}
