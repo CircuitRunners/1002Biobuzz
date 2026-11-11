@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class LockingMecanumDrive extends MecanumDrive {
 
     private final Servo lockingServo;
+    private final Servo light;
     public static double LOCK_POSITION = 0.34;
     public static double UNLOCK_POSITION = 1;
     public enum LMecDriveState {LOCKED, UNLOCKED}
@@ -15,6 +16,8 @@ public class LockingMecanumDrive extends MecanumDrive {
         state = LMecDriveState.UNLOCKED;
         lockingServo = hardwareMap.get(Servo.class, "lockingServo");
         lockingServo.setPosition(UNLOCK_POSITION);
+
+        light = hardwareMap.get(Servo.class, "driveLight");
     }
 
 
@@ -22,7 +25,6 @@ public class LockingMecanumDrive extends MecanumDrive {
         switch (state) {
             case LOCKED:
                 super.drive(forward, 0, rotate);
-
                 break;
 
             case UNLOCKED:
@@ -48,11 +50,13 @@ public class LockingMecanumDrive extends MecanumDrive {
     public void lock() {
         lockingServo.setPosition(LOCK_POSITION);
         state = LMecDriveState.LOCKED;
+        light.setPosition(0.28);
     }
 
     public void unlock() {
         lockingServo.setPosition(UNLOCK_POSITION);
         state = LMecDriveState.UNLOCKED;
+        light.setPosition(0.5);
     }
 
     public LMecDriveState getState() {
