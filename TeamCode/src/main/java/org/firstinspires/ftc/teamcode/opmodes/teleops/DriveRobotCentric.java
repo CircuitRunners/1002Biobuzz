@@ -42,7 +42,7 @@ public class DriveRobotCentric extends OpMode {
 
         drive = new LockingMecanumDrive(hardwareMap);
         intake = new Intake(hardwareMap);
-        shooter = new Shooter.Flywheel(hardwareMap);
+        shooter = new Shooter.Flywheel(hardwareMap, false);
 
         telemetry.addLine("Ready!");
         telemetry.update();

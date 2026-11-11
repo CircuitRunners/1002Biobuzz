@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.teleops;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
@@ -16,6 +17,8 @@ import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
 import org.firstinspires.ftc.teamcode.util.Poses;
 import org.firstinspires.ftc.teamcode.util.ShooterUtil;
 
+import java.util.List;
+
 @Configurable
 @TeleOp(name = "COMPETITION TELEOP", group = "COMPETITION")
 public class CompetitionTeleOp extends OpMode {
@@ -25,6 +28,7 @@ public class CompetitionTeleOp extends OpMode {
     private Shooter shooter;
     private Follower follower;
     private GamepadEx player1;
+    private List<LynxModule> hubs;
 
     private boolean isRedAlliance;
     private Pose currentPose;
@@ -58,7 +62,7 @@ public class CompetitionTeleOp extends OpMode {
 
         lMecDrive = new LockingMecanumDrive(hardwareMap);
         intake = new Intake(hardwareMap);
-        shooter = new Shooter(hardwareMap);
+        shooter = new Shooter(hardwareMap,true);
         shooter.setMode(Shooter.Mode.TURRET_ONLY);
         player1 = new GamepadEx(gamepad1);
         follower = Constants.create(hardwareMap);
@@ -67,6 +71,10 @@ public class CompetitionTeleOp extends OpMode {
         if (Poses.getCurrentAlliance() == null) {
             Poses.setCurrentAlliance(Poses.Alliance.BLUE);
         }
+
+        hubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule hub : hubs) hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+
 
         isRedAlliance = Poses.getCurrentAlliance() == Poses.Alliance.RED;
         tele.addLine("Ready").update();
@@ -87,6 +95,7 @@ public class CompetitionTeleOp extends OpMode {
 
     @Override
     public void loop() {
+        for (LynxModule hub : hubs) hub.clearBulkCache();
         player1.readButtons();
         follower.update();
         intake.update();
@@ -176,7 +185,9 @@ public class CompetitionTeleOp extends OpMode {
                         hoodOffset, turretOffset);
 
         intake.unblockTransfer();
-        if (player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2 && shooter.isReady()) {
+        if (player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2) {
+                //&& shooter.isReady())
+
             intake.transfer();
         } else if (player1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.2) {
             intake.outtake();
@@ -220,5 +231,10 @@ public class CompetitionTeleOp extends OpMode {
                 .addData("Target DY Inches", TARGET_DY_INCHES)
                 .showLoopTime()
                 .update();
+    }
+
+    @Override
+    public void stop() {
+        Poses.TeleOpPoses.setTeleOpStartingPose(currentPose);
     }
 }

@@ -49,7 +49,7 @@ public class FlywheelTester extends OpMode {
         hubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : hubs) hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
 
-        flywheel = new Shooter.Flywheel(hardwareMap);
+        flywheel = new Shooter.Flywheel(hardwareMap,false);
 
         tele.addLine("Ready")
             .update();
