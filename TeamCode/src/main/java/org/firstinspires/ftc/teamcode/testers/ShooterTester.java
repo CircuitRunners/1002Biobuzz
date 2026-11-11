@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.util.Poses;
 @TeleOp(name = "SHOOTER TESTER", group = "TESTING")
 public class ShooterTester extends OpMode {
 
-    private static final Pose REZERO_POSE = Poses.teleOpStartingPose;
+    private static final Pose REZERO_POSE = Poses.TeleOpPoses.teleOpStartingPose;
 
     private static final double HOOD_ADJUSTMENT = 1.0;
     private static final double FLYWHEEL_ADJUSTMENT = 25.0;

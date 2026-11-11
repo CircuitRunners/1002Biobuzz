@@ -128,11 +128,9 @@ public class CompetitionTeleOp extends OpMode {
         if (player1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) {
             if (lMecDrive.getState() == LockingMecanumDrive.LMecDriveState.UNLOCKED) {
                 lMecDrive.lock();
-                lMecOverride = true;
                 gamepad1.rumble(1.0, 1.0, 200);
             } else {
                 lMecDrive.unlock();
-                lMecOverride = false;
                 gamepad1.rumble(0.2, 0.2, 200);
             }
         }
@@ -141,19 +139,8 @@ public class CompetitionTeleOp extends OpMode {
         double strafe = player1.getLeftX();
         double rotate = player1.getRightX();
 
-        if (!lMecOverride) {
-            double magnitude = Math.hypot(forward, strafe);
-            double robotAngle = Math.atan2(-forward, -strafe) - currentPose.heading();
-            double robotForward = magnitude * Math.sin(robotAngle);
-            double robotRight = magnitude * Math.cos(robotAngle);
-
-            double offAxis = Math.atan2(Math.abs(robotRight), Math.abs(robotForward));
-            if (offAxis < Math.toRadians(LMEC_TOLERANCE_DEG)) lMecDrive.lock();
-            else lMecDrive.unlock();
-        }
-
         if (driveAutoAlign && Math.abs(rotate) < ALIGN_STICK_DEADBAND) rotate = autoAlignRotate();
-        lMecDrive.driveFieldCentric(-forward, -strafe, rotate, currentPose.heading());
+        lMecDrive.drive(forward, strafe, rotate);
     }
 
     private double autoAlignRotate() {

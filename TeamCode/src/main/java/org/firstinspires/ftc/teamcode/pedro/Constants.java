@@ -51,7 +51,7 @@ public class Constants {
         c.globalDistanceUnit.set(DistanceUnit.INCH);
         c.offsetUnits.set(DistanceUnit.INCH);
         c.i2cRecoveryMode.set(OctoQuad.I2cRecoveryMode.MODE_1_PERIPH_RST_ON_FRAME_ERR);
-        c.headingScalar.set(1.0109);
+        c.headingScalar.set(1.01);
     });
 
     public static ForesightConfig foresightConfig = new ForesightConfig(

@@ -54,7 +54,7 @@ public class Shooter {
                 break;
 
             case TURRET_ONLY:
-                 turret.setTarget(currentPose, targetPose, turretOffset);
+                turret.setTarget(currentPose, targetPose, turretOffset);
                 break;
 
             case SOTM:
@@ -64,7 +64,7 @@ public class Shooter {
                 flywheelVelocity = ShooterUtil.getTargetFlywheelVelocity(aimingTargetDistance);
                 hoodAngle = ShooterUtil.getHoodTargetAngle(aimingTargetDistance);
 
-                 turret.setTarget(currentPose, aimingTarget, turretOffset);
+                turret.setTarget(currentPose, aimingTarget, turretOffset);
                 break;
         }
 
@@ -108,7 +108,7 @@ public class Shooter {
         private static final double VELOCITY_TOLERANCE = 50.0;
         public static final double MAX_VELOCITY = 1600.0;
         public PIDFController flywheelPIDF;
-        public static final PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.09, 0.0, 0.001, 0.0006); //new PIDFCoefficients(1.8, 0.0, 0.4, 0.0018);
+        public static final PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.09, 0.0, 0.0, 0.0006); //new PIDFCoefficients(1.8, 0.0, 0.4, 0.0018);
         public Flywheel(HardwareMap hardwareMap) {
             shooter1 = hardwareMap.get(DcMotorEx.class, "shooterTop");
             shooter1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -183,7 +183,7 @@ public class Shooter {
         private final Servo hoodServo;
         public static final double MIN_POSITION = 0.24;
         public static final double MAX_POSITION = 1.0;
-        public static final double MIN_ANGLE = 3.0;
+        public static final double MIN_ANGLE = 2.0;
         public static final double MAX_ANGLE = 28.0;
         private static final double HOME_ANGLE = 25.0;
 
@@ -225,8 +225,8 @@ public class Shooter {
         public static double MIN_POSITION = 0.0;
         public static double MAX_POSITION = 1.0;
 
-        public static double MIN_ANGLE = -158.0;
-        public static double MAX_ANGLE = 158.0;
+        public static double MIN_ANGLE = -152.0;
+        public static double MAX_ANGLE = 152.0;
 
         private static final double HOME_ANGLE = 0.0;
 

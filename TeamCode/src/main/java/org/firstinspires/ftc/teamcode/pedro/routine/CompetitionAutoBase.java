@@ -50,7 +50,6 @@ public abstract class CompetitionAutoBase<R extends Enum<R>> extends AutoBase {
             .addLine("DPAD UP/DOWN -> CHANGE ROUTINE")
             .addLine()
             .addData("Current routine", routineType())
-            .addData("Routine Types", routineTypes())
             .addData("Alliance", Poses.getCurrentAlliance())
             .update();
     }
@@ -86,7 +85,7 @@ public abstract class CompetitionAutoBase<R extends Enum<R>> extends AutoBase {
         return shotState == ShotState.DONE;
     }
     protected boolean outOfBalls() {
-        return !intake.transferHasBalls();
+        return !intake.transferHasBall();
     }
     private void updateShooting() {
         if (shotState == ShotState.IDLE || shotState == ShotState.DONE) return;
@@ -94,7 +93,7 @@ public abstract class CompetitionAutoBase<R extends Enum<R>> extends AutoBase {
         shooter.setTargets(currentPose, targetPose, ShooterUtil.DY, 0, 0, HOOD_OFFSET, TURRET_OFFSET);
         switch (shotState) {
             case SPINNING_UP:
-                intake.intake();
+                intake.intakeWithoutBlocking();
                 if (shooter.isReady()) {
                     intake.transfer();
                     shotState = ShotState.TRANSFERING;

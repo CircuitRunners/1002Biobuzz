@@ -71,7 +71,7 @@ public class Intake {
 
             case TRANSFERING:
                 targetIntakePower = 1.0;
-                targetTransferPower = 0.7;
+                targetTransferPower = 1.0;
         }
 
         if (currentIntakePower != targetIntakePower) {
@@ -94,6 +94,10 @@ public class Intake {
     public void intake() {
         state = IntakeState.INTAKING;
         blockTransfer();
+    }
+    public void intakeWithoutBlocking() {
+        state = IntakeState.INTAKING;
+        unblockTransfer();
     }
     public void outtake() {
         state = IntakeState.OUTTAKING;

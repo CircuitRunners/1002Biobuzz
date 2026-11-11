@@ -69,7 +69,14 @@ public class FlywheelTester extends OpMode {
         if (gamepad1.right_trigger > 0.2) TRANSFERING = true;
         else TRANSFERING = false;
 
-        if (TRANSFERING) intake.transfer();
+        if (TRANSFERING) {
+            if (targetTicksPerSecond != 0) {
+                intake.transfer();
+            } else {
+                intake.intake();
+            }
+        }
+        else if (gamepad1.left_trigger > 0.2) intake.outtake();
         else intake.stop();
         intake.update();
 
