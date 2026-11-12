@@ -92,7 +92,7 @@ public class CompetitionTeleOp extends OpMode {
 
         currentPose = follower.pose();
         currentZone = Poses.currentZone(currentPose);
-        targetPose = Poses.targetHivePose(currentZone);
+        targetPose = Poses.targetHivePose(currentZone, currentPose);
         handleDriving();
         handleShooterMode();
 

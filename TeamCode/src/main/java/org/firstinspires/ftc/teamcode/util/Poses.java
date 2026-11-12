@@ -8,6 +8,7 @@ import com.pedropathing.math.Pose;
 @Configurable
 public class Poses {
     public enum Zone {RED_AUDIENCE, RED_SCORING, BLUE_AUDIENCE, BLUE_SCORING}
+    public static double HIVE_AIM_OFFSET = 11.0;
     public static Zone currentZone(Pose pose) {
         if (currentAlliance == Alliance.RED) {
             if (pose.y() > 72) return Zone.RED_AUDIENCE;
@@ -17,17 +18,25 @@ public class Poses {
             else return Zone.BLUE_AUDIENCE;
         }
     }
-    public static Pose targetHivePose(Zone zone) {
+    public static Pose defaultHivePose(Zone zone) {
         switch (zone) {
             case BLUE_SCORING:
             case RED_AUDIENCE:
-                return p.of(92, 88, 0);
+                return p.of(85, 85, 0);
 
             case BLUE_AUDIENCE:
             case RED_SCORING:
-                return p.of(81, 61, 0);
+                return p.of(84, 57, 0);
         }
         throw new IllegalStateException("No target hive pose found");
+    }
+    public static Pose targetHivePose(Zone zone) {
+        return defaultHivePose(zone);
+    }
+    public static Pose targetHivePose(Zone zone, Pose robot) {
+        Pose target = defaultHivePose(zone);
+        double dx = robot.x() - target.x();
+        return p.of(target.x() - HIVE_AIM_OFFSET * dx, target.y(), 0);
     }
 
     public enum Alliance {RED, BLUE}
