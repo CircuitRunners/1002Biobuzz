@@ -47,7 +47,7 @@ public class TurretTester extends OpMode {
         lMec = new LockingMecanumDrive(hardwareMap);
         turret = new Shooter.Turret(hardwareMap);
         follower = Constants.create(hardwareMap);
-        follower.setPose(Poses.TeleOpPoses.relocPoseCenter);
+        follower.setPose(Poses.TeleOpPoses.relocPoseFlower);
 
         player1 = new GamepadEx(gamepad1);
 
@@ -75,7 +75,7 @@ public class TurretTester extends OpMode {
         if (!angleToggle) turret.setPosition(position);
         else turret.setTarget(currentPose, targetPose, offset);
 
-        if (player1.wasJustPressed(GamepadKeys.Button.SQUARE)) follower.setPose(Poses.TeleOpPoses.relocPoseCenter);
+        if (player1.wasJustPressed(GamepadKeys.Button.SQUARE)) follower.setPose(Poses.TeleOpPoses.relocPoseFlower);
         double forward = player1.getLeftY();
         double strafe = player1.getLeftX();
         double rotate = player1.getRightX();

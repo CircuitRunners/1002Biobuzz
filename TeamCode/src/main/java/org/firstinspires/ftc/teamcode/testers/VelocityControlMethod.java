@@ -142,12 +142,12 @@ public class VelocityControlMethod extends OpMode {
             shooter.setControlMethod(Shooter.Flywheel.Control.BANG_BANG);
         }
         else {
-            shooter.setControlMethod(Shooter.Flywheel.Control.PIDF);
+            shooter.setControlMethod(Shooter.Flywheel.Control.BANG_BANG);
         }
     }
 
     private void handleDriving() {
-        if (player1.wasJustPressed(GamepadKeys.Button.TRIANGLE)) follower.setPose(Poses.TeleOpPoses.relocPoseCenter);
+        if (player1.wasJustPressed(GamepadKeys.Button.TRIANGLE)) follower.setPose(Poses.TeleOpPoses.relocPoseFlower);
         if (player1.wasJustPressed(GamepadKeys.Button.CIRCLE)) follower.setPose(Poses.TeleOpPoses.relocPoseGardenCorner);
         if (player1.wasJustPressed(GamepadKeys.Button.SQUARE)) follower.setPose(Poses.TeleOpPoses.relocPoseParkCorner);
         lMecDrive.drive(player1.getLeftY(), player1.getLeftX(), player1.getRightX());

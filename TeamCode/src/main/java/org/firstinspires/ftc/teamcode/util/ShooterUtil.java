@@ -247,19 +247,19 @@ public class ShooterUtil {
     }
 
     public static double[][] veloLUT = {
-            {34, 737},
-            {39, 755},
-            {44, 825},
-            {49, 850},
-            {55, 875}
+            {34, 775},
+            {39, 800},
+            {44, 830},
+            {49, 840},
+            {55, 860}
     };
 
     public static double[][] hoodLUT = {
             {34, 6},
-            {39, 7.5},
-            {44, 9},
-            {49, 12},
-            {55, 13.5}
+            {39, 6.3},
+            {44, 7.0},
+            {49, 8.9},
+            {55, 10.6}
     };
 
     //measured from middle of field

@@ -15,7 +15,6 @@ import org.firstinspires.ftc.teamcode.subsystems.LockingMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
 import org.firstinspires.ftc.teamcode.util.Poses;
-import org.firstinspires.ftc.teamcode.util.ShooterUtil;
 
 import java.util.List;
 
@@ -120,7 +119,7 @@ public class CompetitionTeleOp extends OpMode {
     }
 
     private void handleDriving() {
-        if (player1.wasJustPressed(GamepadKeys.Button.TRIANGLE)) follower.setPose(Poses.TeleOpPoses.relocPoseCenter);
+        if (player1.wasJustPressed(GamepadKeys.Button.TRIANGLE)) follower.setPose(Poses.TeleOpPoses.relocPoseFlower);
         if (player1.wasJustPressed(GamepadKeys.Button.CIRCLE)) follower.setPose(Poses.TeleOpPoses.relocPoseGardenCorner);
         if (player1.wasJustPressed(GamepadKeys.Button.SQUARE)) follower.setPose(Poses.TeleOpPoses.relocPoseParkCorner);
         if (player1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) {
@@ -199,6 +198,7 @@ public class CompetitionTeleOp extends OpMode {
                 .addData("TeleOp State", mode)
                 .addLine()
                 .header("DIAGNOSTICS")
+                .addData("Battery Voltage", shooter.getBatteryVoltage())
                 .addData("Flywheel Velocity", shooter.getFlywheelVelo())
                 .addData("Target Flywheel Velocity", shooter.getTargetFlywheelVelo())
                 .addData("Hood Angle", shooter.getHoodAngle())

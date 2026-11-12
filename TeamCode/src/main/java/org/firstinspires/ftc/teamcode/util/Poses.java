@@ -52,7 +52,7 @@ public class Poses {
             teleOpStartingPose = p;
         }
 
-        public static Pose relocPoseCenter = p.of(72, 72, 90);
+        public static Pose relocPoseFlower = p.of(86.3, 6.7, 90);
         public static Pose relocPoseGardenCorner = p.of(134.6, 134, 0);
         public static Pose relocPoseParkCorner = p.of(134.6, 10, 0);
     }
