@@ -30,25 +30,14 @@ public class CompetitionTeleOp extends OpMode {
     private GamepadEx player1;
     private List<LynxModule> hubs;
 
-    private boolean isRedAlliance;
     private Pose currentPose;
     private static final double TARGET_DY_INCHES = 49.0;
-    public double hoodOffset = 0;
+    public static double HOOD_OFFSET = 0, TURRET_OFFSET = -2;
     public int shooterModeIndex = 1;
-    public double turretOffset;
     private Pose targetPose;
     private Poses.Zone currentZone;
     private boolean rampDown = false;
     private boolean driveAutoAlign = false;
-    public boolean lMecOverride = false;
-    private double headingError = 0;
-
-    public static double ALIGN_KP = 1.0;
-    public static double ALIGN_KS = 0.05;
-    public static double ALIGN_MAX_POWER = 0.75;
-    public static double ALIGN_TOLERANCE_DEG = 2.0;
-    public static double ALIGN_STICK_DEADBAND = 0.1;
-    public static double LMEC_TOLERANCE_DEG = 10.0;
     private enum Mode {
         INTAKING,
         SHOOTING
@@ -62,9 +51,12 @@ public class CompetitionTeleOp extends OpMode {
 
         lMecDrive = new LockingMecanumDrive(hardwareMap);
         intake = new Intake(hardwareMap);
-        shooter = new Shooter(hardwareMap,true);
+
+        shooter = new Shooter(hardwareMap);
         shooter.setMode(Shooter.Mode.TURRET_ONLY);
+
         player1 = new GamepadEx(gamepad1);
+
         follower = Constants.create(hardwareMap);
         follower.setPose(Poses.TeleOpPoses.teleOpStartingPose);
 
@@ -75,8 +67,6 @@ public class CompetitionTeleOp extends OpMode {
         hubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : hubs) hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
 
-
-        isRedAlliance = Poses.getCurrentAlliance() == Poses.Alliance.RED;
         tele.addLine("Ready").update();
     }
 
@@ -90,7 +80,6 @@ public class CompetitionTeleOp extends OpMode {
 
         if (player1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)) Poses.setCurrentAlliance(Poses.Alliance.RED);
         if (player1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)) Poses.setCurrentAlliance(Poses.Alliance.BLUE);
-        isRedAlliance = Poses.getCurrentAlliance() == Poses.Alliance.RED;
     }
 
     @Override
@@ -148,16 +137,7 @@ public class CompetitionTeleOp extends OpMode {
         double strafe = player1.getLeftX();
         double rotate = player1.getRightX();
 
-        if (driveAutoAlign && Math.abs(rotate) < ALIGN_STICK_DEADBAND) rotate = autoAlignRotate();
         lMecDrive.drive(forward, strafe, rotate);
-    }
-
-    private double autoAlignRotate() {
-        headingError = ShooterUtil.getTurretTargetAngle(currentPose, targetPose);
-        if (Math.abs(headingError) < Math.toRadians(ALIGN_TOLERANCE_DEG)) return 0;
-
-        double output = ALIGN_KP * headingError + Math.signum(headingError) * ALIGN_KS;
-        return -Math.max(-ALIGN_MAX_POWER, Math.min(ALIGN_MAX_POWER, output));
     }
 
     private void handleIntakeState() {
@@ -175,19 +155,17 @@ public class CompetitionTeleOp extends OpMode {
     }
 
     private void handleShootingState() {
-        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_UP)) hoodOffset += 0.5;
-        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) hoodOffset -= 0.5;
-        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)) turretOffset -= 1;
-        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)) turretOffset += 1;
+        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_UP)) HOOD_OFFSET += 0.5;
+        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) HOOD_OFFSET -= 0.5;
+        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)) TURRET_OFFSET -= 1;
+        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)) TURRET_OFFSET += 1;
 
         shooter.setTargets(currentPose, targetPose, TARGET_DY_INCHES,
                         follower.velocity().vx, follower.velocity().vy,
-                        hoodOffset, turretOffset);
+                HOOD_OFFSET, TURRET_OFFSET);
 
         intake.unblockTransfer();
-        if (player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2) {
-                //&& shooter.isReady())
-
+        if (player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2 && shooter.isReady()) {
             intake.transfer();
         } else if (player1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.2) {
             intake.outtake();
@@ -221,13 +199,12 @@ public class CompetitionTeleOp extends OpMode {
                 .addData("TeleOp State", mode)
                 .addLine()
                 .header("DIAGNOSTICS")
-                .addData("Heading Error (deg)", Math.toDegrees(headingError))
                 .addData("Flywheel Velocity", shooter.getFlywheelVelo())
                 .addData("Target Flywheel Velocity", shooter.getTargetFlywheelVelo())
                 .addData("Hood Angle", shooter.getHoodAngle())
-                .addData("Hood Offset", hoodOffset)
+                .addData("Hood Offset", HOOD_OFFSET)
                 .addData("Turret Angle", shooter.getTurretAngle())
-                .addData("Turret Offset", turretOffset)
+                .addData("Turret Offset", TURRET_OFFSET)
                 .addData("Target DY Inches", TARGET_DY_INCHES)
                 .showLoopTime()
                 .update();

@@ -25,7 +25,7 @@ public class Poses {
 
             case BLUE_AUDIENCE:
             case RED_SCORING:
-                return p.of(82, 61, 0);
+                return p.of(81, 61, 0);
         }
         throw new IllegalStateException("No target hive pose found");
     }

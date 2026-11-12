@@ -251,7 +251,7 @@ public class ShooterUtil {
             {39, 755},
             {44, 825},
             {49, 850},
-            {55, 865}
+            {55, 875}
     };
 
     public static double[][] hoodLUT = {
