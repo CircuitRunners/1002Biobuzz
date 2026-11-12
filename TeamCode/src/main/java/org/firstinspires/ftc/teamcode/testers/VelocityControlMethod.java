@@ -31,6 +31,8 @@ public class VelocityControlMethod extends OpMode {
     private GamepadEx player1;
     private List<LynxModule> hubs;
 
+    public static double errorValue = 80;
+
     private Pose currentPose;
     private static final double TARGET_DY_INCHES = 49.0;
     public double HOOD_OFFSET = 0, TURRET_OFFSET = -2;
@@ -40,10 +42,11 @@ public class VelocityControlMethod extends OpMode {
     private boolean rampDown = false;
     private boolean driveAutoAlign = false;
     public static double targetVelocity = 0, hoodAngle = 13;
+    public double error = 0;
 
     // PIDF tunables
     public static PIDFCoefficients pidfCoefficients = Shooter.Flywheel.pidfCoefficients;
-    public static double kP = pidfCoefficients.p, kI = pidfCoefficients.i, kD = pidfCoefficients.d, kF = pidfCoefficients.f;
+    public static double kP = 0.015, kI = 0, kD = 0, kF = 0.0006;
 
     // Bang-bang tunables
     public static double BANG_BANG_THRESHOLD = Shooter.Flywheel.BANG_BANG_THRESHOLD;
@@ -94,6 +97,8 @@ public class VelocityControlMethod extends OpMode {
         intake.update();
         shooter.update();
 
+        error = Math.abs(shooter.getFlywheelVelo() - targetVelocity);
+
         currentPose = follower.pose();
         currentZone = Poses.currentZone(currentPose);
         targetPose = Poses.targetHivePose(currentZone);
@@ -124,13 +129,20 @@ public class VelocityControlMethod extends OpMode {
     }
 
     private void handleControlMethod() {
-        if (!player1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) return;
-        if (shooter.getControlMethod() == Shooter.Flywheel.Control.PIDF) {
+//        if (!player1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) return;
+//        if (shooter.getControlMethod() == Shooter.Flywheel.Control.PIDF) {
+//            shooter.setControlMethod(Shooter.Flywheel.Control.BANG_BANG);
+//            gamepad1.rumble(1.0, 1.0, 200);
+//        } else {
+//            shooter.setControlMethod(Shooter.Flywheel.Control.PIDF);
+//            gamepad1.rumble(0.2, 0.2, 200);
+//        }
+
+        if (error >= errorValue){
             shooter.setControlMethod(Shooter.Flywheel.Control.BANG_BANG);
-            gamepad1.rumble(1.0, 1.0, 200);
-        } else {
+        }
+        else {
             shooter.setControlMethod(Shooter.Flywheel.Control.PIDF);
-            gamepad1.rumble(0.2, 0.2, 200);
         }
     }
 
