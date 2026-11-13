@@ -72,7 +72,7 @@ public class Poses {
     }
 
     public static class ShootPoses {
-        public static Pose shootPoseAudience1 = p.of(110, 34, 180);
+        public static Pose shootPoseAudience1 = p.of(86.3, 6.7, 90);
         public static Pose shootPoseScoring1 = p.of(92.3, 137.9, 270);
     }
 

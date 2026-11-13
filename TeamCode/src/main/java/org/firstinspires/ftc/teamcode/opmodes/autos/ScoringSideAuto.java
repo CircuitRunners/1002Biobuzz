@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.autos;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.math.Pose;
+import com.pedropathing.paths.interpolator.Interpolator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.pedro.routine.CompetitionAutoBase;
@@ -56,25 +57,18 @@ public class ScoringSideAuto extends CompetitionAutoBase<ScoringRoutineType> {
                            .stay()
                                .onStart(this::shoot)
                                .waitUntil(this::doneShooting, 7.5)
-                           .to(IntakePoses.intakeGardenAlign)
+                           .curveTo(IntakePoses.intakeGardenAlign, ctrl(120, 110))
                                 .interpolatedHeading()
                            .to(IntakePoses.intakeGarden)
+                               .speed(0.5)
                                .onStart(intake::intake)
-                           .curveTo(ShootPoses.shootPoseScoring1, ctrl(120, 90))
-                               .interpolatedHeading()
+                           .curveTo(ShootPoses.shootPoseScoring1, ctrl(88.29, 106.04), ctrl(141.5, 2.54), ctrl(83.74, 41.75))
+                               .customInterpolation(Interpolator.piecewise()
+                                                                .until(0.75, Interpolator.tangent.reverse())
+                                                                .until(1.0, Interpolator.linear(60, 90)))
                                .onStart(intake::intake)
                                .onArrival(this::shoot)
                                .waitUntil(this::doneShooting, 10.0)
-//                           .curveTo(IntakePoses.intakeAudienceFlower, ctrl(91, 36))
-//                               .onStart(() -> {
-//                                   intake.rampDown();
-//                                   intake.intake();
-//                               })
-//                               .pause(3)
-//                           .to(ShootPoses.shootPoseAudience1)
-//                               .onStart(intake::intake)
-//                               .onArrival(this::shoot)
-//                               .waitUntil(this::doneShooting, 7.5)
                            .build();
             default:
                 throw new IllegalStateException("New routine type has not been set");

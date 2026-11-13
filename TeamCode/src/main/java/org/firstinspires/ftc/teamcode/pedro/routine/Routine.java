@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.pedro.routine;
 
 import com.pedropathing.api.Paths;
+import com.pedropathing.config.Modifier;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.interpolator.Interpolator;
 
-import org.firstinspires.ftc.teamcode.pedro.routine.AutoBase;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,6 +42,7 @@ public class Routine {
         Pose facingPoint = null;
 
         boolean holdEnd = true;
+        final List<Modifier> modifiers = new ArrayList<>();
         double pause = 0;
         Runnable onStart;
         Runnable onArrival;
@@ -134,6 +136,10 @@ public class Routine {
             leg.path = built.size() == 1
                     ? built.get(0)
                     : Paths.path(built.toArray(new Path[0]));
+
+            if (!leg.modifiers.isEmpty()) {
+                leg.path = leg.path.with(leg.modifiers);
+            }
         }
     }
 
@@ -227,6 +233,19 @@ public class Routine {
         public Builder noHold() {
             last().holdEnd = false;
             return this;
+        }
+
+        public Builder maxSpeed(double inchesPerSecond) {
+            last().modifiers.add(Constants.foresightConfig.maxPathSpeed.at(inchesPerSecond));
+            return this;
+        }
+
+        public Builder speed(double fraction) {
+            if (fraction <= 0 || fraction > 1) {
+                throw new IllegalArgumentException("speed fraction must be in (0, 1]");
+            }
+            double max = Constants.foresightConfig.maxAchievableForwardVelocity.get();
+            return maxSpeed(fraction * max);
         }
 
         public Builder pause(double seconds) {

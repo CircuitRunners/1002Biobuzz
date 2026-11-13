@@ -109,7 +109,7 @@ public abstract class AutoBase extends OpMode {
         runTemporalCallbacks(leg);
         runPoseCallbacks(leg);
 
-        if ((!arrived && !follower.isBusy()) || follower.velocity().vx < 10 && follower.velocity().vy < 10 && follower.completion() > 0.8) {
+        if ((!arrived && !follower.isBusy())) {
             arrived = true;
             arrivalTime = getRuntime();
             if (leg.onArrival != null) leg.onArrival.run();
