@@ -29,10 +29,9 @@ public class ScoringSideAuto extends CompetitionAutoBase<ScoringRoutineType> {
     protected Pose startPose() {
         switch (routineType()) {
             case ONE_TIP:
+            case TWO_TIP:
                 return StartPoses.startPoseScoringWall;
 
-            case TWO_TIP:
-                return StartPoses.startPoseScoringGarden;
 
             default:
                 throw new IllegalStateException("New routine type has not been set");
@@ -57,23 +56,25 @@ public class ScoringSideAuto extends CompetitionAutoBase<ScoringRoutineType> {
                            .stay()
                                .onStart(this::shoot)
                                .waitUntil(this::doneShooting, 7.5)
+                           .to(IntakePoses.intakeGardenAlign)
+                                .interpolatedHeading()
                            .to(IntakePoses.intakeGarden)
                                .onStart(intake::intake)
-                           .to(ShootPoses.shootPoseAudience1)
-                               .reverseTangentHeading()
+                           .curveTo(ShootPoses.shootPoseScoring1, ctrl(120, 90))
+                               .interpolatedHeading()
                                .onStart(intake::intake)
                                .onArrival(this::shoot)
                                .waitUntil(this::doneShooting, 10.0)
-                           .curveTo(IntakePoses.intakeAudienceFlower, ctrl(91, 36))
-                               .onStart(() -> {
-                                   intake.rampDown();
-                                   intake.intake();
-                               })
-                               .pause(3)
-                           .to(ShootPoses.shootPoseAudience1)
-                               .onStart(intake::intake)
-                               .onArrival(this::shoot)
-                               .waitUntil(this::doneShooting, 7.5)
+//                           .curveTo(IntakePoses.intakeAudienceFlower, ctrl(91, 36))
+//                               .onStart(() -> {
+//                                   intake.rampDown();
+//                                   intake.intake();
+//                               })
+//                               .pause(3)
+//                           .to(ShootPoses.shootPoseAudience1)
+//                               .onStart(intake::intake)
+//                               .onArrival(this::shoot)
+//                               .waitUntil(this::doneShooting, 7.5)
                            .build();
             default:
                 throw new IllegalStateException("New routine type has not been set");

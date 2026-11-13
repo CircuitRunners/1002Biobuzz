@@ -8,7 +8,6 @@ import com.pedropathing.math.Pose;
 @Configurable
 public class Poses {
     public enum Zone {RED_AUDIENCE, RED_SCORING, BLUE_AUDIENCE, BLUE_SCORING}
-    public static double HIVE_AIM_OFFSET = 11.0;
     public static Zone currentZone(Pose pose) {
         if (currentAlliance == Alliance.RED) {
             if (pose.y() > 72) return Zone.RED_AUDIENCE;
@@ -22,11 +21,11 @@ public class Poses {
         switch (zone) {
             case BLUE_SCORING:
             case RED_AUDIENCE:
-                return p.of(85, 85, 0);
+                return p.of(84, 86, 0);
 
             case BLUE_AUDIENCE:
             case RED_SCORING:
-                return p.of(84, 57, 0);
+                return p.of(84, 58, 0);
         }
         throw new IllegalStateException("No target hive pose found");
     }
@@ -36,7 +35,8 @@ public class Poses {
     public static Pose targetHivePose(Zone zone, Pose robot) {
         Pose target = defaultHivePose(zone);
         double dx = robot.x() - target.x();
-        return p.of(target.x() - HIVE_AIM_OFFSET * dx, target.y(), 0);
+        double xScale = Math.abs(141.5 - target.x());
+        return p.of(target.x() - 6 * dx / (xScale), target.y(), 0);
     }
 
     public enum Alliance {RED, BLUE}
@@ -65,14 +65,15 @@ public class Poses {
     }
 
     public static class IntakePoses {
-        public static Pose intakeGarden = p.of(134, 133, 90);
+        public static Pose intakeGarden = p.of(136.5, 131, 90);
+        public static Pose intakeGardenAlign = p.of(136.5, 126, 90);
         public static Pose intakeScoringFlower = p.of(130, 95, 0);
         public static Pose intakeAudienceFlower = p.of(94, 14, 270);
     }
 
     public static class ShootPoses {
         public static Pose shootPoseAudience1 = p.of(110, 34, 180);
-        public static Pose shootPoseScoring1 = p.of(110, 110, 180);
+        public static Pose shootPoseScoring1 = p.of(92.3, 137.9, 270);
     }
 
     public static class ParkPoses {

@@ -109,7 +109,7 @@ public abstract class AutoBase extends OpMode {
         runTemporalCallbacks(leg);
         runPoseCallbacks(leg);
 
-        if (!arrived && !follower.isBusy()) {
+        if ((!arrived && !follower.isBusy()) || follower.velocity().vx < 10 && follower.velocity().vy < 10 && follower.completion() > 0.8) {
             arrived = true;
             arrivalTime = getRuntime();
             if (leg.onArrival != null) leg.onArrival.run();
@@ -136,6 +136,8 @@ public abstract class AutoBase extends OpMode {
             .addData("Held?", arrived && !ready(leg))
             .addData("T Value", follower.parametricCompletion())
             .addData("Pose", follower.pose())
+            .addData("X Velo", follower.velocity().vx)
+            .addData("Y Velo", follower.velocity().vy)
             .update();
     }
 

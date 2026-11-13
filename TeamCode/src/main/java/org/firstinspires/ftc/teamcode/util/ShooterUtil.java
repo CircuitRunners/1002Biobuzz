@@ -255,11 +255,11 @@ public class ShooterUtil {
     };
 
     public static double[][] hoodLUT = {
-            {34, 6},
-            {39, 6.3},
-            {44, 7.0},
-            {49, 8.9},
-            {55, 10.6}
+            {34, 12.5},
+            {39, 13.2},
+            {44, 14.2},
+            {49, 17.1},
+            {55, 18.9}
     };
 
     //measured from middle of field

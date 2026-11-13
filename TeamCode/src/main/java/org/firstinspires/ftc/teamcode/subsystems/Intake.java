@@ -20,7 +20,7 @@ public class Intake {
     public static double RAMP_DOWN = 0.53;
     public static double RAMP_UP = 0.95;
     private final DigitalChannel[] sensors = new DigitalChannel[5];
-    public enum IntakeState {IDLE, INTAKING, OUTTAKING, TRANSFERING}
+    public enum IntakeState {IDLE, INTAKING, OUTTAKING, TRANSFERING, SLOW_TRANSFERING}
     private IntakeState state;
     private double currentIntakePower;
     private double targetIntakePower;
@@ -72,6 +72,12 @@ public class Intake {
             case TRANSFERING:
                 targetIntakePower = 1.0;
                 targetTransferPower = 1.0;
+                break;
+
+            case SLOW_TRANSFERING:
+                targetIntakePower = 0.65;
+                targetTransferPower = 0.65;
+                break;
         }
 
         if (currentIntakePower != targetIntakePower) {
@@ -105,6 +111,11 @@ public class Intake {
     }
     public void transfer() {
         state = IntakeState.TRANSFERING;
+        unblockTransfer();
+    }
+
+    public void slowTransfer() {
+        state = IntakeState.SLOW_TRANSFERING;
         unblockTransfer();
     }
     public IntakeState getState() {

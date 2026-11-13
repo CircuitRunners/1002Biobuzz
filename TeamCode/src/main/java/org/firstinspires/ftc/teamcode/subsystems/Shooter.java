@@ -89,7 +89,7 @@ public class Shooter {
         public static double MAX_VELOCITY = 1600.0;
         public static double BANG_BANG_THRESHOLD = 80;
         public static double BANG_BANG_KF = 0.0006, BANG_BANG_KV = 0.005;
-        private static double VELOCITY_TOLERANCE = 80.0;
+        private static double VELOCITY_TOLERANCE = 50.0;
         public static final PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.002, 0.0, 0.0, 0.0006);
 
         public static double NOMINAL_VOLTAGE = 12.0;
@@ -144,7 +144,7 @@ public class Shooter {
 
                     if (targetVelocity <= 0.0 || -error > BANG_BANG_THRESHOLD) bbOutput = 0.0;
                     else if (error > BANG_BANG_THRESHOLD) bbOutput = 1.0;
-                    else bbOutput = (BANG_BANG_KV * error + BANG_BANG_KF * targetVelocity);
+                    else bbOutput = BANG_BANG_KV * error + BANG_BANG_KF * targetVelocity;
                     bbOutput = Range.clip(bbOutput, 0.0, 1.0);
 
                     setPower(bbOutput);
@@ -185,8 +185,8 @@ public class Shooter {
     public static class Hood {
         private final Servo hoodServo;
 
-        public static final double MIN_POSITION = 0.24, MAX_POSITION = 1.0;
-        public static final double MIN_ANGLE = 3.0, MAX_ANGLE = 28.0;
+        public static final double MIN_POSITION = 0.05, MAX_POSITION = 1.0;
+        public static final double MIN_ANGLE = 6, MAX_ANGLE = 38.0;
         private static final double HOME_ANGLE = 25.0;
 
         public Hood(HardwareMap hardwareMap) {

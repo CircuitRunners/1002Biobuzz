@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.util.ShooterUtil;
 public abstract class CompetitionAutoBase<R extends Enum<R>> extends AutoBase {
     public static double HOOD_OFFSET = 2.5;
     public static double TURRET_OFFSET = 0;
-    public static double TRANSFER_TIMEOUT_SECONDS = 0.5;
+    public static double TRANSFER_TIMEOUT_SECONDS = 1.0;
 
     protected Intake intake;
     protected Shooter shooter;
@@ -58,6 +58,8 @@ public abstract class CompetitionAutoBase<R extends Enum<R>> extends AutoBase {
     protected void onInit() {
         Poses.setCurrentAlliance(currentAlliance);
         intake = new Intake(hardwareMap);
+        intake.rampUp();
+
         shooter = new Shooter(hardwareMap);
     }
 
@@ -76,10 +78,12 @@ public abstract class CompetitionAutoBase<R extends Enum<R>> extends AutoBase {
         shotState = ShotState.IDLE;
         intake.stop();
         shooter.stop();
+        shotState = ShotState.IDLE;
         super.beginLeg();
     }
     protected void shoot() {
         shotState = ShotState.SPINNING_UP;
+        transferTimer.reset();
     }
     protected boolean doneShooting() {
         return shotState == ShotState.DONE;
@@ -93,16 +97,15 @@ public abstract class CompetitionAutoBase<R extends Enum<R>> extends AutoBase {
         shooter.setTargets(currentPose, targetPose, ShooterUtil.DY, 0, 0, HOOD_OFFSET, TURRET_OFFSET);
         switch (shotState) {
             case SPINNING_UP:
-                intake.intakeWithoutBlocking();
-                if (shooter.isReady()) {
-                    intake.transfer();
+                if (shooter.isReady() && transferTimer.seconds() > 2.5) {
+                    intake.slowTransfer();
                     shotState = ShotState.TRANSFERING;
                     transferTimer.reset();
                 }
                 break;
             case TRANSFERING:
                 if (!shooter.isReady()) intake.intake();
-                else intake.transfer();
+                else intake.slowTransfer();
 
                 if (outOfBalls()) {
                     if (transferTimer.seconds() > TRANSFER_TIMEOUT_SECONDS) {

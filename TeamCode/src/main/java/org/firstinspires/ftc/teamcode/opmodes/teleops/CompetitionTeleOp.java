@@ -50,6 +50,7 @@ public class CompetitionTeleOp extends OpMode {
 
         lMecDrive = new LockingMecanumDrive(hardwareMap);
         intake = new Intake(hardwareMap);
+        intake.rampUp();
 
         shooter = new Shooter(hardwareMap);
         shooter.setMode(Shooter.Mode.TURRET_ONLY);
