@@ -61,6 +61,7 @@ public abstract class AutoBase extends OpMode {
             rebuild();
             tele.addLine("Done!").update();
         }
+        tele.addData("Running routine", lastKey).update();
     }
 
     private void rebuild() {
@@ -96,9 +97,6 @@ public abstract class AutoBase extends OpMode {
         onLoop();
 
         if (index >= routine.size()) {
-            tele.addData("state", "done")
-                .addLine(follower.debug().toString())
-                .update();
             requestOpModeStop();
             return;
         }
@@ -132,7 +130,8 @@ public abstract class AutoBase extends OpMode {
             beginLeg();
         }
 
-        tele.addData("Leg", index + "/" + routine.size())
+        tele.addData("Running routine", lastKey)
+            .addData("Leg", index + "/" + routine.size())
             .addData("Held?", arrived && !ready(leg))
             .addData("T Value", follower.parametricCompletion())
             .addData("Pose", follower.pose())

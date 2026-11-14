@@ -157,8 +157,8 @@ public class CompetitionTeleOp extends OpMode {
     private void handleShootingState() {
         if (player1.wasJustPressed(GamepadKeys.Button.DPAD_UP)) HOOD_OFFSET += 0.5;
         if (player1.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) HOOD_OFFSET -= 0.5;
-        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)) TURRET_OFFSET -= 1;
-        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)) TURRET_OFFSET += 1;
+        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)) TURRET_OFFSET -= 2.5;
+        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)) TURRET_OFFSET += 2.5;
 
         shooter.setTargets(currentPose, targetPose, TARGET_DY_INCHES,
                         follower.velocity().vx, follower.velocity().vy,

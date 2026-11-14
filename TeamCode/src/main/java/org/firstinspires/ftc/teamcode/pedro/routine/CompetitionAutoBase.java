@@ -10,8 +10,8 @@ import org.firstinspires.ftc.teamcode.util.ShooterUtil;
 
 @Configurable
 public abstract class CompetitionAutoBase<R extends Enum<R>> extends AutoBase {
-    public static double HOOD_OFFSET = 2.5;
-    public static double TURRET_OFFSET = 0;
+    public static double HOOD_OFFSET = 1.5;
+    public static double TURRET_OFFSET = -2;
     public static double TRANSFER_TIMEOUT_SECONDS = 1.0;
 
     protected Intake intake;
@@ -37,11 +37,22 @@ public abstract class CompetitionAutoBase<R extends Enum<R>> extends AutoBase {
 
     @Override
     protected void initLoop() {
-        if (gamepad1.dpadUpWasPressed()) routineIndex++;
-        if (gamepad1.dpadDownWasPressed()) routineIndex--;
+        boolean up = gamepad1.dpadUpWasPressed();
+        boolean down = gamepad1.dpadDownWasPressed();
+        boolean left = gamepad1.dpadLeftWasPressed();
+        boolean right = gamepad1.dpadRightWasPressed();
 
-        if (gamepad1.dpadLeftWasPressed()) currentAlliance = Poses.Alliance.RED;
-        if (gamepad1.dpadRightWasPressed()) currentAlliance = Poses.Alliance.BLUE;
+        boolean horizontalHeld = gamepad1.dpad_left || gamepad1.dpad_right;
+        boolean verticalHeld = gamepad1.dpad_up || gamepad1.dpad_down;
+
+        if (!horizontalHeld) {
+            if (up) routineIndex++;
+            if (down) routineIndex--;
+        }
+        if (!verticalHeld) {
+            if (left) currentAlliance = Poses.Alliance.RED;
+            if (right) currentAlliance = Poses.Alliance.BLUE;
+        }
         Poses.setCurrentAlliance(currentAlliance);
 
         tele.header("ROUTINE SELECTION")
@@ -97,7 +108,7 @@ public abstract class CompetitionAutoBase<R extends Enum<R>> extends AutoBase {
         shooter.setTargets(currentPose, targetPose, ShooterUtil.DY, 0, 0, HOOD_OFFSET, TURRET_OFFSET);
         switch (shotState) {
             case SPINNING_UP:
-                if (shooter.isReady() && transferTimer.seconds() > 2.5) {
+                if (shooter.isReady() && transferTimer.seconds() > 1.0) {
                     intake.slowTransfer();
                     shotState = ShotState.TRANSFERING;
                     transferTimer.reset();

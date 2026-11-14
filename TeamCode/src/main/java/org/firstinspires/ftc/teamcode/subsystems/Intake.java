@@ -75,8 +75,8 @@ public class Intake {
                 break;
 
             case SLOW_TRANSFERING:
-                targetIntakePower = 0.65;
-                targetTransferPower = 0.65;
+                targetIntakePower = 0.7;
+                targetTransferPower = 0.7;
                 break;
         }
 

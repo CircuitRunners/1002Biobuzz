@@ -21,7 +21,7 @@ public class Poses {
         switch (zone) {
             case BLUE_SCORING:
             case RED_AUDIENCE:
-                return p.of(84, 86, 0);
+                return p.of(92.5, 86, 0);
 
             case BLUE_AUDIENCE:
             case RED_SCORING:
@@ -36,7 +36,7 @@ public class Poses {
         Pose target = defaultHivePose(zone);
         double dx = robot.x() - target.x();
         double xScale = Math.abs(141.5 - target.x());
-        return p.of(target.x() - 6 * dx / (xScale), target.y(), 0);
+        return p.of(target.x() - 8 * dx / (xScale), target.y(), 0);
     }
 
     public enum Alliance {RED, BLUE}
@@ -53,8 +53,8 @@ public class Poses {
         }
 
         public static Pose relocPoseFlower = p.of(86.3, 6.7, 90);
-        public static Pose relocPoseGardenCorner = p.of(134.6, 134, 0);
-        public static Pose relocPoseParkCorner = p.of(134.6, 10, 0);
+        public static Pose relocPoseGardenCorner = p.of(138.3, 135.0, 0);
+        public static Pose relocPoseParkCorner = p.of(134.6, 9.6, 0);
     }
 
     public static class StartPoses {
@@ -65,14 +65,16 @@ public class Poses {
     }
 
     public static class IntakePoses {
-        public static Pose intakeGarden = p.of(136.5, 131, 90);
+        public static Pose intakeGarden = p.of(136.5, 129.8, 90);
         public static Pose intakeGardenAlign = p.of(136.5, 126, 90);
         public static Pose intakeScoringFlower = p.of(130, 95, 0);
-        public static Pose intakeAudienceFlower = p.of(94, 14, 270);
+        public static Pose intakeAudienceFlower = p.of(99.5, 16.7, 270);
+        public static Pose intakeAudienceFlowerAlign = p.of(99.5, 27, 270);
     }
 
     public static class ShootPoses {
-        public static Pose shootPoseAudience1 = p.of(86.3, 6.7, 90);
+        public static Pose shootPoseAudience1 = p.of(85, 7.0, 90);
+        public static Pose shootPoseAudienceFlower = p.of(86, 18.2, 90);
         public static Pose shootPoseScoring1 = p.of(92.3, 137.9, 270);
     }
 

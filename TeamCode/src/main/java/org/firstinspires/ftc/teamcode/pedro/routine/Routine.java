@@ -37,7 +37,7 @@ public class Routine {
     static class Leg {
         final List<Segment> segments = new ArrayList<>();
         boolean stationary = false;
-        Heading heading = Heading.TANGENT;
+        Heading heading = Heading.LINEAR;
         Interpolator customInterpolator = null;
         Pose facingPoint = null;
 

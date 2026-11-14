@@ -89,7 +89,7 @@ public class Shooter {
         public static double MAX_VELOCITY = 1600.0;
         public static double BANG_BANG_THRESHOLD = 80;
         public static double BANG_BANG_KF = 0.0006, BANG_BANG_KV = 0.005;
-        private static double VELOCITY_TOLERANCE = 50.0;
+        private static double VELOCITY_TOLERANCE = 70.0;
         public static final PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.002, 0.0, 0.0, 0.0006);
 
         public static double NOMINAL_VOLTAGE = 12.0;

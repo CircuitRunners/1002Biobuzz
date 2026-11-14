@@ -258,8 +258,8 @@ public class ShooterUtil {
             {34, 12.5},
             {39, 13.2},
             {44, 14.2},
-            {49, 17.1},
-            {55, 18.9}
+            {49, 16.1},
+            {55, 17.9}
     };
 
     //measured from middle of field
