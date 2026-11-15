@@ -30,7 +30,6 @@ public class SwyftCameraTester extends OpMode {
 
     @Override
     public void init() {
-        Logger.start(SwyftCameraTester.this);
         tele = new GlobalTelemetry(telemetry, false);
 
         camera = new SwyftCamera(hardwareMap);

@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.LockingMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
+import org.firstinspires.ftc.teamcode.util.Logger;
 import org.firstinspires.ftc.teamcode.util.Poses;
 
 import java.util.List;
@@ -31,7 +32,7 @@ public class CompetitionTeleOp extends OpMode {
 
     private Pose currentPose;
     private static final double TARGET_DY_INCHES = 49.0;
-    public static double HOOD_OFFSET = 0, TURRET_OFFSET = -2;
+    public static double HOOD_OFFSET = 0, TURRET_OFFSET = 0;
     public int shooterModeIndex = 1;
     private Pose targetPose;
     private Poses.Zone currentZone;
@@ -53,7 +54,6 @@ public class CompetitionTeleOp extends OpMode {
         intake.rampUp();
 
         shooter = new Shooter(hardwareMap);
-        shooter.setMode(Shooter.Mode.TURRET_ONLY);
 
         player1 = new GamepadEx(gamepad1);
 
@@ -123,15 +123,15 @@ public class CompetitionTeleOp extends OpMode {
         if (player1.wasJustPressed(GamepadKeys.Button.TRIANGLE)) follower.setPose(Poses.TeleOpPoses.relocPoseFlower);
         if (player1.wasJustPressed(GamepadKeys.Button.CIRCLE)) follower.setPose(Poses.TeleOpPoses.relocPoseGardenCorner);
         if (player1.wasJustPressed(GamepadKeys.Button.SQUARE)) follower.setPose(Poses.TeleOpPoses.relocPoseParkCorner);
-        if (player1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) {
-            if (lMecDrive.getState() == LockingMecanumDrive.LMecDriveState.UNLOCKED) {
-                lMecDrive.lock();
-                gamepad1.rumble(1.0, 1.0, 200);
-            } else {
-                lMecDrive.unlock();
-                gamepad1.rumble(0.2, 0.2, 200);
-            }
-        }
+//        if (player1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) {
+//            if (lMecDrive.getState() == LockingMecanumDrive.LMecDriveState.UNLOCKED) {
+//                lMecDrive.lock();
+//                gamepad1.rumble(1.0, 1.0, 200);
+//            } else {
+//                lMecDrive.unlock();
+//                gamepad1.rumble(0.2, 0.2, 200);
+//            }
+//        }
 
         double forward = player1.getLeftY();
         double strafe = player1.getLeftX();
@@ -199,8 +199,8 @@ public class CompetitionTeleOp extends OpMode {
                 .addData("TeleOp State", mode)
                 .addLine()
                 .header("DIAGNOSTICS")
-                .addData("Battery Voltage", shooter.getBatteryVoltage())
                 .addData("Flywheel Velocity", shooter.getFlywheelVelo())
+                .addData("Flywheel Power", shooter.getFlywheelPower())
                 .addData("Target Flywheel Velocity", shooter.getTargetFlywheelVelo())
                 .addData("Hood Angle", shooter.getHoodAngle())
                 .addData("Hood Offset", HOOD_OFFSET)
@@ -214,5 +214,6 @@ public class CompetitionTeleOp extends OpMode {
     @Override
     public void stop() {
         Poses.TeleOpPoses.setTeleOpStartingPose(currentPose);
+        Logger.stop();
     }
 }

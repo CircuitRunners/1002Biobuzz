@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.util.ShooterUtil;
 
 @Configurable
 public abstract class CompetitionAutoBase<R extends Enum<R>> extends AutoBase {
-    public static double HOOD_OFFSET = 1.5;
+    public static double HOOD_OFFSET = 0.0;
     public static double TURRET_OFFSET = -2;
     public static double TRANSFER_TIMEOUT_SECONDS = 1.0;
 

@@ -36,7 +36,6 @@ public class TurretTester extends OpMode {
 
     @Override
     public void init() {
-        Logger.start(this);
         tele = new GlobalTelemetry(telemetry, false);
         tele.addLine("Initializing...")
                 .update();
@@ -61,9 +60,9 @@ public class TurretTester extends OpMode {
 
         player1.readButtons();
         follower.update();
-        Pose currentPose = follower.pose();
-        Poses.Zone currentZone = Poses.currentZone(currentPose);
-        Pose targetPose = Poses.targetHivePose(currentZone);
+//        Pose currentPose = follower.pose();
+//        Poses.Zone currentZone = Poses.currentZone(currentPose);
+//        Pose targetPose = Poses.targetHivePose(currentZone);
 
         if (player1.wasJustPressed(GamepadKeys.Button.DPAD_UP)) position += 0.01;
         if (player1.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) position -= 0.01;
@@ -71,19 +70,19 @@ public class TurretTester extends OpMode {
         if (player1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)) position -= 0.001;
         position = Range.clip(position, 0, 1);
 
-        if (player1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) angleToggle = !angleToggle;
-        if (!angleToggle) turret.setPosition(position);
-        else turret.setTarget(currentPose, targetPose, offset);
+//        if (player1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) angleToggle = !angleToggle;
+//        if (!angleToggle)
+        turret.setPosition(position);
 
         if (player1.wasJustPressed(GamepadKeys.Button.SQUARE)) follower.setPose(Poses.TeleOpPoses.relocPoseFlower);
         double forward = player1.getLeftY();
         double strafe = player1.getLeftX();
         double rotate = player1.getRightX();
-        lMec.driveFieldCentric(-forward, -strafe, rotate, currentPose.heading());
+        // lMec.driveFieldCentric(-forward, -strafe, rotate, currentPose.heading());
 
         tele.addData("Current Position", position)
                 .addData("Calculated Angle", turret.getAngle())
-                .addData("Current Follower Pose", currentPose)
+                // .addData("Current Follower Pose", currentPose)
                 .showLoopTime()
                 .update();
     }

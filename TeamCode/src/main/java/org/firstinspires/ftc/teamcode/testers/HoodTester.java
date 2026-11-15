@@ -27,7 +27,6 @@ public class HoodTester extends OpMode {
 
     @Override
     public void init() {
-        Logger.start(this);
         tele = new GlobalTelemetry(telemetry, false);
         tele.addLine("Initializing...")
                 .update();

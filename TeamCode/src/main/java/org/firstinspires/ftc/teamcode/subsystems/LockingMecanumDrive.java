@@ -16,7 +16,6 @@ public class LockingMecanumDrive extends MecanumDrive {
         state = LMecDriveState.UNLOCKED;
         lockingServo = hardwareMap.get(Servo.class, "lockingServo");
         lockingServo.setPosition(UNLOCK_POSITION);
-
         light = hardwareMap.get(Servo.class, "driveLight");
     }
 

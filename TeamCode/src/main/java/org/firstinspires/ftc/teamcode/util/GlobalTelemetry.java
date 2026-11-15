@@ -82,6 +82,7 @@ public class GlobalTelemetry {
     }
 
     public void update() {
+        if (isLogging) Logger.endLoop();
         sdkTelemetry.update();
         panelsTelemetry.update();
     }

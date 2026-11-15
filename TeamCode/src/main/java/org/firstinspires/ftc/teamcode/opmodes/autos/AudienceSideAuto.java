@@ -15,7 +15,7 @@ import static org.firstinspires.ftc.teamcode.opmodes.autos.AudienceSideAuto.Audi
 @Autonomous(name="Audience Side Auto", group = "COMPETITION")
 public class AudienceSideAuto extends CompetitionAutoBase<AudienceRoutineType> {
     public enum AudienceRoutineType {
-        ONLY_PARK,
+        // ONLY_PARK,
         ONE_TIP
     }
 
@@ -25,8 +25,8 @@ public class AudienceSideAuto extends CompetitionAutoBase<AudienceRoutineType> {
     @Override
     protected Pose startPose() {
         switch (routineType()) {
-            case ONLY_PARK:
-                return StartPoses.startPoseAudienceOnlyPark;
+//            case ONLY_PARK:
+//                return StartPoses.startPoseAudienceOnlyPark;
 
             case ONE_TIP:
                 return StartPoses.startPoseAudienceWall;
@@ -40,15 +40,15 @@ public class AudienceSideAuto extends CompetitionAutoBase<AudienceRoutineType> {
     @Override
     protected Routine routine() {
         switch (routineType()) {
-            case ONLY_PARK:
-                return Routine.from(startPose())
-                               .to(ParkPoses.parkFromOnlyPark)
-                               .build();
+//            case ONLY_PARK:
+//                return Routine.from(startPose())
+//                               .to(ParkPoses.parkFromOnlyPark)
+//                               .build();
 
             case ONE_TIP:
                 return Routine.from(startPose())
                            .stay()
-                               .pause(15)
+                               .pause(8)
                            .stay()
                                .onStart(this::shoot)
                                .waitUntil(this::doneShooting)

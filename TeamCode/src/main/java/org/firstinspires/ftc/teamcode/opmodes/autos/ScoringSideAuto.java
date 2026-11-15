@@ -68,7 +68,7 @@ public class ScoringSideAuto extends CompetitionAutoBase<ScoringRoutineType> {
                                .onStart(intake::intake)
                                .speed(0.3)
                                .pause(1.0)
-                           .curveTo(ShootPoses.shootPoseAudience1, ctrl(51.25, 138.41), ctrl(95.4,73.7), ctrl(75.6,42.6))
+                           .curveTo(ShootPoses.shootPoseAudience1, ctrl(51.25, 138.41), ctrl(103,73.7), ctrl(78.5,42.6))
                                .customInterpolation(Interpolator.piecewise()
                                                                 .until(0.9, Interpolator.tangent.reverse())
                                                                 .until(1.0, Interpolator.linear(Math.toRadians(92), Math.toRadians(90))))
@@ -89,11 +89,7 @@ public class ScoringSideAuto extends CompetitionAutoBase<ScoringRoutineType> {
                                .pause(1)
                            .to(IntakePoses.intakeAudienceFlowerAlign)
                                .onStart(intake::intake)
-                           .curveTo(ShootPoses.shootPoseAudience1, ctrl(77, 39))
-                               .onStart(intake::intake)
-                               .onArrival(() -> {intake.stop(); intake.rampUp(); shoot();})
-                               .waitUntil(this::doneShooting, 5)
-                           .curveTo(ParkPoses.parkFromOnlyPark, ctrl(82, 36))
+                           .to(ParkPoses.parkFromOnlyPark)
                            .build();
             default:
                 throw new IllegalStateException("New routine type has not been set");

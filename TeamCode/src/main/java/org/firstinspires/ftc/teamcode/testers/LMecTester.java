@@ -20,7 +20,6 @@ public class LMecTester extends OpMode {
     private GlobalTelemetry tele;
     @Override
     public void init() {
-        Logger.start(LMecTester.this);
         tele = new GlobalTelemetry(telemetry, true);
 
         tele.addLine("Initializing...")

@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.LockingMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
+import org.firstinspires.ftc.teamcode.util.Logger;
 import org.firstinspires.ftc.teamcode.util.Poses;
 
 import java.util.List;
@@ -129,21 +130,16 @@ public class VelocityControlMethod extends OpMode {
     }
 
     private void handleControlMethod() {
-//        if (!player1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) return;
-//        if (shooter.getControlMethod() == Shooter.Flywheel.Control.PIDF) {
-//            shooter.setControlMethod(Shooter.Flywheel.Control.BANG_BANG);
-//            gamepad1.rumble(1.0, 1.0, 200);
-//        } else {
-//            shooter.setControlMethod(Shooter.Flywheel.Control.PIDF);
-//            gamepad1.rumble(0.2, 0.2, 200);
-//        }
+        if (!player1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) return;
+        if (shooter.getControlMethod() == Shooter.Flywheel.Control.PIDF) {
+            shooter.setControlMethod(Shooter.Flywheel.Control.BANG_BANG);
+            gamepad1.rumble(1.0, 1.0, 200);
+        } else {
+            shooter.setControlMethod(Shooter.Flywheel.Control.PIDF);
+            gamepad1.rumble(0.2, 0.2, 200);
+        }
 
-        if (error >= errorValue){
-            shooter.setControlMethod(Shooter.Flywheel.Control.BANG_BANG);
-        }
-        else {
-            shooter.setControlMethod(Shooter.Flywheel.Control.BANG_BANG);
-        }
+
     }
 
     private void handleDriving() {
@@ -228,5 +224,6 @@ public class VelocityControlMethod extends OpMode {
     @Override
     public void stop() {
         Poses.TeleOpPoses.setTeleOpStartingPose(currentPose);
+        Logger.stop();
     }
 }
