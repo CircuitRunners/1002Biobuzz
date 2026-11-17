@@ -88,8 +88,8 @@ public class Shooter {
 
         public static double MAX_VELOCITY = 1600.0;
         public static double BANG_BANG_THRESHOLD = 80;
-        public static double BANG_BANG_KF = 0.0006, BANG_BANG_KV = 0.005;
-        private static double VELOCITY_TOLERANCE = 50.0;
+        public static double BANG_BANG_KF = 0.00058, BANG_BANG_KV = 0.003;
+        private static double VELOCITY_TOLERANCE = 30.0;
         public static final PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.002, 0.0, 0.0, 0.0006);
 
         public static double NOMINAL_VOLTAGE = 12.0;
@@ -185,8 +185,8 @@ public class Shooter {
     public static class Hood {
         private final Servo hoodServo;
 
-        public static final double MIN_POSITION = 0.17, MAX_POSITION = 1.0;
-        public static final double MIN_ANGLE = 2.8, MAX_ANGLE = 29.5;
+        public static final double MIN_POSITION = 0.16, MAX_POSITION = 1.0;
+        public static final double MIN_ANGLE = 29, MAX_ANGLE = 48;
         private static final double HOME_ANGLE = 25.0;
 
         public Hood(HardwareMap hardwareMap) {

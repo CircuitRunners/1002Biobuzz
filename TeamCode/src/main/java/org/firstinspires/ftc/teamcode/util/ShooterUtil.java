@@ -247,11 +247,11 @@ public class ShooterUtil {
     }
 
     public static double[][] veloLUT = {
-            {34, 775},
-            {39, 800},
-            {44, 830},
-            {49, 840},
-            {55, 860}
+            {34, 770},
+            {39, 810},
+            {44, 850},
+            {49, 890},
+            {55, 930}
     };
 
     public static double[][] hoodLUT = {

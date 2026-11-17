@@ -174,7 +174,7 @@ public class VelocityControlMethod extends OpMode {
         shooter.setManualTargets(targetVelocity, hoodAngle);
 
         intake.unblockTransfer();
-        if (player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2 && shooter.isReady()) intake.transfer();
+        if (player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2 && shooter.isReady()) intake.slowTransfer();
         else if (player1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.2) intake.outtake();
         else intake.stopWithoutBlocking();
     }
