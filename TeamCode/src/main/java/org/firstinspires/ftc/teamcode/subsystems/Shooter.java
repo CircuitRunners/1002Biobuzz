@@ -31,6 +31,9 @@ public class Shooter {
     }
 
     public void update() { flywheel.update(); }
+    public void aimTurret(Pose currentPose, Pose targetPose, double offsetDeg) {
+        turret.setTarget(currentPose, targetPose, offsetDeg);
+    }
     public void setTargets(Pose currentPose, Pose targetPose, double dyInches, double robotVeloX,
                            double robotVeloY, double hoodOffset, double turretOffset) {
         double distance = currentPose.distance(targetPose);

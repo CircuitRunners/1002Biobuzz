@@ -30,7 +30,7 @@ public class SwyftCamera {
     private boolean liveStreamingEnabled = false;
     private boolean controlsApplied = false;
     private Set<Integer> validIDs = new LinkedHashSet<>();
-    private static final int REQUIRED_IDS = 2;
+    private static final int REQUIRED_IDS = 1;
     private final Map<Poses.Zone, Double> zoneLastTipMs = new EnumMap<>(Poses.Zone.class);
     private final ElapsedTime tipTimer = new ElapsedTime();
     private static final double TIP_CONFIRM_MS = 400;
@@ -97,25 +97,20 @@ public class SwyftCamera {
         }
         return tagsDetected.size();
     }
-
-    public boolean hiveTippedFor(Poses.Zone zone) {
+    private void setIdsFor(Poses.Zone zone) {
         switch (zone) {
-            case RED_SCORING:
-                setValidIDs(30, 31, 32, 33);
-                break;
-
-            case RED_AUDIENCE:
-                setValidIDs(34, 35, 36, 37);
-                break;
-
-            case BLUE_AUDIENCE:
-                setValidIDs(38, 39, 40, 41);
-                break;
-
-            case BLUE_SCORING:
-                setValidIDs(42, 43, 44, 45);
-                break;
+            case RED_SCORING:   setValidIDs(30, 31, 32, 33); break;
+            case RED_AUDIENCE:  setValidIDs(34, 35, 36, 37); break;
+            case BLUE_AUDIENCE: setValidIDs(38, 39, 40, 41); break;
+            case BLUE_SCORING:  setValidIDs(42, 43, 44, 45); break;
         }
+    }
+    public int tagsVisible(Poses.Zone zone) {
+        setIdsFor(zone);
+        return validIDsDetected();
+    }
+    public boolean hiveTippedFor(Poses.Zone zone) {
+        setIdsFor(zone);
         boolean tipDetected = validIDsDetected() >= REQUIRED_IDS;
 
         if (tipDetected) {
@@ -132,6 +127,9 @@ public class SwyftCamera {
     public void disableLiveStreaming() {
         PanelsCameraStream.INSTANCE.stopStream();
         liveStreamingEnabled = false;
+    }
+    public boolean isHealthy() {
+        return portal.getCameraState() == VisionPortal.CameraState.STREAMING && portal.getFps() > 5;
     }
     public double getFPS() {
         return portal.getFps();
