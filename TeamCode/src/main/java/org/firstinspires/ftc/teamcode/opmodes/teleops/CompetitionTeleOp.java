@@ -36,8 +36,7 @@ public class CompetitionTeleOp extends OpMode {
     private Pose currentPose;
     private static final double TARGET_DY_INCHES = 49.0;
     public static double HOOD_OFFSET = 0, TURRET_OFFSET = 0;
-    // Camera trim: fraction of the measured bearing applied per new camera frame, ignore band, and limit (deg)
-    public static double CAMERA_TRIM_GAIN = 0.3, CAMERA_TRIM_DEADBAND = 0.5, CAMERA_TRIM_MAX = 15.0;
+    public static double CAMERA_TRIM_GAIN = 0.5, CAMERA_TRIM_DEADBAND = 0.2, CAMERA_TRIM_MAX = 15.0;
     private double cameraTrim = 0.0;
     private Poses.Zone lastTrimZone = null;
     public int shooterModeIndex = 1;
@@ -143,9 +142,10 @@ public class CompetitionTeleOp extends OpMode {
 //            }
 //        }
 
-        double forward = Math.pow(player1.getLeftY(), 3);
-        double strafe = Math.pow(player1.getLeftX(), 3);
-        double rotate = Math.pow(player1.getRightX(), 3);
+        double y = player1.getLeftY(); double x = player1.getLeftX(); double r = player1.getRightX();
+        double forward = Math.copySign(y*y,y);
+        double strafe = Math.pow(x*x, x);
+        double rotate = Math.pow(r*r, r);
 
         lMecDrive.drive(forward, strafe, rotate);
     }
@@ -173,7 +173,7 @@ public class CompetitionTeleOp extends OpMode {
         updateCameraTrim();
         shooter.setTargets(currentPose, targetPose, TARGET_DY_INCHES,
                         follower.velocity().vx, follower.velocity().vy,
-                HOOD_OFFSET, TURRET_OFFSET + cameraTrim);
+                        HOOD_OFFSET, TURRET_OFFSET + cameraTrim);
 
         intake.unblockTransfer();
         if (player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2 && shooter.isReady()) {
@@ -185,19 +185,16 @@ public class CompetitionTeleOp extends OpMode {
         }
     }
 
-    /**
-     * Learns a turret trim from the Swyft camera (mounted on the turret). The turret is aimed by
-     * odometry; any bearing the camera still sees to the hive is odometry error, so a fraction of it
-     * is folded into the trim on each NEW frame. When the hive is out of view the trim is held, so
-     * the turret never snaps. Only learns in CAMERA_AIM: in SOTM the turret intentionally leads the
-     * hive, so a nonzero bearing there is expected and isn't error.
-     */
     private void updateCameraTrim() {
         if (currentZone != lastTrimZone) {
-            cameraTrim = 0.0;               // a different hive means a different error
+            cameraTrim = 0.0;
             lastTrimZone = currentZone;
         }
-        if (shooter.getMode() != Shooter.Mode.CAMERA_AIM) return;
+
+        if (shooter.getMode() != Shooter.Mode.CAMERA_AIM) {
+            cameraTrim = 0.0;
+            return;
+        }
 
         double bearing = camera.newHiveBearing(currentZone);
         if (Double.isNaN(bearing) || Math.abs(bearing) < CAMERA_TRIM_DEADBAND) return;
@@ -206,7 +203,7 @@ public class CompetitionTeleOp extends OpMode {
 
     private void relocalize(Pose pose) {
         follower.setPose(pose);
-        cameraTrim = 0.0;                   // odometry was just corrected, so the old trim is stale
+        cameraTrim = 0.0;
     }
 
     private void handleShooterMode() {

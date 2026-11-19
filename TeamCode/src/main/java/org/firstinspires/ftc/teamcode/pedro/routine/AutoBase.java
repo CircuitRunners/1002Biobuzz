@@ -9,7 +9,9 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
 import org.firstinspires.ftc.teamcode.util.Poses;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -32,6 +34,7 @@ public abstract class AutoBase extends OpMode {
     private final Set<String> firedTCallbacks = new HashSet<>();
     private final Set<String> firedTimeCallbacks = new HashSet<>();
     private final Set<String> firedPoseCallbacks = new HashSet<>();
+    private final Deque<RoutineFrame> routineStack = new ArrayDeque<>();
 
     protected abstract Pose startPose();
     protected abstract Routine routine();
@@ -41,6 +44,15 @@ public abstract class AutoBase extends OpMode {
     protected void onLoop() {}
     protected Object selectionKey() { return null; }
     protected boolean useLogging() { return false; }
+    private static class RoutineFrame {
+        final Routine routine;
+        final int nextIndex;
+
+        RoutineFrame(Routine routine, int nextIndex) {
+            this.routine = routine;
+            this.nextIndex = nextIndex;
+        }
+    }
 
     @Override
     public void init() {
@@ -97,7 +109,11 @@ public abstract class AutoBase extends OpMode {
         onLoop();
 
         if (index >= routine.size()) {
-            requestOpModeStop();
+            if (routineStack.isEmpty()) {
+                requestOpModeStop();
+            } else {    // finish current routine
+                returnFromBranch();
+            }
             return;
         }
 
@@ -115,29 +131,63 @@ public abstract class AutoBase extends OpMode {
         }
 
         if (arrived && (getRuntime() - arrivalTime >= leg.pause) && ready(leg)) {
-            if (leg.decision != null && leg.decision.getAsBoolean()) {
-                routine = leg.branch;
-                routine.materializePaths(currentPose);
-
-                firedTCallbacks.clear();
-                firedTimeCallbacks.clear();
-                firedPoseCallbacks.clear();
-                start();
+            if (leg.decision != null) { // a decision was made so we need to jump to a different branch
+                Routine selectedBranch = leg.decision.getAsBoolean()? leg.trueBranch : leg.falseBranch;
+                enterBranch(selectedBranch);
                 return;
             }
 
+            // otherwise, if no decision was made, continue to the next leg normally
             index++;
             beginLeg();
         }
 
         tele.addData("Running routine", lastKey)
             .addData("Leg", index + "/" + routine.size())
+            .addData("Stack depth", routineStack.size())
             .addData("Held?", arrived && !ready(leg))
             .addData("T Value", follower.parametricCompletion())
             .addData("Pose", follower.pose())
             .addData("X Velo", follower.velocity().vx)
             .addData("Y Velo", follower.velocity().vy)
             .update();
+    }
+
+    private void enterBranch(Routine branch) {
+        if (branch == null) {
+            throw new IllegalArgumentException("Cannot enter a null branch.");
+        }
+
+        // save the parent routine so we can come back to it
+        RoutineFrame frame = new RoutineFrame(routine, index + 1);
+        routineStack.push(frame);
+
+        // now build the new branch from the robot's current pose
+        branch.materializePaths(currentPose);
+        routine = branch;       // set current routine to this branch
+        index = 0;      // index of this current branch
+
+        arrived = false;
+        firedTCallbacks.clear();
+        firedTimeCallbacks.clear();
+        firedPoseCallbacks.clear();
+        start();
+    }
+    private void returnFromBranch() {
+        // go back to the parent routine
+        RoutineFrame frame = routineStack.pop();
+        routine = frame.routine;
+        index = frame.nextIndex;    // index to pick up from
+
+        // rebuild the remaining paths
+        routine.materializePaths(currentPose, index);
+
+        arrived = false;
+        firedTCallbacks.clear();
+        firedTimeCallbacks.clear();
+        firedPoseCallbacks.clear();
+
+        beginLeg();
     }
 
     private void runParametricCallbacks(Routine.Leg leg) {

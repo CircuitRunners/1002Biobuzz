@@ -105,7 +105,7 @@ public class SwyftCamera {
     }
     private int hiveTagsDetected(Poses.Zone zone) {
         AprilTagClusterDetection cluster = hiveClusterFor(zone);
-        if (cluster == null) return 0;
+        if (cluster == null || cluster.ftcPose.elevation < 45) return 0;
         return Math.round(cluster.percentClusterFound * HIVE_CLUSTER_SIZE / 100f);
     }
     public boolean hiveTippedFor(Poses.Zone zone) {
@@ -131,6 +131,9 @@ public class SwyftCamera {
     public void disableLiveStreaming() {
         PanelsCameraStream.INSTANCE.stopStream();
         liveStreamingEnabled = false;
+    }
+    public boolean isHealthy() {
+        return portal.getCameraState() == VisionPortal.CameraState.STREAMING && portal.getFps() > 5;
     }
     public double getFPS() {
         return portal.getFps();

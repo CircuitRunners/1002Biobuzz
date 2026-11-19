@@ -53,7 +53,8 @@ public class Routine {
         final Map<Double, Runnable> temporalTriggers = new LinkedHashMap<>();
         final Map<Pose, Runnable> poseTriggers = new LinkedHashMap<>();
         BooleanSupplier decision;
-        Routine branch;
+        Routine trueBranch;
+        Routine falseBranch;
         Path path;
     }
 
@@ -74,12 +75,22 @@ public class Routine {
     }
 
     void materializePaths(Pose currentPose) {
+        materializePaths(currentPose, 0);
+    }
+
+    void materializePaths(Pose currentPose, int legStartIndex) {
+        if (legStartIndex < 0 || legStartIndex > legs.size()) {
+            throw new IndexOutOfBoundsException("Invalid starting leg index: " + legStartIndex);
+        }
+
         Pose cursor = currentPose == null ? start : currentPose;
         if (cursor == null) {
             throw new IllegalStateException("fromCurrent() should only be called on branches");
         }
 
-        for (Leg leg : legs) {
+        for (int i = legStartIndex; i < legs.size(); i++) {
+            Leg leg = legs.get(i);
+
             if (leg.stationary) {
                 leg.path = null;
                 continue;
@@ -306,9 +317,10 @@ public class Routine {
             return legs.get(legs.size() - 1);
         }
 
-        public Builder decide(BooleanSupplier condition, Routine branch) {
+        public Builder decide(BooleanSupplier condition, Routine trueBranch, Routine falseBranch) {
             last().decision = condition;
-            last().branch = branch;
+            last().trueBranch = trueBranch;
+            last().falseBranch = falseBranch;
             return this;
         }
 

@@ -73,11 +73,11 @@ public class Poses {
     public static class ShootPoses {
         public static Pose shootPoseAudience1 = p.of(83, 7.0, 90);
         public static Pose shootPoseAudienceFlower = p.of(86, 18.2, 90);
-        public static Pose shootPoseScoring1 = p.of(92.3, 137.9, 270);
+        public static Pose shootPoseScoring1 = p.of(92.3, 129.8, 270);
     }
 
     public static class ParkPoses {
-        public static Pose parkFromScoring = p.of(130, 42, 270);
+        public static Pose parkFromScoring = p.of(126.74, 23.9, 270);
         public static Pose parkFromOnlyPark = p.of(134, 26, 90);
     }
 

@@ -20,7 +20,8 @@ import static org.firstinspires.ftc.teamcode.opmodes.autos.ScoringSideAuto.Scori
 public class ScoringSideAuto extends CompetitionAutoBase<ScoringRoutineType> {
     public enum ScoringRoutineType {
         // ONE_TIP,
-        TWO_TIP
+        TWO_TIP,
+        DECIDE
     }
 
     @Override
@@ -32,8 +33,8 @@ public class ScoringSideAuto extends CompetitionAutoBase<ScoringRoutineType> {
             // case ONE_TIP:
             case TWO_TIP:
                 return StartPoses.startPoseScoringWall;
-
-
+            case DECIDE:
+                return StartPoses.startPoseScoringWall;
             default:
                 throw new IllegalStateException("New routine type has not been set");
         }
@@ -91,6 +92,77 @@ public class ScoringSideAuto extends CompetitionAutoBase<ScoringRoutineType> {
                                .onStart(intake::intake)
                            .to(ParkPoses.parkFromOnlyPark)
                            .build();
+            case DECIDE: {
+                    // Used only if the hive tipped: finish on the audience side
+                    Routine shootScoring1 = Routine.fromCurrent()
+                            .stay()
+                                    .onArrival(this::shoot)
+                                    .waitUntil(this::doneShooting, 5)
+                            .curveTo(IntakePoses.intakeAudienceFlowerAlign, ctrl(85.05, 105.14), ctrl(70.79,33.11), ctrl(99.44,33.18))
+                            .tangentHeading()
+                            .build();
+
+                    Routine shootAudience1 = Routine.fromCurrent()
+                            .curveTo(ShootPoses.shootPoseAudience1, ctrl(59.32, 136.7), ctrl(85.71,72.04))
+                                .reverseTangentHeading()
+                                .speed(1.0)
+                                .onArrival(this::shoot)
+                                .waitUntil(this::doneShooting, 5)
+                            .curveTo(IntakePoses.intakeAudienceFlowerAlign, ctrl(78.95,39.63), ctrl(99.53,38.59))
+                                .tangentHeading()
+                            .build();
+
+                    Routine shootAudience2 = Routine.fromCurrent()
+                            .curveTo(ShootPoses.shootPoseAudience1, ctrl(78.95,39.63), ctrl(99.53,38.59))
+                                .tangentHeading()
+                                .onArrival(this::shoot)
+                                .waitUntil(this::doneShooting, 5)
+                            .curveTo(ParkPoses.parkFromScoring, ctrl(89.15,24.44))
+                                .tangentHeading()
+                            .build();
+
+                    Routine shootScoring2 = Routine.fromCurrent()
+                            .curveTo(ShootPoses.shootPoseScoring1, ctrl(64.94,31.47))
+                            .reverseTangentHeading()
+                            .onArrival(this::shoot)
+                            .waitUntil(this::doneShooting, 5)
+                            .curveTo(ParkPoses.parkFromScoring, ctrl(113.77,117.29), ctrl(95.21,18.4))
+                            .tangentHeading()
+                            .build();
+
+                    return Routine.from(startPose())
+                            .stay()
+                                .onStart(this::shoot)
+                                .waitUntil(this::doneShooting, 5)
+                            .curveTo(IntakePoses.intakeGardenAlign, ctrl(120, 110))
+                                .interpolatedHeading()
+                            .to(IntakePoses.intakeGarden)
+                                .onStart(intake::intake)
+                                .speed(0.3)
+                            .to(IntakePoses.intakeGardenAlign)
+                                .onStart(intake::intake)
+                            .to(IntakePoses.intakeGarden)
+                                .onStart(intake::intake)
+                                .speed(0.3)
+                                .pause(1.0)
+                            .to(ShootPoses.shootPoseScoring1)   // scoring side shoot position (default)
+                                .onStart(() -> { intake.intake(); startAiming(); })
+                                .atTVal(0.5, intake::stop)
+                                .waitUntil(this::sawTags, 0.25)
+                                .decide(this::sawTags, shootScoring1, shootAudience1)
+                            // audience flower intake
+                            .to(IntakePoses.intakeAudienceFlower)
+                                .onStart(() -> {intake.intake(); intake.rampDown();})
+                                .pause(0.75)
+                            .to(IntakePoses.intakeAudienceFlowerAlign)
+                                .onStart(intake::intake)
+                            .to(IntakePoses.intakeAudienceFlower)
+                                .onStart(() -> { intake.intake(); startAiming(); })
+                                .pause(0.75)
+                                .waitUntil(this::sawTags, 0.25)
+                                .decide(this::sawTags, shootAudience2, shootScoring2)
+                            .build();
+                }
             default:
                 throw new IllegalStateException("New routine type has not been set");
         }

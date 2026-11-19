@@ -31,6 +31,9 @@ public class Shooter {
     }
 
     public void update() { flywheel.update(); }
+    public void aimTurret(Pose currentPose, Pose targetPose, double offsetDeg) {
+        turret.setTarget(currentPose, targetPose, offsetDeg);
+    }
     public void setTargets(Pose currentPose, Pose targetPose, double dyInches, double robotVeloX,
                            double robotVeloY, double hoodOffset, double turretOffset) {
         double distance = currentPose.distance(targetPose);
@@ -39,10 +42,10 @@ public class Shooter {
 
         switch (mode) {
             case NO_TURRET:
-                // turret.home();
+                turret.home();
                 break;
             case TURRET_ONLY:
-            case CAMERA_AIM: // same odometry aim; the teleop learns a camera trim into turretOffset
+            case CAMERA_AIM:
                 turret.setTarget(currentPose, targetPose, turretOffset);
                 break;
             case SOTM:

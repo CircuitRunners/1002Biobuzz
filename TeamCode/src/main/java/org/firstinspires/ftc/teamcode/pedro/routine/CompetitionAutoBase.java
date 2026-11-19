@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.subsystems.SwyftCamera;
 import org.firstinspires.ftc.teamcode.util.Poses;
 import org.firstinspires.ftc.teamcode.util.ShooterUtil;
 
@@ -13,7 +14,8 @@ public abstract class CompetitionAutoBase<R extends Enum<R>> extends AutoBase {
     public static double HOOD_OFFSET = 0.0;
     public static double TURRET_OFFSET = -2;
     public static double TRANSFER_TIMEOUT_SECONDS = 1.0;
-
+    private SwyftCamera camera;
+    private boolean aiming;    // true when we need to aim the turret for the camera to make a decision
     protected Intake intake;
     protected Shooter shooter;
 
@@ -71,6 +73,7 @@ public abstract class CompetitionAutoBase<R extends Enum<R>> extends AutoBase {
         intake = new Intake(hardwareMap);
         intake.rampUp();
 
+        camera = new SwyftCamera(hardwareMap);
         shooter = new Shooter(hardwareMap);
     }
 
@@ -79,6 +82,10 @@ public abstract class CompetitionAutoBase<R extends Enum<R>> extends AutoBase {
         intake.update();
         shooter.update();
         updateShooting();
+        camera.update();
+        if (aiming) {
+            shooter.aimTurret(currentPose, targetPose, TURRET_OFFSET);
+        }
     }
 
     private enum ShotState {IDLE, SPINNING_UP, TRANSFERING, DONE}
@@ -86,6 +93,7 @@ public abstract class CompetitionAutoBase<R extends Enum<R>> extends AutoBase {
     private final ElapsedTime transferTimer = new ElapsedTime();
     @Override
     protected void beginLeg() {
+        aiming = false;
         shotState = ShotState.IDLE;
         intake.stop();
         shooter.stop();
@@ -128,5 +136,9 @@ public abstract class CompetitionAutoBase<R extends Enum<R>> extends AutoBase {
                     transferTimer.reset();
                 }
         }
+    }
+    protected boolean sawTags() {return camera.hiveTippedFor(currentZone);}
+    protected void startAiming() {
+        aiming = true;
     }
 }
