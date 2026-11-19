@@ -87,6 +87,7 @@ public class SwyftCameraTester extends OpMode {
         }
         tele.addData("FPS", camera.getFPS())
             .addData("Hive tipped for " + zone.toString(), camera.hiveTippedFor(zone))
+            .addData("Offset deg", camera.hiveDegreeOffset(zone))
             .showLoopTime()
             .update();
     }

@@ -6,6 +6,7 @@ import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.Range;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.LockingMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.subsystems.SwyftCamera;
 import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
 import org.firstinspires.ftc.teamcode.util.Logger;
 import org.firstinspires.ftc.teamcode.util.Poses;
@@ -28,11 +30,16 @@ public class CompetitionTeleOp extends OpMode {
     private Shooter shooter;
     private Follower follower;
     private GamepadEx player1;
+    private SwyftCamera camera;
     private List<LynxModule> hubs;
 
     private Pose currentPose;
     private static final double TARGET_DY_INCHES = 49.0;
     public static double HOOD_OFFSET = 0, TURRET_OFFSET = 0;
+    // Camera trim: fraction of the measured bearing applied per new camera frame, ignore band, and limit (deg)
+    public static double CAMERA_TRIM_GAIN = 0.3, CAMERA_TRIM_DEADBAND = 0.5, CAMERA_TRIM_MAX = 15.0;
+    private double cameraTrim = 0.0;
+    private Poses.Zone lastTrimZone = null;
     public int shooterModeIndex = 1;
     private Pose targetPose;
     private Poses.Zone currentZone;
@@ -56,6 +63,9 @@ public class CompetitionTeleOp extends OpMode {
         shooter = new Shooter(hardwareMap);
 
         player1 = new GamepadEx(gamepad1);
+
+        camera = new SwyftCamera(hardwareMap);
+        camera.enableLiveStreaming();
 
         follower = Constants.create(hardwareMap);
         follower.setPose(Poses.TeleOpPoses.teleOpStartingPose);
@@ -120,9 +130,9 @@ public class CompetitionTeleOp extends OpMode {
     }
 
     private void handleDriving() {
-        if (player1.wasJustPressed(GamepadKeys.Button.TRIANGLE)) follower.setPose(Poses.TeleOpPoses.relocPoseFlower);
-        if (player1.wasJustPressed(GamepadKeys.Button.CIRCLE)) follower.setPose(Poses.TeleOpPoses.relocPoseGardenCorner);
-        if (player1.wasJustPressed(GamepadKeys.Button.SQUARE)) follower.setPose(Poses.TeleOpPoses.relocPoseParkCorner);
+        if (player1.wasJustPressed(GamepadKeys.Button.TRIANGLE)) relocalize(Poses.TeleOpPoses.relocPoseFlower);
+        if (player1.wasJustPressed(GamepadKeys.Button.CIRCLE)) relocalize(Poses.TeleOpPoses.relocPoseGardenCorner);
+        if (player1.wasJustPressed(GamepadKeys.Button.SQUARE)) relocalize(Poses.TeleOpPoses.relocPoseParkCorner);
 //        if (player1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) {
 //            if (lMecDrive.getState() == LockingMecanumDrive.LMecDriveState.UNLOCKED) {
 //                lMecDrive.lock();
@@ -133,9 +143,9 @@ public class CompetitionTeleOp extends OpMode {
 //            }
 //        }
 
-        double forward = player1.getLeftY();
-        double strafe = player1.getLeftX();
-        double rotate = player1.getRightX();
+        double forward = Math.pow(player1.getLeftY(), 3);
+        double strafe = Math.pow(player1.getLeftX(), 3);
+        double rotate = Math.pow(player1.getRightX(), 3);
 
         lMecDrive.drive(forward, strafe, rotate);
     }
@@ -160,9 +170,10 @@ public class CompetitionTeleOp extends OpMode {
         if (player1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)) TURRET_OFFSET -= 2.5;
         if (player1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)) TURRET_OFFSET += 2.5;
 
+        updateCameraTrim();
         shooter.setTargets(currentPose, targetPose, TARGET_DY_INCHES,
                         follower.velocity().vx, follower.velocity().vy,
-                HOOD_OFFSET, TURRET_OFFSET);
+                HOOD_OFFSET, TURRET_OFFSET + cameraTrim);
 
         intake.unblockTransfer();
         if (player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2 && shooter.isReady()) {
@@ -172,6 +183,30 @@ public class CompetitionTeleOp extends OpMode {
         } else {
             intake.stopWithoutBlocking();
         }
+    }
+
+    /**
+     * Learns a turret trim from the Swyft camera (mounted on the turret). The turret is aimed by
+     * odometry; any bearing the camera still sees to the hive is odometry error, so a fraction of it
+     * is folded into the trim on each NEW frame. When the hive is out of view the trim is held, so
+     * the turret never snaps. Only learns in CAMERA_AIM: in SOTM the turret intentionally leads the
+     * hive, so a nonzero bearing there is expected and isn't error.
+     */
+    private void updateCameraTrim() {
+        if (currentZone != lastTrimZone) {
+            cameraTrim = 0.0;               // a different hive means a different error
+            lastTrimZone = currentZone;
+        }
+        if (shooter.getMode() != Shooter.Mode.CAMERA_AIM) return;
+
+        double bearing = camera.newHiveBearing(currentZone);
+        if (Double.isNaN(bearing) || Math.abs(bearing) < CAMERA_TRIM_DEADBAND) return;
+        cameraTrim = Range.clip(cameraTrim + CAMERA_TRIM_GAIN * bearing, -CAMERA_TRIM_MAX, CAMERA_TRIM_MAX);
+    }
+
+    private void relocalize(Pose pose) {
+        follower.setPose(pose);
+        cameraTrim = 0.0;                   // odometry was just corrected, so the old trim is stale
     }
 
     private void handleShooterMode() {
@@ -206,6 +241,8 @@ public class CompetitionTeleOp extends OpMode {
                 .addData("Hood Offset", HOOD_OFFSET)
                 .addData("Turret Angle", shooter.getTurretAngle())
                 .addData("Turret Offset", TURRET_OFFSET)
+                .addData("Camera Trim", cameraTrim)
+                .addData("Hive Bearing", camera.hiveDegreeOffset(currentZone))
                 .addData("Target DY Inches", TARGET_DY_INCHES)
                 .showLoopTime()
                 .update();
@@ -215,5 +252,6 @@ public class CompetitionTeleOp extends OpMode {
     public void stop() {
         Poses.TeleOpPoses.setTeleOpStartingPose(currentPose);
         Logger.stop();
+        camera.close();
     }
 }

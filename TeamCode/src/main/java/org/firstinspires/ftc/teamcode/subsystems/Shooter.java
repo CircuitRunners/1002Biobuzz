@@ -22,7 +22,7 @@ public class Shooter {
     private final Hood hood;
     private final Turret turret;
 
-    public enum Mode { NO_TURRET, TURRET_ONLY, SOTM }
+    public enum Mode { NO_TURRET, TURRET_ONLY, CAMERA_AIM, SOTM }
     private Mode mode = Mode.TURRET_ONLY;
     public Shooter(HardwareMap hardwareMap) {
         flywheel = new Flywheel(hardwareMap);
@@ -42,6 +42,7 @@ public class Shooter {
                 // turret.home();
                 break;
             case TURRET_ONLY:
+            case CAMERA_AIM: // same odometry aim; the teleop learns a camera trim into turretOffset
                 turret.setTarget(currentPose, targetPose, turretOffset);
                 break;
             case SOTM:
@@ -89,10 +90,10 @@ public class Shooter {
         public static double MAX_VELOCITY = 1600.0;
         public static double BANG_BANG_THRESHOLD = 80;
         public static double BANG_BANG_KF = 0.00058, BANG_BANG_KV = 0.003;
-        private static double VELOCITY_TOLERANCE = 30.0;
+        private static double VELOCITY_TOLERANCE = 20.0;
         public static final PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.002, 0.0, 0.0, 0.0006);
 
-        public static double NOMINAL_VOLTAGE = 12.0;
+        public static double NOMINAL_VOLTAGE = 12.5;
         public static double VOLTAGE_FILTER_ALPHA = 0.3;
         public static double VOLTAGE_READ_INTERVAL_MS = 250;
 
@@ -144,7 +145,7 @@ public class Shooter {
 
                     if (targetVelocity <= 0.0 || -error > BANG_BANG_THRESHOLD) bbOutput = 0.0;
                     else if (error > BANG_BANG_THRESHOLD) bbOutput = 1.0;
-                    else bbOutput = BANG_BANG_KV * error + BANG_BANG_KF * targetVelocity;
+                    else bbOutput = BANG_BANG_KV * error + BANG_BANG_KF * targetVelocity * voltageScale();
                     bbOutput = Range.clip(bbOutput, 0.0, 1.0);
 
                     setPower(bbOutput);
