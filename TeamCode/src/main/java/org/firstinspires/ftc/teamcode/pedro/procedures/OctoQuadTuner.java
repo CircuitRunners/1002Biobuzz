@@ -2,7 +2,8 @@ package org.firstinspires.ftc.teamcode.pedro.procedures;
 
 import com.pedropathing.math.Pose;
 import com.pedropathing.revhub.localizers.OctoQuadConfig;
-import com.pedropathing.revhub.localizers.OctoQuadLocalizer;
+import org.firstinspires.ftc.teamcode.pedro.CheckedOctoQuadLocalizer;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 import com.pedropathing.tuning.autotune.Inputs;
 import com.pedropathing.tuning.autotune.Procedure;
 import com.pedropathing.tuning.autotune.TuningOpMode;
@@ -31,8 +32,8 @@ public class OctoQuadTuner extends Procedure {
     public void run() throws InterruptedException {
         Inputs inputs = inputs("Setup", "Set OctoQuad HardwareMap Name and Odometry Pod Type");
         Inputs.Field<String> octoquadName = inputs.s("HardwareMap Name").withDefault("octoquad");
-        Inputs.Field<Integer> xPort =  inputs.i("Forward Pod Port").withDefault(0);
-        Inputs.Field<Integer> yPort =  inputs.i("Strafe Pod Port").withDefault(1);
+        Inputs.Field<Integer> xPort =  inputs.i("Forward Pod Port").withDefault(Constants.localizerConfig.xPodPort.get());
+        Inputs.Field<Integer> yPort =  inputs.i("Strafe Pod Port").withDefault(Constants.localizerConfig.yPodPort.get());
         Inputs.Field<OctoQuadTuner.PodType> podType = inputs.e("Odometry Pod Type", OctoQuadTuner.PodType.class).withDefault(OctoQuadTuner.PodType.FOUR_BAR);
         Inputs.Field<OctoQuad.I2cRecoveryMode> recoveryMode = inputs.e("Recovery Mode", OctoQuad.I2cRecoveryMode.class).withDefault(OctoQuad.I2cRecoveryMode.MODE_1_PERIPH_RST_ON_FRAME_ERR);
         awaitInputs(inputs);
@@ -120,7 +121,7 @@ class OctoQuadHeadingScalar extends TuningOpMode<Double> {
             c.yPodOffset.set(0.0);
         });
 
-        OctoQuadLocalizer localizer = new OctoQuadLocalizer(hardwareMap, config);
+        CheckedOctoQuadLocalizer localizer = CheckedOctoQuadLocalizer.forTuning(hardwareMap, config);
         localizer.setPose(new Pose(0, 0));
         localizer.update();
         waitForStart();
@@ -133,7 +134,8 @@ class OctoQuadHeadingScalar extends TuningOpMode<Double> {
                 prevHeading = currentHeading;
             }
         }
-        return Math.abs((turns * Math.PI * 2 / totalHeading));
+        if (turns <= 0 || Math.abs(totalHeading) < 1e-6) throw new IllegalStateException("No usable heading calibration measurement");
+        return Math.abs(turns * Math.PI * 2 / totalHeading);
     }
 }
 
@@ -165,7 +167,7 @@ class OctoQuadCustomPodScalar extends TuningOpMode<Double> {
             c.xPodOffset.set(0.0);
             c.yPodOffset.set(0.0);
         });
-        OctoQuadLocalizer localizer = new OctoQuadLocalizer(hardwareMap, config);
+        CheckedOctoQuadLocalizer localizer = CheckedOctoQuadLocalizer.forTuning(hardwareMap, config);
         localizer.setPose(new Pose(0, 0));
         waitForStart();
 
@@ -223,7 +225,7 @@ class OctoQuadForwardDirection extends TuningOpMode<Boolean> {
                 c.ticksPerUnit.set(podType == OctoQuadTuner.PodType.SWING_ARM ? OctoQuadTuner.SWING_ARM : OctoQuadTuner.FOUR_BAR);
             }
         });
-        OctoQuadLocalizer localizer = new OctoQuadLocalizer(hardwareMap, config);
+        CheckedOctoQuadLocalizer localizer = CheckedOctoQuadLocalizer.forTuning(hardwareMap, config);
         localizer.setPose(new Pose(0, 0));
         waitForStart();
         while (!isStopRequested()) {
@@ -273,7 +275,7 @@ class OctoQuadStrafeDirection extends TuningOpMode<Boolean> {
                 c.ticksPerUnit.set(podType == OctoQuadTuner.PodType.SWING_ARM ? OctoQuadTuner.SWING_ARM : OctoQuadTuner.FOUR_BAR);
             }
         });
-        OctoQuadLocalizer localizer = new OctoQuadLocalizer(hardwareMap, config);
+        CheckedOctoQuadLocalizer localizer = CheckedOctoQuadLocalizer.forTuning(hardwareMap, config);
         localizer.setPose(new Pose(0, 0));
         waitForStart();
         while (!isStopRequested()) {
@@ -328,7 +330,7 @@ class OctoQuadOffsets extends TuningOpMode<List<Double>> {
             c.yPodOffset.set(0.0);
             c.headingScalar.set(headingScalar);
         });
-        OctoQuadLocalizer localizer = new OctoQuadLocalizer(hardwareMap, config);
+        CheckedOctoQuadLocalizer localizer = CheckedOctoQuadLocalizer.forTuning(hardwareMap, config);
         localizer.setPose(new Pose(0, 0));
         localizer.update();
 

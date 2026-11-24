@@ -51,7 +51,7 @@ public class AudienceSideAuto extends CompetitionAutoBase<AudienceRoutineType> {
                                .pause(8)
                            .stay()
                                .onStart(this::shoot)
-                               .waitUntil(this::doneShooting)
+                               .waitUntil(this::doneShooting, 5)
                            .curveTo(ParkPoses.parkFromOnlyPark, ctrl(94, 38))
                                .interpolatedHeading()
                            .build();

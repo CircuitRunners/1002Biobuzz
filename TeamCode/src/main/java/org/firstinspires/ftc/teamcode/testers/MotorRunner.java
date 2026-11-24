@@ -23,11 +23,9 @@ public class MotorRunner extends OpMode {
     @Override
     public void loop() {
         player1.readButtons();
-        if (player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2) intake.setPower(1.0);
-        else if (player1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.2) transfer.setPower(1.0);
-        else {
-            intake.setPower(0.0);
-            transfer.setPower(0.0);
-        }
+        boolean intakeOn = player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2;
+        boolean transferOn = !intakeOn && player1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.2;
+        intake.setPower(intakeOn ? 1.0 : 0.0);
+        transfer.setPower(transferOn ? 1.0 : 0.0);
     }
 }

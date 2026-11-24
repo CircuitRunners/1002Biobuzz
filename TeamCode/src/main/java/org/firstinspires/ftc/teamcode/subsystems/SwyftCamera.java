@@ -4,7 +4,6 @@ import android.util.Size;
 
 import com.bylazar.camerastream.PanelsCameraStream;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
@@ -31,9 +30,8 @@ public class SwyftCamera {
     private boolean controlsApplied = false;
     private static final int HIVE_CLUSTER_SIZE = 4;
     private static final int REQUIRED_IDS = 2;
-    private final Map<Poses.Zone, Double> zoneLastTipMs = new EnumMap<>(Poses.Zone.class);
-    private final ElapsedTime tipTimer = new ElapsedTime();
-    private static final double TIP_CONFIRM_MS = 400;
+    private final Map<Poses.Zone, Long> lastTipFrame = new EnumMap<>(Poses.Zone.class);
+    private static final long FRAME_MAX_AGE = TimeUnit.MILLISECONDS.toNanos(400);
     private long lastHiveFrameNanos = 0;
 
     public SwyftCamera(HardwareMap hwmap) {
@@ -55,9 +53,7 @@ public class SwyftCamera {
                 .enableLiveView(true)
                 .build();
 
-        for (Poses.Zone zone : Poses.Zone.values()) {
-            zoneLastTipMs.put(zone, Double.NEGATIVE_INFINITY);
-        }
+
     }
 
     /** Call every loop; applies manual exposure/gain once the camera starts streaming. */
@@ -79,7 +75,7 @@ public class SwyftCamera {
         controlsApplied = false;
     }
     public boolean isStreaming() {
-        return liveStreamingEnabled;
+        return portal.getCameraState() == VisionPortal.CameraState.STREAMING;
     }
     public List<AprilTagDetection> getDetections() {
         return aprilTag.getDetections();
@@ -98,21 +94,20 @@ public class SwyftCamera {
         for (AprilTagDetection tag : getDetections()) {
             if (tag instanceof AprilTagClusterDetection) {
                 AprilTagClusterDetection cluster = (AprilTagClusterDetection) tag;
-                if (cluster.metadata.name.equals(name)) return cluster;
+                if (name.equals(cluster.metadata.name) && isStreaming()
+                        && System.nanoTime() - cluster.frameAcquisitionNanoTime <= FRAME_MAX_AGE) return cluster;
             }
         }
         return null;
     }
-    private int hiveTagsDetected(Poses.Zone zone) {
-        AprilTagClusterDetection cluster = hiveClusterFor(zone);
-        if (cluster == null || cluster.ftcPose.elevation < 45) return 0;
-        return Math.round(cluster.percentClusterFound * HIVE_CLUSTER_SIZE / 100f);
-    }
     public boolean hiveTippedFor(Poses.Zone zone) {
-        boolean tipDetected = hiveTagsDetected(zone) >= REQUIRED_IDS;
-        if (tipDetected) zoneLastTipMs.put(zone, tipTimer.milliseconds());
-        if (!tipDetected && tipTimer.milliseconds() - zoneLastTipMs.get(zone) <= TIP_CONFIRM_MS) return true;
-        return tipDetected;
+        AprilTagClusterDetection cluster = hiveClusterFor(zone);
+        if (cluster != null && cluster.ftcPose.elevation >= 45
+                && Math.round(cluster.percentClusterFound * HIVE_CLUSTER_SIZE / 100f) >= REQUIRED_IDS) {
+            lastTipFrame.put(zone, cluster.frameAcquisitionNanoTime);
+        }
+        Long timestamp = lastTipFrame.get(zone);
+        return isStreaming() && timestamp != null && System.nanoTime() - timestamp <= FRAME_MAX_AGE;
     }
     public double hiveDegreeOffset(Poses.Zone zone) {
         AprilTagClusterDetection cluster = hiveClusterFor(zone);
@@ -125,7 +120,7 @@ public class SwyftCamera {
         return cluster.ftcPose.bearing;
     }
     public void enableLiveStreaming() {
-        PanelsCameraStream.INSTANCE.startStream(portal, 0);
+        PanelsCameraStream.INSTANCE.startStream(portal, 5);
         liveStreamingEnabled = true;
     }
     public void disableLiveStreaming() {
@@ -139,7 +134,8 @@ public class SwyftCamera {
         return portal.getFps();
     }
     public void close() {
-        disableLiveStreaming();
-        portal.close();
+        if (liveStreamingEnabled) disableLiveStreaming();
+        // EasyOpenCV owns post-stop teardown if the asynchronous open is still pending.
+        if (isStreaming()) portal.close();
     }
 }

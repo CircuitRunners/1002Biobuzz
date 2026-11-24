@@ -41,13 +41,8 @@ public class IntakeTester extends OpMode {
 
     @Override
     public void loop() {
+        for (LynxModule hub : hubs) hub.clearBulkCache();
         player1.readButtons();
-
-        // Blocker position
-//        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_UP)) Intake.BLOCK_POSITION += 0.01;
-//        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) Intake.BLOCK_POSITION -= 0.01;
-//        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)) Intake.UNBLOCK_POSITION += 0.01;
-//        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)) Intake.UNBLOCK_POSITION -= 0.01;
 
         // Ramp position
         if (player1.wasJustPressed(GamepadKeys.Button.TRIANGLE)) Intake.RAMP_DOWN += 0.01;
@@ -59,10 +54,6 @@ public class IntakeTester extends OpMode {
         if (player1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) blocked = !blocked;
         if (player1.wasJustPressed(GamepadKeys.Button.LEFT_BUMPER)) rampDown = !rampDown;
 
-        // Position sets
-//        if (blocked) intake.blockTransfer();
-//        else intake.unblockTransfer();
-
         if (rampDown) intake.rampDown();
         else intake.rampUp();
 
@@ -71,12 +62,12 @@ public class IntakeTester extends OpMode {
         else if (player1.getLeftY() < -0.2) intake.outtake();
         else if (player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2) intake.transfer();
         else intake.stop();
+        if (blocked) intake.blockTransfer();
+        else intake.unblockTransfer();
         intake.update();
 
         // Telemetry
-        tele.addLine("Dpad UP/DOWN for BLOCK position")
-            .addLine("Dpad RIGHT/LEFT for UNBLOCK position")
-            .addLine("TRIANGLE/X for RAMP DOWN position")
+        tele.addLine("TRIANGLE/X for RAMP DOWN position")
             .addLine("CIRCLE/SQUARE for RAMP UP position")
             .addLine("RIGHT BUMPER to toggle blocker")
             .addLine("LEFT BUMPER to toggle ramp")

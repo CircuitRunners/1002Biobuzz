@@ -5,6 +5,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.pedro.CheckedOctoQuadLocalizer;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.util.GlobalTelemetry;
 import org.firstinspires.ftc.teamcode.util.Poses;
@@ -24,6 +25,8 @@ public abstract class AutoBase extends OpMode {
     private Routine routine;
     private int index;
     private boolean arrived;
+    private static final double DRIVE_TIMEOUT_SECONDS = 10.0;
+    private double legStartTime;
     private double arrivalTime;
     private Object lastKey;
     protected GlobalTelemetry tele;
@@ -61,7 +64,7 @@ public abstract class AutoBase extends OpMode {
         follower = Constants.create(hardwareMap);
         onInit();
         rebuild();
-        tele.addLine("Done!").update();
+        tele.addLine("Routine built").update();
     }
 
     @Override
@@ -71,9 +74,10 @@ public abstract class AutoBase extends OpMode {
             tele.clearAll();
             tele.addLine("Building...");
             rebuild();
-            tele.addLine("Done!").update();
+            tele.addLine("Routine built").update();
         }
-        tele.addData("Running routine", lastKey).update();
+        Constants.localizationReady(follower);
+        tele.addData("Odometry", Constants.localizationStatus(follower)).addData("Running routine", lastKey).update();
     }
 
     private void rebuild() {
@@ -102,7 +106,12 @@ public abstract class AutoBase extends OpMode {
 
     @Override
     public void loop() {
-        follower.update();
+        try {
+            follower.update();
+        } catch (CheckedOctoQuadLocalizer.LocalizationUnavailable e) {
+            abortRoutine(e.getMessage());
+            return;
+        }
         currentPose = follower.pose();
         currentZone = Poses.currentZone(currentPose);
         targetPose = Poses.targetHivePose(currentZone);
@@ -119,6 +128,10 @@ public abstract class AutoBase extends OpMode {
 
         Routine.Leg leg = routine.leg(index);
 
+        if (!arrived && leg.path != null && follower.isBusy() && getRuntime() - legStartTime >= DRIVE_TIMEOUT_SECONDS) {
+            abortRoutine("Drive timed out on leg " + index);
+            return;
+        }
         runParametricCallbacks(leg);
         runTemporalCallbacks(leg);
         runPoseCallbacks(leg);
@@ -151,6 +164,13 @@ public abstract class AutoBase extends OpMode {
             .addData("X Velo", follower.velocity().vx)
             .addData("Y Velo", follower.velocity().vy)
             .update();
+    }
+
+    private void abortRoutine(String reason) {
+        follower.stop();
+        com.qualcomm.robotcore.util.RobotLog.addGlobalWarningMessage("Auto stopped: " + reason);
+        tele.addData("Auto stopped", reason).update();
+        requestOpModeStop();
     }
 
     private void enterBranch(Routine branch) {
@@ -202,7 +222,7 @@ public abstract class AutoBase extends OpMode {
     }
 
     private void runTemporalCallbacks(Routine.Leg leg) {
-        double elapsed = getRuntime() - arrivalTime;
+        double elapsed = getRuntime() - legStartTime;
         leg.temporalTriggers.forEach((ms, action) -> {
             String key = index + ":time:" + ms;
             if (!firedTimeCallbacks.contains(key) && elapsed * 1000.0 >= ms) {
@@ -225,13 +245,14 @@ public abstract class AutoBase extends OpMode {
 
     private boolean ready(Routine.Leg leg) {
         if (leg.waitUntil == null) return true;
-        if ((getRuntime() - arrivalTime) >= leg.waitTimeout) return true;
+        if ((getRuntime() - arrivalTime) >= leg.pause + leg.waitTimeout) return true;
         return leg.waitUntil.getAsBoolean();
     }
 
     protected void beginLeg() {
         arrived = false;
-        arrivalTime = getRuntime();
+        legStartTime = getRuntime();
+        arrivalTime = legStartTime;
 
         if (index < routine.size()) {
             Routine.Leg leg = routine.leg(index);

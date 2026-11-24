@@ -88,11 +88,13 @@ public class Shooter {
         private final DcMotorEx shooter1, shooter2;
         public enum Control {PIDF, BANG_BANG}
         private Control controlMethod = Control.BANG_BANG;
+        private double wheel1Velocity, wheel2Velocity;
         private double targetVelocity = 0.0, currentVelocity = 0.0;
 
         public static double MAX_VELOCITY = 1600.0;
         public static double BANG_BANG_THRESHOLD = 80;
         public static double BANG_BANG_KF = 0.00058, BANG_BANG_KV = 0.003;
+
         private static double VELOCITY_TOLERANCE = 20.0;
         public static final PIDFCoefficients pidfCoefficients = new PIDFCoefficients(0.002, 0.0, 0.0, 0.0006);
 
@@ -134,7 +136,10 @@ public class Shooter {
         public double getVoltage() { return filteredVoltage; }
 
         public void update() {
-            currentVelocity = getVelocity();
+            wheel1Velocity = Math.abs(shooter1.getVelocity());
+            wheel2Velocity = Math.abs(shooter2.getVelocity());
+            currentVelocity = (wheel1Velocity + wheel2Velocity) / 2;
+            if (!Double.isFinite(currentVelocity)) { setPower(0); return; }
             switch (controlMethod) {
                 case PIDF:
                     double pidfOutput = flywheelPIDF.calculate(currentVelocity, targetVelocity) * voltageScale();
@@ -178,7 +183,8 @@ public class Shooter {
             return (shooter1.getPower() + shooter2.getPower()) / 2;
         }
         public boolean isReady() {
-            return targetVelocity > 0.0 && Math.abs(currentVelocity - targetVelocity) < VELOCITY_TOLERANCE;
+            return targetVelocity > 0.0 && Math.abs(wheel1Velocity - targetVelocity) < VELOCITY_TOLERANCE
+                    && Math.abs(wheel2Velocity - targetVelocity) < VELOCITY_TOLERANCE;
         }
         public void stop() {
             targetVelocity = 0.0;
@@ -189,8 +195,8 @@ public class Shooter {
     public static class Hood {
         private final Servo hoodServo;
 
-        public static final double MIN_POSITION = 0.16, MAX_POSITION = 1.0;
-        public static final double MIN_ANGLE = 29, MAX_ANGLE = 48;
+        public static final double MIN_POSITION = 0.16, MAX_POSITION = 0.92;
+        public static final double MIN_ANGLE = 6, MAX_ANGLE = 30;
         private static final double HOME_ANGLE = 25.0;
 
         public Hood(HardwareMap hardwareMap) {

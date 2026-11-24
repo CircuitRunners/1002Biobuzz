@@ -21,7 +21,7 @@ public class ShooterUtil {
      */
     private static final double BALL_VELO_PER_TICK = 0.0037;
 
-    public static final double DY = 1.245;
+    public static final double TARGET_HEIGHT_INCHES = 49.0;
 
     private ShooterUtil() {
         // Utility class; do not instantiate.

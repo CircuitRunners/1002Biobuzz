@@ -23,6 +23,18 @@ public class ForesightTuner extends Procedure {
     Function<HardwareMap, Localizer> localizerFunction;
     Function<HardwareMap, Drivetrain> drivetrainFunction;
 
+    static void checkMotionTrial(TuningOpMode<?> opMode, Drivetrain drivetrain, ElapsedTime timer)
+            throws InterruptedException {
+        if (opMode.isStopRequested()) {
+            drivetrain.stop();
+            throw new InterruptedException();
+        }
+        if (timer.seconds() >= 10) {
+            drivetrain.stop();
+            throw new IllegalStateException("Motion calibration exceeded 10 seconds");
+        }
+    }
+
     public ForesightTuner(Function<HardwareMap, Localizer> localizerFunction, Function<HardwareMap, Drivetrain> drivetrainFunction) {
         super("Foresight Tuner", "A procedure for tuning the Foresight Algorithm.");
         this.localizerFunction = localizerFunction;
@@ -137,7 +149,7 @@ class ForwardVelocity extends TuningOpMode<Double> {
     }
 
     @Override
-    protected Double runTuningOpMode() {
+    protected Double runTuningOpMode() throws InterruptedException {
         Localizer localizer = localizerFunction.apply(hardwareMap);
         Drivetrain drivetrain = drivetrainFunction.apply(hardwareMap);
 
@@ -153,8 +165,11 @@ class ForwardVelocity extends TuningOpMode<Double> {
         }
 
         waitForStart();
+        ElapsedTime trialTimer = new ElapsedTime();
+        if (isStopRequested()) throw new InterruptedException();
 
         while (!end) {
+            ForesightTuner.checkMotionTrial(this, drivetrain, trialTimer);
             localizer.update();
             if (Math.abs(localizer.pose().x()) > distance) {
                 end = true;
@@ -192,7 +207,7 @@ class StrafeVelocity extends TuningOpMode<Double> {
     }
 
     @Override
-    protected Double runTuningOpMode() {
+    protected Double runTuningOpMode() throws InterruptedException {
         Localizer localizer = localizerFunction.apply(hardwareMap);
         Drivetrain drivetrain = drivetrainFunction.apply(hardwareMap);
 
@@ -208,8 +223,11 @@ class StrafeVelocity extends TuningOpMode<Double> {
         }
 
         waitForStart();
+        ElapsedTime trialTimer = new ElapsedTime();
+        if (isStopRequested()) throw new InterruptedException();
 
         while (!end) {
+            ForesightTuner.checkMotionTrial(this, drivetrain, trialTimer);
             localizer.update();
             if (Math.abs(localizer.pose().y()) > distance) {
                 end = true;
@@ -252,7 +270,7 @@ class ForwardDeceleration extends TuningOpMode<Double> {
     }
 
     @Override
-    protected Double runTuningOpMode() {
+    protected Double runTuningOpMode() throws InterruptedException {
         Localizer localizer = localizerFunction.apply(hardwareMap);
         Drivetrain drivetrain = drivetrainFunction.apply(hardwareMap);
 
@@ -266,10 +284,13 @@ class ForwardDeceleration extends TuningOpMode<Double> {
 
         DrivePowers power = new DrivePowers(1, 0, 0);
         waitForStart();
+        ElapsedTime trialTimer = new ElapsedTime();
+        if (isStopRequested()) throw new InterruptedException();
 
         drivetrain.drive(power, false);
 
         while (!stopping) {
+            ForesightTuner.checkMotionTrial(this, drivetrain, trialTimer);
             localizer.update();
             double currentVelocity = localizer.twist().toVector2D().x();
             if (Math.abs(currentVelocity) > velocity) {
@@ -284,6 +305,7 @@ class ForwardDeceleration extends TuningOpMode<Double> {
         boolean end = false;
 
         while (!end) {
+            ForesightTuner.checkMotionTrial(this, drivetrain, trialTimer);
             localizer.update();
             double currentVelocity = localizer.twist().toVector2D().x();
             long currentTimeNano = System.nanoTime();
@@ -340,7 +362,7 @@ class StrafeDeceleration extends TuningOpMode<Double> {
     }
 
     @Override
-    protected Double runTuningOpMode() {
+    protected Double runTuningOpMode() throws InterruptedException {
         Localizer localizer = localizerFunction.apply(hardwareMap);
         Drivetrain drivetrain = drivetrainFunction.apply(hardwareMap);
 
@@ -354,10 +376,13 @@ class StrafeDeceleration extends TuningOpMode<Double> {
 
         DrivePowers power = new DrivePowers(0, 1, 0);
         waitForStart();
+        ElapsedTime trialTimer = new ElapsedTime();
+        if (isStopRequested()) throw new InterruptedException();
 
         drivetrain.drive(power, false);
 
         while (!stopping) {
+            ForesightTuner.checkMotionTrial(this, drivetrain, trialTimer);
             localizer.update();
             double currentVelocity = localizer.twist().toVector2D().y();
             if (Math.abs(currentVelocity) > velocity) {
@@ -372,6 +397,7 @@ class StrafeDeceleration extends TuningOpMode<Double> {
         boolean end = false;
 
         while (!end) {
+            ForesightTuner.checkMotionTrial(this, drivetrain, trialTimer);
             localizer.update();
             double currentVelocity = localizer.twist().toVector2D().y();
             long currentTimeNano = System.nanoTime();

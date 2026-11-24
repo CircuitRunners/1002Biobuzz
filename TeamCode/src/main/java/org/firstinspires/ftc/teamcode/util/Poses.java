@@ -48,7 +48,7 @@ public class Poses {
     public static class TeleOpPoses {
         public static Pose teleOpStartingPose = p.of(72, 72, 90);
         public static void setTeleOpStartingPose(Pose p) {
-            teleOpStartingPose = p;
+            if (p != null) teleOpStartingPose = p;
         }
         public static Pose relocPoseFlower = p.of(86.3, 6.7, 90);
         public static Pose relocPoseGardenCorner = p.of(138.3, 135.0, 0);

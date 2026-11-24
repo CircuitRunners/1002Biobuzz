@@ -42,6 +42,8 @@ public class CompetitionTeleOp extends OpMode {
     public int shooterModeIndex = 1;
     private Pose targetPose;
     private Poses.Zone currentZone;
+    private boolean poseAvailable;
+    private boolean triggerReleased;
     private boolean rampDown = false;
     private boolean driveAutoAlign = false;
     private enum Mode {
@@ -64,7 +66,7 @@ public class CompetitionTeleOp extends OpMode {
         player1 = new GamepadEx(gamepad1);
 
         camera = new SwyftCamera(hardwareMap);
-        camera.enableLiveStreaming();
+
 
         follower = Constants.create(hardwareMap);
         follower.setPose(Poses.TeleOpPoses.teleOpStartingPose);
@@ -76,13 +78,15 @@ public class CompetitionTeleOp extends OpMode {
         hubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : hubs) hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
 
-        tele.addLine("Ready").update();
+        tele.addLine("Checking odometry").update();
     }
 
     @Override
     public void init_loop() {
         player1.readButtons();
-        tele.addLine("ALLIANCE SELECTION")
+        camera.update();
+        Constants.localizationReady(follower);
+        tele.addData("Odometry", Constants.localizationStatus(follower)).addLine("ALLIANCE SELECTION")
                 .addLine("DPAD LEFT -> RED || DPAD RIGHT -> BLUE")
                 .addData("Current Alliance", Poses.getCurrentAlliance())
                 .update();
@@ -95,19 +99,19 @@ public class CompetitionTeleOp extends OpMode {
     public void loop() {
         for (LynxModule hub : hubs) hub.clearBulkCache();
         player1.readButtons();
-        follower.update();
-        intake.update();
-        shooter.update();
+        poseAvailable = Constants.localizationReady(follower);
+        camera.update();
+        handleDriving();
 
         currentPose = follower.pose();
         currentZone = Poses.currentZone(currentPose);
         targetPose = Poses.targetHivePose(currentZone, currentPose);
-        handleDriving();
         handleShooterMode();
 
         if (player1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) {
             if (mode == Mode.INTAKING) {
                 mode = Mode.SHOOTING;
+                triggerReleased = player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) <= 0.2;
                 gamepad1.rumble(0.5, 1.0, 200);
 
             } else {
@@ -122,9 +126,17 @@ public class CompetitionTeleOp extends OpMode {
             handleIntakeState();
         } else {
             driveAutoAlign = false;
-            handleShootingState();
+            if (poseAvailable) handleShootingState();
+            else {
+                shooter.stop();
+                intake.stop();
+                triggerReleased = false;
+                cameraTrim = 0;
+            }
         }
 
+        intake.update();
+        shooter.update();
         updateTelemetry();
     }
 
@@ -147,7 +159,7 @@ public class CompetitionTeleOp extends OpMode {
         double strafe = x * Math.abs(x);
         double rotate = r * Math.abs(r);
 
-        lMecDrive.drive(forward, strafe, rotate);
+        lMecDrive.drive(0.75*forward, 0.75*strafe, rotate);
     }
 
     private void handleIntakeState() {
@@ -175,13 +187,14 @@ public class CompetitionTeleOp extends OpMode {
                         follower.velocity().vx, follower.velocity().vy,
                         HOOD_OFFSET, TURRET_OFFSET + cameraTrim);
 
-        intake.unblockTransfer();
-        if (player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2 && shooter.isReady()) {
+        boolean feedPressed = player1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.2;
+        if (!feedPressed) triggerReleased = true;
+        if (triggerReleased && feedPressed) {
             intake.transfer();
         } else if (player1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.2) {
             intake.outtake();
         } else {
-            intake.stopWithoutBlocking();
+            intake.stop();
         }
     }
 
@@ -196,6 +209,10 @@ public class CompetitionTeleOp extends OpMode {
             return;
         }
 
+        if (Double.isNaN(camera.hiveDegreeOffset(currentZone))) {
+            cameraTrim = 0;
+            return;
+        }
         double bearing = camera.newHiveBearing(currentZone);
         if (Double.isNaN(bearing) || Math.abs(bearing) < CAMERA_TRIM_DEADBAND) return;
         cameraTrim = Range.clip(cameraTrim + CAMERA_TRIM_GAIN * bearing, -CAMERA_TRIM_MAX, CAMERA_TRIM_MAX);
@@ -216,7 +233,7 @@ public class CompetitionTeleOp extends OpMode {
     }
 
     private void updateTelemetry() {
-        tele.header("POSITIONS")
+        tele.addData("Odometry", Constants.localizationStatus(follower)).header("POSITIONS")
                 .addData("Current Pose", currentPose)
                 .addData("Target Pose", targetPose)
                 .addData("Distance to Target", currentPose.distance(targetPose))
@@ -247,7 +264,7 @@ public class CompetitionTeleOp extends OpMode {
 
     @Override
     public void stop() {
-        Poses.TeleOpPoses.setTeleOpStartingPose(currentPose);
+        if (poseAvailable) Poses.TeleOpPoses.setTeleOpStartingPose(currentPose);
         Logger.stop();
         camera.close();
     }

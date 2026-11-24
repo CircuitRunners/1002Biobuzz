@@ -108,12 +108,12 @@ public abstract class CompetitionAutoBase<R extends Enum<R>> extends AutoBase {
         return shotState == ShotState.DONE;
     }
     protected boolean outOfBalls() {
-        return !intake.transferHasBall();
+        return !intake.transferHasBalls();
     }
     private void updateShooting() {
         if (shotState == ShotState.IDLE || shotState == ShotState.DONE) return;
 
-        shooter.setTargets(currentPose, targetPose, ShooterUtil.DY, 0, 0, HOOD_OFFSET, TURRET_OFFSET);
+        shooter.setTargets(currentPose, targetPose, ShooterUtil.TARGET_HEIGHT_INCHES, 0, 0, HOOD_OFFSET, TURRET_OFFSET);
         switch (shotState) {
             case SPINNING_UP:
                 if (shooter.isReady() && transferTimer.seconds() > 1.0) {

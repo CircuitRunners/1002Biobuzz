@@ -11,16 +11,14 @@ import org.firstinspires.ftc.teamcode.util.Logger;
 @TeleOp(name = "LMecTester", group = "TESTING")
 public class LMecTester extends OpMode {
     private LockingMecanumDrive drive;
-    private boolean lastLeftBumper = false;
     private boolean lastRightBumper = false;
     private boolean lastDpadUp = false;
     private boolean lastDpadDown = false;
     private boolean locked = false;
-    private boolean fieldCentric = true;
     private GlobalTelemetry tele;
     @Override
     public void init() {
-        tele = new GlobalTelemetry(telemetry, true);
+        tele = new GlobalTelemetry(telemetry, false);
 
         tele.addLine("Initializing...")
             .update();
@@ -53,9 +51,6 @@ public class LMecTester extends OpMode {
         /*
          * Button press detection
          */
-        if (g1.left_bumper && !lastLeftBumper) {
-            fieldCentric = !fieldCentric;
-        }
         if (g1.right_bumper && !lastRightBumper) {
             locked = !locked;
         }
@@ -83,7 +78,6 @@ public class LMecTester extends OpMode {
         /*
          * Update previous button states
          */
-        lastLeftBumper = g1.left_bumper;
         lastRightBumper = g1.right_bumper;
         lastDpadUp = g1.dpad_up;
         lastDpadDown = g1.dpad_down;
@@ -96,7 +90,6 @@ public class LMecTester extends OpMode {
             .addData("Locked Position", LockingMecanumDrive.LOCK_POSITION)
             .addData("Locked?", locked)
             .addData("LMec State", drive.getState())
-            .addData("Field Centric?", fieldCentric)
             .addLine()
             .showLoopTime()
             .update();

@@ -53,7 +53,10 @@ public class HoodTester extends OpMode {
         if (player1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)) position -= 0.001;
         position = Range.clip(position, 0, 1);
 
-        if (player1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) hood.setAngle(angle);
+        if (player1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) {
+            hood.setAngle(angle);
+            position = hood.getPosition();
+        }
         else hood.setPosition(position);
 
         tele.addData("Current Position", position)

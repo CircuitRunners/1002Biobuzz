@@ -9,7 +9,6 @@ import com.pedropathing.math.Vector2D;
 import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.pedropathing.revhub.drivetrains.MecanumConfig;
 import com.pedropathing.revhub.localizers.OctoQuadConfig;
-import com.pedropathing.revhub.localizers.OctoQuadLocalizer;
 import com.pedropathing.revhub.localizers.PinpointConfig;
 import com.pedropathing.revhub.localizers.PinpointLocalizer;
 import com.qualcomm.hardware.digitalchickenlabs.OctoQuad;
@@ -21,8 +20,16 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Constants {
     public static Follower create(HardwareMap h) {
-        return new Follower(new OctoQuadLocalizer(h, localizerConfig), new Mecanum(h, drivetrainConfig), new Foresight(foresightConfig));
+        return new Follower(new CheckedOctoQuadLocalizer(h, localizerConfig), new Mecanum(h, drivetrainConfig), new Foresight(foresightConfig));
     }
+    public static boolean localizationReady(Follower follower) {
+        return ((CheckedOctoQuadLocalizer) follower.localizer).pollReady();
+    }
+
+    public static String localizationStatus(Follower follower) {
+        return ((CheckedOctoQuadLocalizer) follower.localizer).status();
+    }
+
     public static MecanumConfig drivetrainConfig = new MecanumConfig(
             c -> {
 
