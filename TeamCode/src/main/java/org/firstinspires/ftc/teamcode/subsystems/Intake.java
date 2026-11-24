@@ -18,7 +18,7 @@ public class Intake {
     public static double BLOCK_POSITION = 0.58;
     private final Servo ramp;
     public static double RAMP_DOWN = 0.53;
-    public static double RAMP_UP = 0.95;
+    public static double RAMP_UP = 0.80;
     private final DigitalChannel[] sensors = new DigitalChannel[5];
     public enum IntakeState {IDLE, INTAKING, OUTTAKING, TRANSFERING, SLOW_TRANSFERING}
     private IntakeState state;

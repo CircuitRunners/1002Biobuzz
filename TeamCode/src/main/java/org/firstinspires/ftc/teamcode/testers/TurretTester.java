@@ -66,8 +66,8 @@ public class TurretTester extends OpMode {
 
         if (player1.wasJustPressed(GamepadKeys.Button.DPAD_UP)) position += 0.01;
         if (player1.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) position -= 0.01;
-        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)) position += 0.001;
-        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)) position -= 0.001;
+        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_RIGHT)) position += 0.1;
+        if (player1.wasJustPressed(GamepadKeys.Button.DPAD_LEFT)) position -= 0.1;
         position = Range.clip(position, 0, 1);
 
 //        if (player1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) angleToggle = !angleToggle;

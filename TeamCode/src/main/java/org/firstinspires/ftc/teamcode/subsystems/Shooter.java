@@ -218,8 +218,8 @@ public class Shooter {
 
     public static class Turret {
         private final Servo turret1, turret2;
-        public static double MIN_POSITION = 0.0, MAX_POSITION = 1.0;
-        public static double MIN_ANGLE = -158.0, MAX_ANGLE = 158.0;
+        public static double MIN_POSITION = 0.0, MAX_POSITION = 0.94;
+        public static double MIN_ANGLE = -158.0, MAX_ANGLE = 131.0;
         private static final double HOME_ANGLE = 0.0;
 
         public Turret(HardwareMap hardwareMap) {

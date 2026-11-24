@@ -143,9 +143,9 @@ public class CompetitionTeleOp extends OpMode {
 //        }
 
         double y = player1.getLeftY(); double x = player1.getLeftX(); double r = player1.getRightX();
-        double forward = Math.copySign(y*y,y);
-        double strafe = Math.pow(x*x, x);
-        double rotate = Math.pow(r*r, r);
+        double forward = y * Math.abs(y);
+        double strafe = x * Math.abs(x);
+        double rotate = r * Math.abs(r);
 
         lMecDrive.drive(forward, strafe, rotate);
     }
